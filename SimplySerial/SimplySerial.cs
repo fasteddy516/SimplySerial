@@ -76,6 +76,7 @@ namespace SimplySerial
 
         }
 
+
         /// <summary>
         /// Validates and processes any command-line arguments that were passed in.  Invalid arguments will halt program execution.
         /// </summary>
@@ -85,19 +86,24 @@ namespace SimplySerial
             // get a list of all available com ports
             string[] availablePorts = SerialPort.GetPortNames();
 
+            // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
+            for (int i = 0; i < args.Count(); i++)
+                args[i] = (args[i].TrimStart('/', '-')).ToLower();
+
+            // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output)
+            Array.Sort(args, new ArgumentSorter());
+
             // iterate through command-line arguments
             foreach (string arg in args)
             {
                 // split argument into components based on 'key:value' formatting             
                 string[] argument = arg.Split(':');
 
-                // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
-                argument[0] = (argument[0].TrimStart('/', '-')).ToLower();
-
                 // help
                 if (argument[0].StartsWith("h") || argument[0].StartsWith("?"))
                 {
-                    ExitProgram("Sorry, you're on your own.", 0);
+                    Console.WriteLine("Sorry, you're on your own.");
+                    ExitProgram(silent: true);
                 }
 
                 // quiet (no output to console other than comes in via serial)
@@ -115,7 +121,7 @@ namespace SimplySerial
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
                 else if (argument.Count() < 2)
                 {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), -1);
+                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), exitCode: -1);
                 }
 
                 // com port 
@@ -126,7 +132,7 @@ namespace SimplySerial
                     if (!argument[1].StartsWith("COM"))
                         newPort = "COM" + argument[1];
                     if (!availablePorts.Contains(newPort))
-                        ExitProgram("Cannot find specified port <" + newPort + ">", -1);
+                        ExitProgram(("Cannot find specified port <" + newPort + ">"), exitCode: -1);
                     port = newPort;
                     Output("PORT: " + port);
                 }
@@ -160,7 +166,7 @@ namespace SimplySerial
                 }
                 else
                 {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), -1);
+                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), exitCode: -1);
                 }
             }
 
@@ -168,11 +174,12 @@ namespace SimplySerial
             if (availablePorts.Count() >= 1)
                 SimplySerial.port = availablePorts[0];
             else
-                ExitProgram("No COM ports detected.", -1);
+                ExitProgram("No COM ports detected.", exitCode: -1);
 
-            ExitProgram("That's All Folks!", 1);
+            ExitProgram("That's All Folks!", exitCode: 1);
 
         }
+
 
         /// <summary>
         /// Writes messages using Console.WriteLine() as long as the 'Quiet' option hasn't been enabled
@@ -183,22 +190,57 @@ namespace SimplySerial
             if (!SimplySerial.Quiet)
                 Console.WriteLine(message);
         }
-        
+
+
         /// <summary>
         /// Writes the specified exit message to the console, then waits for user to press a key before halting program execution.
         /// </summary>
         /// <param name="message">Message to display - should indicate the reason why the program is terminating.</param>
         /// <param name="exitCode">Code to return to parent process.  Should be &lt;0 if an error occurred, &gt;=0 if program is terminating normally.</param>
-        static void ExitProgram(string message, int exitCode)
+        /// <param name="silent">Exits without displaying a message or asking for a key press when set to 'true'</param>
+        static void ExitProgram(string message="", int exitCode=0, bool silent=false)
         {
-            Output(message);
-            Console.WriteLine("\nPress any key to exit...");
-            if (!SimplySerial.NoWait)
+            if (!silent)
+                Output(message);
+
+            if (!(SimplySerial.NoWait || silent))
             {
+                // we output this line regardless of the 'quiet' option to make it clear that we're waiting for user input
+                Console.WriteLine("\nPress any key to exit...");
                 while (!Console.KeyAvailable)
                     Thread.Sleep(25);
             }
             Environment.Exit(exitCode);
+        }
+    }
+
+
+    /// <summary>
+    /// Custom string array sorting logic for SimplySerial command-line arguments
+    /// </summary>
+    public class ArgumentSorter : IComparer<string>
+    {
+        /// <summary>
+        /// Checks the first letter/character of incoming strings for a high-priority letter/character and sorts accordingly
+        /// </summary>
+        /// <param name="x">string to compare</param>
+        /// <param name="y">string to compare</param>
+        /// <returns>-1 if a priority character is found in string 'x', 1 if a priority character is found in 'y', 0 if neither string has a priority character</returns>
+        public int Compare(string x, string y)
+        {
+            // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
+            // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
+            // 'n' enables the 'nowait' option, which needs to be enabled before anything that would trigger an artificial delay 
+            foreach (char c in "?hqn")
+            {
+                if (x[0] == c)
+                    return (-1);
+                else if (y[0] == c)
+                    return (1);
+            }
+
+            // treat everything else equally, as processing order doesn't matter
+            return (0);
         }
     }
 }
