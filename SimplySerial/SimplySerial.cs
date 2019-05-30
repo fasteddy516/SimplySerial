@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO.Ports;
 using System.Threading;
 
@@ -10,13 +8,11 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        static bool _continue = true;
-        static SerialPort _serialPort;
+        static SerialPort serialPort;
 
+        // default comspec values and application settings set here will be overridden by values passed through command-line arguments
         static bool Quiet = false;
         static bool NoWait = false;
-        
-        // default comspec values set here will be overridden by values passed through command-line arguments
         static string port = string.Empty;
         static int baud = 9600;
         static Parity parity = Parity.None;
@@ -25,55 +21,92 @@ namespace SimplySerial
 
         static void Main(string[] args)
         {
+            // process all command-line arguments
             ProcessArguments(args);
 
-            ConsoleKeyInfo cki = new ConsoleKeyInfo();
-            Console.TreatControlCAsInput = true;
+            // set up the serial port
+            serialPort = new SerialPort(port, baud, parity, dataBits, stopBits);
+            serialPort.Handshake = Handshake.None; // we don't need to support any handshaking at this point 
+            serialPort.ReadTimeout = 1; // minimal timeout - we don't want to wait forever for data that may not be coming!
+            serialPort.WriteTimeout = 250; // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
+            serialPort.DtrEnable = true; // without this we don't ever receive any data
+            serialPort.RtsEnable = true; // without this we don't ever receive any data
+            string received = string.Empty; // this is where data read from the serial port will be temporarily stored
 
-
-            _serialPort = new SerialPort("COM15", 9600, Parity.None, 8, StopBits.One);
-            _serialPort.Handshake = Handshake.None;
-            _serialPort.ReadTimeout = 1; //Timeout.Infinite;
-            _serialPort.WriteTimeout = 250; //Timeout.Infinite;
-            _serialPort.DtrEnable = true;
-            _serialPort.RtsEnable = true;
-
-            byte[] buffer = new byte[_serialPort.ReadBufferSize];
-            string rx = string.Empty;
-            int bytesRead = 0;
-
-
-            _serialPort.Open();
-            //while (!_serialPort.IsOpen)
-               //Thread.Sleep(25);
-
-            while (_continue)
+            // attempt to open the serial port, terminate on error
+            try
             {
-                if (Console.KeyAvailable)
-                {
-                    cki = Console.ReadKey(true);
-                    _serialPort.Write(Convert.ToString(cki.KeyChar));
-                }
+                serialPort.Open();
+            }
+            catch (System.UnauthorizedAccessException uae)
+            {
+                ExitProgram((uae.GetType() + " occurred while attempting to open the serial port.  Is this serial port already in use in another application?"), exitCode: -1);
+            }
+            catch (Exception e)
+            {
+                ExitProgram((e.GetType() + " occurred while attempting to open the serial port."), exitCode: -1);
+            }
 
+            // set up keyboard input for relay to serial port
+            ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
+            Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
+
+            // this is the core functionality - loop while the serial port is open
+            while (serialPort.IsOpen)
+            {
                 try
                 {
-                    //bytesRead = _serialPort.Read(buffer, 0, buffer.Length);
-                    rx = _serialPort.ReadExisting();
+                    // process keypresses for transmission through the serial port
+                    if (Console.KeyAvailable)
+                    {
+                        // determine what key is pressed (including modifiers)
+                        keyInfo = Console.ReadKey(intercept: true);
 
-                }
-                catch (TimeoutException)
-                {
+                        // exit the program if CTRL-X was pressed
+                        if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
+                        {
+                           serialPort.Close();
+                           ExitProgram("\nSession terminated by user via CTRL-X.", exitCode: 0);
+                        }
 
+                        // properly process the backspace character
+                        else if (keyInfo.Key == ConsoleKey.Backspace)
+                        {
+                           serialPort.Write("\b");
+                           Thread.Sleep(150); // sort of cheating here - by adding this delay we ensure that when we process the receive buffer it will contain the correct backspace control sequence
+                        }
+
+                        // everything else just gets sent right on through
+                        else
+                            serialPort.Write(Convert.ToString(keyInfo.KeyChar));
+                    }
+
+                    // process data coming in from the serial port
+                    received = serialPort.ReadExisting();
+
+                    // if anything was received, process it
+                    if (received.Length > 0)
+                    {
+                        // properly process backspace
+                        if (received == ("\b\x1B[K"))
+                            received = "\b \b";
+
+                        // write what was received to console
+                        Console.Write(received);
+                    }
                 }
-                //if (bytesRead > 0)
-                if (rx.Length > 0)
+                catch (Exception e)
                 {
-                    //rx = Encoding.ASCII.GetString(buffer, 0, bytesRead);
-                    Console.Write(rx);
+                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from the serial port."), exitCode: -1);
                 }
             }
-            _serialPort.Close();
 
+            // the serial port should be closed by now, but we'll make sure it is anyway
+            if (serialPort.IsOpen)
+                serialPort.Close();
+
+            // the program should have ended gracefully before now - there is no good reason for us to be here!
+            ExitProgram("\nSession terminated unexpectedly.", exitCode: -1);
         }
 
 
@@ -83,14 +116,11 @@ namespace SimplySerial
         /// <param name="args">Command-line parameters</param>
         static void ProcessArguments(string[] args)
         {
-            // get a list of all available com ports
-            string[] availablePorts = SerialPort.GetPortNames();
-
             // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
             for (int i = 0; i < args.Count(); i++)
                 args[i] = (args[i].TrimStart('/', '-')).ToLower();
 
-            // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output)
+            // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output, etc.)
             Array.Sort(args, new ArgumentSorter());
 
             // iterate through command-line arguments
@@ -124,45 +154,69 @@ namespace SimplySerial
                     ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), exitCode: -1);
                 }
 
-                // com port 
+                // preliminary validate on com port, final validation occurs towards the end of this method 
                 else if (argument[0].StartsWith("c"))
                 {
                     string newPort = argument[1].ToUpper();
 
                     if (!argument[1].StartsWith("COM"))
                         newPort = "COM" + argument[1];
-                    if (!availablePorts.Contains(newPort))
-                        ExitProgram(("Cannot find specified port <" + newPort + ">"), exitCode: -1);
                     port = newPort;
-                    Output("PORT: " + port);
                 }
 
-                // baud rate
+                // validate baud rate, terminate on error
                 else if (argument[0].StartsWith("b"))
                 {
-                    //validate requested baud rate
-                    Output("BAUD: " + argument[1]);
+                    // these are the baud rates we're supporting for now
+                    string[] availableBaudRates = new string[] { "1200", "2400", "4800", "7200", "9600", "14400", "19200", "38400", "57600", "115200" };
+
+                    if (availableBaudRates.Contains(argument[1]))
+                        baud = Convert.ToInt32(argument[1]);
+                    else
+                        ExitProgram(("Invalid baud rate specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
-                // parity
+                // validate parity, terminate on error
                 else if (argument[0].StartsWith("p"))
                 {
-                    //validate requested COM port
-                    Output("PARITY: " + argument[1]);
+                    if (argument[1].StartsWith("e"))
+                        parity = Parity.Even;
+                    else if (argument[1].StartsWith("m"))
+                        parity = Parity.Mark;
+                    else if (argument[1].StartsWith("n"))
+                        parity = Parity.None;
+                    else if (argument[1].StartsWith("o"))
+                        parity = Parity.Odd;
+                    else if (argument[1].StartsWith("s"))
+                        parity = Parity.Space;
+                    else
+                        ExitProgram(("Invalid parity specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
-                // databits
+                // validate databits, terminate on error
                 else if (argument[0].StartsWith("d"))
                 {
-                    //validate requested data bits
-                    Output("DATABITS: " + argument[1]);
+                    int newDataBits = Convert.ToInt32(argument[1]);
+
+                    if ((newDataBits > 3) && (newDataBits < 9))
+                        dataBits = newDataBits;
+                    else
+                        ExitProgram(("Invalid data bits specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
-                // stopbits
+                // validate stopbits, terminate on error
                 else if (argument[0].StartsWith("s"))
                 {
-                    //validate requested stop bits
-                    Output("STOPBITS: " + argument[1]);
+                    if (argument[1] == "0")
+                        stopBits = StopBits.None;
+                    else if (argument[1] == "1")
+                        stopBits = StopBits.One;
+                    else if (argument[1] == "1.5")
+                        stopBits = StopBits.OnePointFive;
+                    else if (argument[1] == "2")
+                        stopBits = StopBits.Two;
+                    else
+                        ExitProgram(("Invalid stop bits specified <" + argument[1] + ">"), exitCode: -1);
                 }
                 else
                 {
@@ -170,14 +224,21 @@ namespace SimplySerial
                 }
             }
 
-            // default to the first/only available com port, exit with error if no ports are available
-            if (availablePorts.Count() >= 1)
-                SimplySerial.port = availablePorts[0];
-            else
-                ExitProgram("No COM ports detected.", exitCode: -1);
+            // get a list of all available com ports
+            string[] availablePorts = SerialPort.GetPortNames();
 
-            ExitProgram("That's All Folks!", exitCode: 1);
+            // if no port was specified, default to the first/only available com port, exit with error if no ports are available
+            if (port == String.Empty)
+            {
+                if (availablePorts.Count() >= 1)
+                    SimplySerial.port = availablePorts[0];
+                else
+                    ExitProgram("No COM ports detected.", exitCode: -1);
+            }
+            else if (!availablePorts.Contains(port))
+                ExitProgram(("Invalid port specified <" + port + ">"), exitCode: -1);
 
+            // if we made it this far, everything has been processed and we're ready to proceed!
         }
 
 
@@ -201,7 +262,7 @@ namespace SimplySerial
         static void ExitProgram(string message="", int exitCode=0, bool silent=false)
         {
             if (!silent)
-                Output(message);
+                Output("\n" + message);
 
             if (!(SimplySerial.NoWait || silent))
             {
