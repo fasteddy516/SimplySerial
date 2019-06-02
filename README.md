@@ -1,6 +1,6 @@
 # SimplySerial
 
-###### A barebones serial terminal that runs as a Windows console application.
+###### A bare-bones serial terminal that runs as a Windows console application.
   
   Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
 
@@ -36,7 +36,7 @@
 
   `-b, --baud` sets the baud rate (ex. `-b:9600`, `--baud:115200`)
 
-  `-p, --parity` sets the parity option (ex. `-b:none`, `--parity:even`) 
+  `-p, --parity` sets the parity option (ex. `-p:none`, `--parity:even`) 
   
   `-d, --databits` sets the number of data bits to use (ex. `-d:8`, `--databits:7`)
 
