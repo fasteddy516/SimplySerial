@@ -11,6 +11,7 @@ namespace SimplySerial
         static SerialPort serialPort;
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
+        static readonly string version = "0.1.0";
         static bool Quiet = false;
         static bool NoWait = false;
         static string port = string.Empty;
@@ -52,6 +53,20 @@ namespace SimplySerial
             // set up keyboard input for relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
+
+            // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
+            Console.Clear();
+            if (!SimplySerial.Quiet)
+            {
+                Console.WriteLine("SimplySerial v{0} connected at {1} baud, {2} parity, {3} data bits, {4} stop bit{5}.  Use CTRL-X to exit.\n",
+                    version,
+                    baud,
+                    (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
+                    dataBits,
+                    (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2",
+                    (stopBits == StopBits.One) ? "" : "s"
+                );
+            }
 
             // this is the core functionality - loop while the serial port is open
             while (serialPort.IsOpen)
