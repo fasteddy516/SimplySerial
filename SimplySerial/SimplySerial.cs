@@ -25,12 +25,14 @@ namespace SimplySerial
             ProcessArguments(args);
 
             // set up the serial port
-            serialPort = new SerialPort(port, baud, parity, dataBits, stopBits);
-            serialPort.Handshake = Handshake.None; // we don't need to support any handshaking at this point 
-            serialPort.ReadTimeout = 1; // minimal timeout - we don't want to wait forever for data that may not be coming!
-            serialPort.WriteTimeout = 250; // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
-            serialPort.DtrEnable = true; // without this we don't ever receive any data
-            serialPort.RtsEnable = true; // without this we don't ever receive any data
+            serialPort = new SerialPort(port, baud, parity, dataBits, stopBits)
+            {
+                Handshake = Handshake.None, // we don't need to support any handshaking at this point 
+                ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
+                WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
+                DtrEnable = true, // without this we don't ever receive any data
+                RtsEnable = true // without this we don't ever receive any data
+            };
             string received = string.Empty; // this is where data read from the serial port will be temporarily stored
 
             // attempt to open the serial port, terminate on error
@@ -132,7 +134,7 @@ namespace SimplySerial
                 // help
                 if (argument[0].StartsWith("h") || argument[0].StartsWith("?"))
                 {
-                    Console.WriteLine("Sorry, you're on your own.");
+                    ShowHelp();
                     ExitProgram(silent: true);
                 }
 
@@ -250,6 +252,31 @@ namespace SimplySerial
         {
             if (!SimplySerial.Quiet)
                 Console.WriteLine(message);
+        }
+
+
+        /// <summary>
+        /// Displays help information about this application and its command-line arguments
+        /// </summary>
+        static void ShowHelp()
+        {
+            Console.WriteLine("\nUsage: ss.exe [-help] [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VALUE]");
+            Console.WriteLine("              [-stopbits:VALUE][-quiet][-nowait]\n");
+            Console.WriteLine("Barebones serial terminal for IoT device programming in general, and working with");
+            Console.WriteLine("CircuitPython devices specifically!  With no command-line arguments specified,");
+            Console.WriteLine("SimplySerial will attempt to connect to the first available serial (COM) port at");
+            Console.WriteLine("9600 baud, no parity, 8 data bits and 1 stop bit.\n");
+            Console.WriteLine("Optional arguments:");
+            Console.WriteLine("  -help             Display this help message");
+            Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
+            Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
+            Console.WriteLine("                    57600 | 115200");
+            Console.WriteLine("  -parity:PARITY    NONE | EVEN | ODD | MARK | SPACE");
+            Console.WriteLine("  -databits:VALUE   4 | 5 |  | 7 | 8");
+            Console.WriteLine("  -stopbits:VALUE   0 | 1 | 1.5 | 2");
+            Console.WriteLine("  -quiet            don't print any application messages/errors to console");
+            Console.WriteLine("  -nowait           don't wait for user input (i.e. 'press any key to exit')\n");
+            Console.WriteLine(" Press CTRL-X to exit a running instance of SimplySerial.");
         }
 
 
