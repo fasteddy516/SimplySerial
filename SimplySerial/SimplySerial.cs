@@ -240,11 +240,6 @@ namespace SimplySerial
             // get a list of all available com ports
             string[] availablePorts = SerialPort.GetPortNames();
 
-            foreach (string potentialPort in availablePorts)
-            {
-                Console.WriteLine("PORT: {0}", potentialPort);
-            }
-
             // if no port was specified, default to the first/only available com port, exit with error if no ports are available
             if (port == String.Empty)
             {
@@ -305,7 +300,7 @@ namespace SimplySerial
         static void ExitProgram(string message="", int exitCode=0, bool silent=false)
         {
             // the serial port should be closed before exiting
-            if (serialPort.IsOpen)
+            if (serialPort != null && serialPort.IsOpen)
                 serialPort.Close();
 
             if (!silent)
@@ -339,7 +334,7 @@ namespace SimplySerial
             // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'n' enables the 'nowait' option, which needs to be enabled before anything that would trigger an artificial delay 
-            foreach (char c in "?hqn")
+            foreach (char c in "?hlqn")
             {
                 if (x[0] == c)
                     return (-1);
