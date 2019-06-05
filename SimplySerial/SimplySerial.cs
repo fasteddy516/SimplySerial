@@ -164,7 +164,7 @@ namespace SimplySerial
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
                 else if (argument.Count() < 2)
                 {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), exitCode: -1);
+                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'ss.exe help' to see a list of valid arguments"), exitCode: -1);
                 }
 
                 // preliminary validate on com port, final validation occurs towards the end of this method 
@@ -233,7 +233,7 @@ namespace SimplySerial
                 }
                 else
                 {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'SimplySerial help' to see a list of valid arguments"), exitCode: -1);
+                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'ss.exe -help' to see a list of valid arguments"), exitCode: -1);
                 }
             }
 
