@@ -149,6 +149,18 @@ namespace SimplySerial
                     ExitProgram(silent: true);
                 }
 
+                // list available ports
+                else if (argument[0].StartsWith("l"))
+                {
+                    Console.WriteLine("\nAvailable Ports:");
+                    foreach (string potentialPort in SerialPort.GetPortNames())
+                    {
+                        Console.WriteLine("   {0}", potentialPort);
+                    }
+                    Console.WriteLine("");
+                    ExitProgram(silent: true);
+                }
+
                 // quiet (no output to console other than comes in via serial)
                 else if (argument[0].StartsWith("q"))
                 {
