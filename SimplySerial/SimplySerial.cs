@@ -16,7 +16,7 @@ namespace SimplySerial
         static readonly string version = "0.1.0";
         static bool Quiet = false;
         static bool NoWait = false;
-        static string port = string.Empty;
+        static ComPort port;
         static int baud = 9600;
         static Parity parity = Parity.None;
         static int dataBits = 8;
@@ -28,7 +28,7 @@ namespace SimplySerial
             ProcessArguments(args);
 
             // set up the serial port
-            serialPort = new SerialPort(port, baud, parity, dataBits, stopBits)
+            serialPort = new SerialPort(port.name, baud, parity, dataBits, stopBits)
             {
                 Handshake = Handshake.None, // we don't need to support any handshaking at this point 
                 ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
@@ -45,11 +45,11 @@ namespace SimplySerial
             }
             catch (System.UnauthorizedAccessException uae)
             {
-                ExitProgram((uae.GetType() + " occurred while attempting to open " + port + ".  Is this port already in use in another application?"), exitCode: -1);
+                ExitProgram((uae.GetType() + " occurred while attempting to open " + port.name + ".  Is this port already in use in another application?"), exitCode: -1);
             }
             catch (Exception e)
             {
-                ExitProgram((e.GetType() + " occurred while attempting to open " + port + "."), exitCode: -1);
+                ExitProgram((e.GetType() + " occurred while attempting to open " + port.name + "."), exitCode: -1);
             }
 
             // set up keyboard input for relay to serial port
@@ -60,13 +60,21 @@ namespace SimplySerial
             Console.Clear();
             if (!SimplySerial.Quiet)
             {
-                Console.WriteLine("SimplySerial v{0} connected at {1} baud, {2} parity, {3} data bits, {4} stop bit{5}.  Use CTRL-X to exit.\n",
+                Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
+                                  "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}.\n" +
+                                  "Device    : {7} ({8}) {9} ({10})\n" +
+                                  "---\n\nUse CTRL-X to exit.\n"),
                     version,
+                    port.name,
                     baud,
                     (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
                     dataBits,
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2",
-                    (stopBits == StopBits.One) ? "" : "s"
+                    (stopBits == StopBits.One) ? "" : "s",
+                    "VID",
+                    port.vid,
+                    "PID",
+                    port.pid
                 );
             }
 
@@ -84,7 +92,7 @@ namespace SimplySerial
                         // exit the program if CTRL-X was pressed
                         if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
                         {
-                            Output("\nSession terminated by user via CTRL-X.");
+                            Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
                             ExitProgram(silent: true);
                         }
 
@@ -116,7 +124,7 @@ namespace SimplySerial
                 }
                 catch (Exception e)
                 {
-                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port + "."), exitCode: -1);
+                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                 }
             }
 
@@ -131,6 +139,12 @@ namespace SimplySerial
         /// <param name="args">Command-line parameters</param>
         static void ProcessArguments(string[] args)
         {
+            // get a list of all available ports
+            List<ComPort> availablePorts = SimplySerial.GetSerialPorts();
+
+            // set default port information
+            port.name = String.Empty;
+
             // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
             for (int i = 0; i < args.Count(); i++)
                 args[i] = (args[i].TrimStart('/', '-')).ToLower();
@@ -154,9 +168,7 @@ namespace SimplySerial
                 // list available ports
                 else if (argument[0].StartsWith("l"))
                 {
-                    List<ComPort> ports = SimplySerial.GetSerialPorts();
-
-                    if (ports.Count >= 1)
+                    if (availablePorts.Count >= 1)
                     {
                         Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
                         Console.WriteLine("------------------------------------------------------------");
@@ -199,7 +211,7 @@ namespace SimplySerial
 
                     if (!argument[1].StartsWith("COM"))
                         newPort = "COM" + argument[1];
-                    port = newPort;
+                    port.name = newPort;
                 }
 
                 // validate baud rate, terminate on error
@@ -262,19 +274,32 @@ namespace SimplySerial
                 }
             }
 
-            // get a list of all available com ports
-            string[] availablePorts = SerialPort.GetPortNames();
-
             // if no port was specified, default to the first/only available com port, exit with error if no ports are available
-            if (port == String.Empty)
+            if (port.name == String.Empty)
             {
                 if (availablePorts.Count() >= 1)
                     SimplySerial.port = availablePorts[0];
                 else
                     ExitProgram("No COM ports detected.", exitCode: -1);
             }
-            else if (!availablePorts.Contains(port))
-                ExitProgram(("Invalid port specified <" + port + ">"), exitCode: -1);
+
+            // if a port name was specified, try to match it with one that actually exists and fail if it doesn't
+            else
+            {
+                bool portMatched = false;
+
+                foreach (ComPort p in availablePorts)
+                {
+                    if (p.name == port.name)
+                    {
+                        portMatched = true;
+                        port = p;
+                        break;
+                    }
+                }
+                if (!portMatched)
+                    ExitProgram(("Invalid port specified <" + port.name + ">"), exitCode: -1);
+            }
 
             // if we made it this far, everything has been processed and we're ready to proceed!
         }
