@@ -361,20 +361,23 @@ namespace SimplySerial
         /// Modified from the example written by Kamil Górski (freakone) available at
         /// http://blog.gorski.pm/serial-port-details-in-c-sharp
         /// https://github.com/freakone/serial-reader
+        /// Some modifications were based on this stackoverflow thread:
+        /// https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp
         /// </summary>
         /// <returns>List of available serial ports</returns>
         private static List<ComPort> GetSerialPorts()
         {
             const string vidPattern = @"VID_([0-9A-F]{4})";
             const string pidPattern = @"PID_([0-9A-F]{4})";
-            
-            using (var searcher = new ManagementObjectSearcher("SELECT * FROM WIN32_SerialPort"))
+            const string namePattern = @"(?<=\()COM[0-9]{1,3}(?=\)$)";
+
+            using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PnPEntity WHERE ClassGuid=\"{4d36e978-e325-11ce-bfc1-08002be10318}\""))
             {
                 var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
                 return ports.Select(p =>
                 {
                     ComPort c = new ComPort();
-                    c.name = p.GetPropertyValue("DeviceID").ToString();
+                    c.name = p.GetPropertyValue("Name").ToString();
                     c.vid = p.GetPropertyValue("PNPDeviceID").ToString();
                     c.description = p.GetPropertyValue("Caption").ToString();
 
@@ -385,6 +388,12 @@ namespace SimplySerial
                         c.vid = mVID.Groups[1].Value;
                     if (mPID.Success)
                         c.pid = mPID.Groups[1].Value;
+
+                    Match mName = Regex.Match(c.name, namePattern);
+                    if (mName.Success)
+                        c.name = mName.Value;
+                    else
+                        c.name = "COM??";
 
                     return c;
 
