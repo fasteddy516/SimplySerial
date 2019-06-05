@@ -47,7 +47,7 @@ namespace SimplySerial
             }
             catch (Exception e)
             {
-                ExitProgram((e.GetType() + " occurred while attempting to open the serial port."), exitCode: -1);
+                ExitProgram((e.GetType() + " occurred while attempting to open the serial port " + port + "."), exitCode: -1);
             }
 
             // set up keyboard input for relay to serial port
@@ -117,10 +117,6 @@ namespace SimplySerial
                     ExitProgram((e.GetType() + " occurred while attempting to read/write to/from the serial port."), exitCode: -1);
                 }
             }
-
-            // the serial port should be closed by now, but we'll make sure it is anyway
-            if (serialPort.IsOpen)
-                serialPort.Close();
 
             // the program should have ended gracefully before now - there is no good reason for us to be here!
             ExitProgram("\nSession terminated unexpectedly.", exitCode: -1);
@@ -244,6 +240,11 @@ namespace SimplySerial
             // get a list of all available com ports
             string[] availablePorts = SerialPort.GetPortNames();
 
+            foreach (string potentialPort in availablePorts)
+            {
+                Console.WriteLine("PORT: {0}", potentialPort);
+            }
+
             // if no port was specified, default to the first/only available com port, exit with error if no ports are available
             if (port == String.Empty)
             {
@@ -303,6 +304,10 @@ namespace SimplySerial
         /// <param name="silent">Exits without displaying a message or asking for a key press when set to 'true'</param>
         static void ExitProgram(string message="", int exitCode=0, bool silent=false)
         {
+            // the serial port should be closed before exiting
+            if (serialPort.IsOpen)
+                serialPort.Close();
+
             if (!silent)
                 Output("\n" + message);
 
