@@ -13,7 +13,7 @@ namespace SimplySerial
         static SerialPort serialPort;
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
-        static readonly string version = "0.1.0";
+        static readonly string version = "0.2.0";
         static bool Quiet = false;
         static bool NoWait = false;
         static ComPort port;
