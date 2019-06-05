@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.IO.Ports;
 using System.Threading;
+using System.Management;
+using System.Text.RegularExpressions;
 
 namespace SimplySerial
 {
@@ -152,12 +154,23 @@ namespace SimplySerial
                 // list available ports
                 else if (argument[0].StartsWith("l"))
                 {
-                    Console.WriteLine("\nAvailable Ports:");
-                    foreach (string potentialPort in SerialPort.GetPortNames())
+                    List<ComPort> ports = SimplySerial.GetSerialPorts();
+
+                    if (ports.Count >= 1)
                     {
-                        Console.WriteLine("   {0}", potentialPort);
+                        Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
+                        Console.WriteLine("------------------------------------------------------------");
+                        foreach (ComPort p in SimplySerial.GetSerialPorts())
+                        {
+                            Console.WriteLine("{0}\t{1}\t{2}\t{3}", p.name, p.vid, p.pid, p.description);
+                        }
+                        Console.WriteLine("");
                     }
-                    Console.WriteLine("");
+                    else
+                    {
+                        Console.WriteLine("No COM ports detected.\n");
+                    }
+
                     ExitProgram(silent: true);
                 }
 
@@ -327,9 +340,60 @@ namespace SimplySerial
             }
             Environment.Exit(exitCode);
         }
+
+
+        /// <summary>
+        /// Custom structure containing the name, VID, PID and description of a serial (COM) port
+        /// Modified from the example written by Kamil Górski (freakone) available at
+        /// http://blog.gorski.pm/serial-port-details-in-c-sharp
+        /// https://github.com/freakone/serial-reader
+        /// </summary>
+        struct ComPort // custom struct with our desired values
+        {
+            public string name;
+            public string vid;
+            public string pid;
+            public string description;
+        }
+
+        /// <summary>
+        /// Returns a list of available serial ports with their associated PID, VID and descriptions 
+        /// Modified from the example written by Kamil Górski (freakone) available at
+        /// http://blog.gorski.pm/serial-port-details-in-c-sharp
+        /// https://github.com/freakone/serial-reader
+        /// </summary>
+        /// <returns>List of available serial ports</returns>
+        private static List<ComPort> GetSerialPorts()
+        {
+            const string vidPattern = @"VID_([0-9A-F]{4})";
+            const string pidPattern = @"PID_([0-9A-F]{4})";
+            
+            using (var searcher = new ManagementObjectSearcher("SELECT * FROM WIN32_SerialPort"))
+            {
+                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
+                return ports.Select(p =>
+                {
+                    ComPort c = new ComPort();
+                    c.name = p.GetPropertyValue("DeviceID").ToString();
+                    c.vid = p.GetPropertyValue("PNPDeviceID").ToString();
+                    c.description = p.GetPropertyValue("Caption").ToString();
+
+                    Match mVID = Regex.Match(c.vid, vidPattern, RegexOptions.IgnoreCase);
+                    Match mPID = Regex.Match(c.vid, pidPattern, RegexOptions.IgnoreCase);
+
+                    if (mVID.Success)
+                        c.vid = mVID.Groups[1].Value;
+                    if (mPID.Success)
+                        c.pid = mPID.Groups[1].Value;
+
+                    return c;
+
+                }).ToList();
+            }
+        }
     }
 
-
+ 
     /// <summary>
     /// Custom string array sorting logic for SimplySerial command-line arguments
     /// </summary>
@@ -344,6 +408,7 @@ namespace SimplySerial
         public int Compare(string x, string y)
         {
             // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
+            // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'n' enables the 'nowait' option, which needs to be enabled before anything that would trigger an artificial delay 
             foreach (char c in "?hlqn")
