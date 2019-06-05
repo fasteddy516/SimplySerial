@@ -62,7 +62,7 @@ namespace SimplySerial
             {
                 Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
                                   "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}.\n" +
-                                  "Device    : {7} ({8}) {9} ({10})\n" +
+                                  "Device    : {7} ({8}) {9} ({10}){11}\n" +
                                   "---\n\nUse CTRL-X to exit.\n"),
                     version,
                     port.name,
@@ -71,10 +71,11 @@ namespace SimplySerial
                     dataBits,
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2",
                     (stopBits == StopBits.One) ? "" : "s",
-                    "VID",
+                    port.board.make,
                     port.vid,
-                    "PID",
-                    port.pid
+                    port.board.model,
+                    port.pid,
+                    (port.board.isCircuitPython) ? " + CircuitPython" : ""
                 );
             }
 
@@ -140,7 +141,9 @@ namespace SimplySerial
         static void ProcessArguments(string[] args)
         {
             // get a list of all available ports
-            List<ComPort> availablePorts = SimplySerial.GetSerialPorts();
+            List<ComPort> availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
+            //List<ComPort> availablePorts = SimplySerial.GetSerialPorts();
+            //availablePorts = (availablePorts.OrderBy(p => p.board.pid)).ToList();
 
             // set default port information
             port.name = String.Empty;
@@ -172,7 +175,7 @@ namespace SimplySerial
                     {
                         Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
                         Console.WriteLine("------------------------------------------------------------");
-                        foreach (ComPort p in SimplySerial.GetSerialPorts())
+                        foreach (ComPort p in availablePorts)
                         {
                             Console.WriteLine("{0}\t{1}\t{2}\t{3}", p.name, p.vid, p.pid, p.description);
                         }
@@ -278,7 +281,11 @@ namespace SimplySerial
             if (port.name == String.Empty)
             {
                 if (availablePorts.Count() >= 1)
-                    SimplySerial.port = availablePorts[0];
+                {
+                    SimplySerial.port = availablePorts.Find(p => p.board.isCircuitPython == true);
+                    if (SimplySerial.port.name == null)
+                        SimplySerial.port = availablePorts[0];
+                }
                 else
                     ExitProgram("No COM ports detected.", exitCode: -1);
             }
@@ -366,6 +373,7 @@ namespace SimplySerial
             Environment.Exit(exitCode);
         }
 
+ 
 
         /// <summary>
         /// Custom structure containing the name, VID, PID and description of a serial (COM) port
@@ -376,9 +384,11 @@ namespace SimplySerial
         struct ComPort // custom struct with our desired values
         {
             public string name;
+            public int num;
             public string vid;
             public string pid;
             public string description;
+            public Board board;
         }
 
         /// <summary>
@@ -414,16 +424,85 @@ namespace SimplySerial
                     if (mPID.Success)
                         c.pid = mPID.Groups[1].Value;
 
+                    c.board = MatchBoard(c.vid, c.pid);
+
                     Match mName = Regex.Match(c.name, namePattern);
                     if (mName.Success)
+                    {
                         c.name = mName.Value;
+                        c.num = int.Parse(c.name.Substring(3));
+                    }
                     else
+                    {
                         c.name = "COM??";
+                        c.num = 0;
+                    }
 
                     return c;
 
                 }).ToList();
             }
+        }
+
+        struct Board
+        {
+            public string pid;
+            public string make;
+            public string model;
+            public bool isCircuitPython;
+        }
+
+        struct Vendor
+        {
+            public string vid;
+            public string vendor;
+            public bool isCircuitPython;
+            public List<Board> boards;
+        }
+
+        static List<Vendor> vendors = new List<Vendor>()
+        {
+            new Vendor()
+            {
+                vid = "239A",
+                vendor = "Adafruit",
+                isCircuitPython = true,
+                boards = new List<Board>()
+                {
+                    new Board() { pid = "8021", make = "", model = "Metro M4 Express", isCircuitPython = true },
+                    new Board() { pid = "802A", make = "Nordic Semiconductor", model = "PCA10059", isCircuitPython = true }
+                }
+            }
+        };
+
+        static Board MatchBoard(string vid, string pid)
+        {
+            Board mBoard = new Board();
+            Vendor mVendor = vendors.Find(v => v.vid == vid);
+            if (mVendor.vid != null)
+            {
+                mBoard = mVendor.boards.Find(b => b.pid == pid);
+
+                if (mBoard.make == "")
+                    mBoard.make = mVendor.vendor;
+            }
+            else
+            {
+                mBoard.pid = pid;
+                mBoard.make = "VID";
+                mBoard.model = "PID";
+                mBoard.isCircuitPython = false;
+            }
+
+            if (mBoard.pid == null)
+            {
+                mBoard.pid = pid;
+                mBoard.make = mVendor.vendor;
+                mBoard.model = "Unknown Model";
+                mBoard.isCircuitPython = mVendor.isCircuitPython;
+            }
+
+            return mBoard;
         }
     }
 
