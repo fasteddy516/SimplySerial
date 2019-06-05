@@ -84,8 +84,8 @@ namespace SimplySerial
                         // exit the program if CTRL-X was pressed
                         if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
                         {
-                           serialPort.Close();
-                           ExitProgram("\nSession terminated by user via CTRL-X.", exitCode: 0);
+                            Output("\nSession terminated by user via CTRL-X.");
+                            ExitProgram(silent: true);
                         }
 
                         // properly process the backspace character
@@ -168,7 +168,7 @@ namespace SimplySerial
                     }
                     else
                     {
-                        Console.WriteLine("No COM ports detected.\n");
+                        Console.WriteLine("\nNo COM ports detected.\n");
                     }
 
                     ExitProgram(silent: true);
