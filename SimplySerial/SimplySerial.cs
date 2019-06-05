@@ -43,11 +43,11 @@ namespace SimplySerial
             }
             catch (System.UnauthorizedAccessException uae)
             {
-                ExitProgram((uae.GetType() + " occurred while attempting to open the serial port.  Is this serial port already in use in another application?"), exitCode: -1);
+                ExitProgram((uae.GetType() + " occurred while attempting to open " + port + ".  Is this port already in use in another application?"), exitCode: -1);
             }
             catch (Exception e)
             {
-                ExitProgram((e.GetType() + " occurred while attempting to open the serial port " + port + "."), exitCode: -1);
+                ExitProgram((e.GetType() + " occurred while attempting to open " + port + "."), exitCode: -1);
             }
 
             // set up keyboard input for relay to serial port
@@ -114,7 +114,7 @@ namespace SimplySerial
                 }
                 catch (Exception e)
                 {
-                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from the serial port."), exitCode: -1);
+                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port + "."), exitCode: -1);
                 }
             }
 
