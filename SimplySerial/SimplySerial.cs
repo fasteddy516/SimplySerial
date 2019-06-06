@@ -10,12 +10,15 @@ namespace SimplySerial
 {
     class SimplySerial
     {
+        enum AutoConnect { NONE, ONE, ANY };
+
         static SerialPort serialPort;
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
         static readonly string version = "0.2.0";
         static bool Quiet = false;
         static bool NoWait = false;
+        static AutoConnect autoConnect = AutoConnect.ONE;
         static ComPort port;
         static int baud = 9600;
         static Parity parity = Parity.None;
@@ -61,16 +64,16 @@ namespace SimplySerial
             if (!SimplySerial.Quiet)
             {
                 Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                                  "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}.\n" +
-                                  "Device    : {7} ({8}) {9} ({10}){11}\n" +
+                                  "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
+                                  "Device    : {8} ({9}) {10} ({11}){12}\n" +
                                   "---\n\nUse CTRL-X to exit.\n"),
                     version,
                     port.name,
                     baud,
                     (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
                     dataBits,
-                    (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2",
-                    (stopBits == StopBits.One) ? "" : "s",
+                    (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
+                    (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     port.board.make,
                     port.vid,
                     port.board.model,
@@ -276,6 +279,21 @@ namespace SimplySerial
                     else
                         ExitProgram(("Invalid stop bits specified <" + argument[1] + ">"), exitCode: -1);
                 }
+
+                // validate auto connect, terminate on error
+                else if (argument[0].StartsWith("a"))
+                {
+                    if (argument[1].StartsWith("n"))
+                        autoConnect = AutoConnect.NONE;
+                    else if (argument[1].StartsWith("o"))
+                        autoConnect = AutoConnect.ONE;
+                    else if (argument[1].StartsWith("a"))
+                        autoConnect = AutoConnect.ANY;
+                    else
+                        ExitProgram(("Invalid auto connect setting specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
+                // an invalid/incomplete argument was passed
                 else
                 {
                     ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'ss.exe -help' to see a list of valid arguments"), exitCode: -1);
@@ -350,8 +368,10 @@ namespace SimplySerial
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
             Console.WriteLine("                    57600 | 115200");
             Console.WriteLine("  -parity:PARITY    NONE | EVEN | ODD | MARK | SPACE");
-            Console.WriteLine("  -databits:VALUE   4 | 5 |  | 7 | 8");
-            Console.WriteLine("  -stopbits:VALUE   0 | 1 | 1.5 | 2");
+            Console.WriteLine("  -databits:VAL     4 | 5 |  | 7 | 8");
+            Console.WriteLine("  -stopbits:VAL     0 | 1 | 1.5 | 2");
+            Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
+            Console.WriteLine("                    a device is disconnected / reconnected.");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("  -nowait           don't wait for user input (i.e. 'press any key to exit')\n");
             Console.WriteLine(" Press CTRL-X to exit a running instance of SimplySerial.");
