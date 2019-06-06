@@ -30,110 +30,136 @@ namespace SimplySerial
             // process all command-line arguments
             ProcessArguments(args);
 
-            // set up the serial port
-            serialPort = new SerialPort(port.name, baud, parity, dataBits, stopBits)
-            {
-                Handshake = Handshake.None, // we don't need to support any handshaking at this point 
-                ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
-                WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
-                DtrEnable = true, // without this we don't ever receive any data
-                RtsEnable = true // without this we don't ever receive any data
-            };
-            string received = string.Empty; // this is where data read from the serial port will be temporarily stored
-
-            // attempt to open the serial port, terminate on error
-            try
-            {
-                serialPort.Open();
-            }
-            catch (System.UnauthorizedAccessException uae)
-            {
-                ExitProgram((uae.GetType() + " occurred while attempting to open " + port.name + ".  Is this port already in use in another application?"), exitCode: -1);
-            }
-            catch (Exception e)
-            {
-                ExitProgram((e.GetType() + " occurred while attempting to open " + port.name + "."), exitCode: -1);
-            }
-
-            // set up keyboard input for relay to serial port
+            // set up keyboard input for program control and relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
 
-            // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
-            Console.Clear();
-            if (!SimplySerial.Quiet)
-            {
-                Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                                  "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                                  "Device    : {8} ({9}) {10} ({11}){12}\n" +
-                                  "---\n\nUse CTRL-X to exit.\n"),
-                    version,
-                    port.name,
-                    baud,
-                    (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
-                    dataBits,
-                    (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
-                    (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
-                    port.board.make,
-                    port.vid,
-                    port.board.model,
-                    port.pid,
-                    (port.board.isCircuitPython) ? " + CircuitPython" : ""
-                );
-            }
+            // this is where data read from the serial port will be temporarily stored
+            string received = string.Empty;
 
-            // this is the core functionality - loop while the serial port is open
-            while (serialPort.IsOpen)
+            //main loop - keep this up until instructed otherwise
+            do
             {
+                // exit the program if CTRL-X was pressed
+                if (Console.KeyAvailable)
+                {
+                    keyInfo = Console.ReadKey(intercept: true);
+                    if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
+                    {
+                        Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
+                        ExitProgram(silent: true);
+                    }
+                }
+
+                // set up the serial port
+                serialPort = new SerialPort(port.name, baud, parity, dataBits, stopBits)
+                {
+                    Handshake = Handshake.None, // we don't need to support any handshaking at this point 
+                    ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
+                    WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
+                    DtrEnable = true, // without this we don't ever receive any data
+                    RtsEnable = true // without this we don't ever receive any data
+                };
+
+                // attempt to open the serial port, terminate on error
                 try
                 {
-                    // process keypresses for transmission through the serial port
-                    if (Console.KeyAvailable)
-                    {
-                        // determine what key is pressed (including modifiers)
-                        keyInfo = Console.ReadKey(intercept: true);
-
-                        // exit the program if CTRL-X was pressed
-                        if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
-                        {
-                            Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
-                            ExitProgram(silent: true);
-                        }
-
-                        // properly process the backspace character
-                        else if (keyInfo.Key == ConsoleKey.Backspace)
-                        {
-                           serialPort.Write("\b");
-                           Thread.Sleep(150); // sort of cheating here - by adding this delay we ensure that when we process the receive buffer it will contain the correct backspace control sequence
-                        }
-
-                        // everything else just gets sent right on through
-                        else
-                            serialPort.Write(Convert.ToString(keyInfo.KeyChar));
-                    }
-
-                    // process data coming in from the serial port
-                    received = serialPort.ReadExisting();
-
-                    // if anything was received, process it
-                    if (received.Length > 0)
-                    {
-                        // properly process backspace
-                        if (received == ("\b\x1B[K"))
-                            received = "\b \b";
-
-                        // write what was received to console
-                        Console.Write(received);
-                    }
+                    serialPort.Open();
+                }
+                catch (System.UnauthorizedAccessException uae)
+                {
+                    Output(uae.GetType() + " occurred while attempting to open " + port.name + ".  Is this port already in use in another application?");
+                    serialPort.Dispose();
+                    Thread.Sleep(1000);
+                    continue;
                 }
                 catch (Exception e)
                 {
-                    ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
+                    Output(e.GetType() + " occurred while attempting to open " + port.name + ".");
+                    serialPort.Dispose();
+                    Thread.Sleep(1000);
+                    continue;
                 }
-            }
+
+                // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
+                Console.Clear();
+                if (!SimplySerial.Quiet)
+                {
+                    Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
+                                      "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
+                                      "Device    : {8} ({9}) {10} ({11}){12}\n" +
+                                      "---\n\nUse CTRL-X to exit.\n"),
+                        version,
+                        port.name,
+                        baud,
+                        (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
+                        dataBits,
+                        (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
+                        (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
+                        port.board.make,
+                        port.vid,
+                        port.board.model,
+                        port.pid,
+                        (port.board.isCircuitPython) ? " + CircuitPython" : ""
+                    );
+                }
+
+                // this is the core functionality - loop while the serial port is open
+                while (serialPort.IsOpen)
+                {
+                    try
+                    {
+                        // process keypresses for transmission through the serial port
+                        if (Console.KeyAvailable)
+                        {
+                            // determine what key is pressed (including modifiers)
+                            keyInfo = Console.ReadKey(intercept: true);
+
+                            // exit the program if CTRL-X was pressed
+                            if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
+                            {
+                                Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
+                                ExitProgram(silent: true);
+                            }
+
+                            // properly process the backspace character
+                            else if (keyInfo.Key == ConsoleKey.Backspace)
+                            {
+                                serialPort.Write("\b");
+                                Thread.Sleep(150); // sort of cheating here - by adding this delay we ensure that when we process the receive buffer it will contain the correct backspace control sequence
+                            }
+
+                            // everything else just gets sent right on through
+                            else
+                                serialPort.Write(Convert.ToString(keyInfo.KeyChar));
+                        }
+
+                        // process data coming in from the serial port
+                        received = serialPort.ReadExisting();
+
+                        // if anything was received, process it
+                        if (received.Length > 0)
+                        {
+                            // properly process backspace
+                            if (received == ("\b\x1B[K"))
+                                received = "\b \b";
+
+                            // write what was received to console
+                            Console.Write(received);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Output(e.GetType() + " occurred while attempting to read/write to/from " + port.name + ".");
+                        serialPort.Dispose();
+                        Thread.Sleep(1000);
+                        continue;
+                    }
+                }
+            } while (autoConnect > AutoConnect.NONE);
 
             // the program should have ended gracefully before now - there is no good reason for us to be here!
-            ExitProgram("\nSession terminated unexpectedly.", exitCode: -1);
+            ExitProgram("<<< SimplySerial session terminated >>>", exitCode: -1);
         }
 
 
