@@ -340,10 +340,12 @@ namespace SimplySerial
             Console.WriteLine("              [-stopbits:VALUE][-quiet][-nowait]\n");
             Console.WriteLine("Barebones serial terminal for IoT device programming in general, and working with");
             Console.WriteLine("CircuitPython devices specifically!  With no command-line arguments specified,");
-            Console.WriteLine("SimplySerial will attempt to connect to the first available serial (COM) port at");
-            Console.WriteLine("9600 baud, no parity, 8 data bits and 1 stop bit.\n");
+            Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
+            Console.WriteLine("at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are");
+            Console.WriteLine("detected, it will default to the first available serial (COM) port.\n");
             Console.WriteLine("Optional arguments:");
             Console.WriteLine("  -help             Display this help message");
+            Console.WriteLine("  -list             Display a list of available serial (COM) ports");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
             Console.WriteLine("                    57600 | 115200");

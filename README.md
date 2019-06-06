@@ -28,9 +28,11 @@
 
 # Using SimplySerial
 
-  By default, SimplySerial will attempt to connect to the first available serial (COM) port at 9600 baud, no parity, 8 data bits and 1 stop bit.  If you added the `ss.exe` location to your `PATH`, only have one active COM port on your machine, and that COM port happens to be a device running CircuitPython (or anything that uses those particular port settings), entering the `ss` command while in Command Prompt or PowerShell should be all you have to do to connect.  If you have multiple COM ports, or need to use different communications settings, you will need to use the appropriate command-line arguments listed below.
+  By default, SimplySerial will attempt to identify and connect to a CircuitPython-capable board at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are detected, it will default to the first available serial (COM) port.  If you added the `ss.exe` location to your `PATH`, only have one active CircuitPython board (or COM port) on your machine, and that board/port is a device running CircuitPython (or anything that uses those particular port settings), entering the `ss` command while in Command Prompt or PowerShell should be all you have to do to connect.  If you have multiple COM ports, or need to use different communications settings, you will need to use the appropriate command-line arguments listed below.
 
-  `-h, --help` displays a list of valid command-line arguments  
+  `-h, --help` displays a list of valid command-line arguments
+
+  `-l, --list` displays a list of available COM ports  
 
   `-c, --com` sets the desired COM port (ex. `-c:1` for COM1, `--com:22` for COM22)
 
@@ -64,3 +66,7 @@ To disconnect and exit SimplySerial, press `CTRL-X` at any time.
 
   If you have questions, problems, feature requests, etc. please post them to the [Issues section on Github](https://github.com/fasteddy516/SimplySerial/issues).  If you would like to contribute, please let me know.  I have already put some "enhancement requests" in the Github Issues section with some ideas for improvements, most of which were either beyond my limited C#/Windows programming knowledge, or required more time than I had available! 
 
+
+# Acknowledgements
+
+  The code used to obtain extra details about connected serial devices (VID, PID, etc.) is a modified version of examples posted by Kamil Górski (freakone) at http://blog.gorski.pm/serial-port-details-in-c-sharp and https://github.com/freakone/serial-reader.  Some modifications were made based on this stackoverflow thread: https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp.
