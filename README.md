@@ -1,6 +1,6 @@
 # SimplySerial
 
-###### A bare-bones serial terminal that runs as a Windows console application.
+###### A simple serial terminal that runs as a Windows console application.
   
   Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
 
@@ -11,7 +11,7 @@
 
 # Description
 
-  SimplySerial is a barebones serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  
+  SimplySerial is a simple serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  
 
   SimplySerial can be used directly from Command Prompt/PowerShell and should work with most
   devices that appear in Device Manager as "COMxx".  It was, however, written specifically for
