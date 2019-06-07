@@ -153,7 +153,7 @@ namespace SimplySerial
                         Output(e.GetType() + " occurred while attempting to read/write to/from " + port.name + ".");
                         serialPort.Dispose();
                         Thread.Sleep(1000);
-                        continue;
+                        break;
                     }
                 }
             } while (autoConnect > AutoConnect.NONE);
@@ -249,6 +249,7 @@ namespace SimplySerial
                     if (!argument[1].StartsWith("COM"))
                         newPort = "COM" + argument[1];
                     port.name = newPort;
+                    autoConnect = AutoConnect.ONE;
                 }
 
                 // validate baud rate, terminate on error
@@ -700,7 +701,8 @@ namespace SimplySerial
             // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'n' enables the 'nowait' option, which needs to be enabled before anything that would trigger an artificial delay 
-            foreach (char c in "?hlqn")
+            // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
+            foreach (char c in "?hlqnc")
             {
                 if (x[0] == c)
                     return (-1);
