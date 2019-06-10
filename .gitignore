@@ -328,3 +328,9 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+
+### AdvancedInstaller ###
+# Advanced Installer caches and default build output
+*-cache/
+*-SetupFiles/
+Prerequisites/
