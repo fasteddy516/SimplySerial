@@ -155,7 +155,7 @@ namespace SimplySerial
                 {
                     Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
                                       "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                                      "Device    : {8} ({9}) {10} ({11}){12}\n" +
+                                      "Device    : {8}{9} {10}{11}{12}\n" +
                                       "---\n\nUse CTRL-X to exit.\n"),
                         version,
                         port.name,
@@ -165,10 +165,10 @@ namespace SimplySerial
                         (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
                         (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                         port.board.make,
-                        port.vid,
+                        (port.board.make == "VID") ? ":" + port.vid : "",
                         port.board.model,
-                        port.pid,
-                        (port.board.isCircuitPython) ? " + CircuitPython" : ""
+                        (port.board.model == "PID") ? ":" + port.pid : "",
+                        (port.board.isCircuitPython) ? " (CircuitPython-capable)" : ""
                     );
                 }
 
@@ -752,7 +752,7 @@ namespace SimplySerial
             {
                 mBoard.pid = pid;
                 mBoard.make = mVendor.vendor;
-                mBoard.model = "Unknown Model";
+                mBoard.model = "PID";
                 mBoard.isCircuitPython = mVendor.isCircuitPython;
             }
 
