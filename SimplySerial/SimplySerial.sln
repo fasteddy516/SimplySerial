@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimplySerial", "SimplySerial.csproj", "{3C7DB929-519C-44A3-A68F-2646CC595CAE}"
 EndProject
 Project("{840C416C-B8F3-42BC-B0DD-F6BB14C9F8CB}") = "Installer", "..\Installer\Installer.aiproj", "{DCC10C6B-B172-4172-9961-E6D643DF6BCF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE} = {3C7DB929-519C-44A3-A68F-2646CC595CAE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
