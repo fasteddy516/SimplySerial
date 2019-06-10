@@ -525,7 +525,7 @@ namespace SimplySerial
             using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PnPEntity WHERE ClassGuid=\"{4d36e978-e325-11ce-bfc1-08002be10318}\""))
             {
                 var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
-                return ports.Select(p =>
+                List<ComPort> detectedPorts = ports.Select(p =>
                 {
                     ComPort c = new ComPort();
                     c.name = p.GetPropertyValue("Name").ToString();
@@ -536,27 +536,45 @@ namespace SimplySerial
                     Match mPID = Regex.Match(c.vid, pidPattern, RegexOptions.IgnoreCase);
 
                     if (mVID.Success)
+                    {
                         c.vid = mVID.Groups[1].Value;
-                    if (mPID.Success)
-                        c.pid = mPID.Groups[1].Value;
+                        c.vid = c.vid.Substring(0, Math.Min(4, c.vid.Length));
+                    }
+                    else
+                        c.vid = "????";
 
-                    c.board = MatchBoard(c.vid, c.pid);
+                    if (mPID.Success)
+                    {
+                        c.pid = mPID.Groups[1].Value;
+                        c.pid = c.pid.Substring(0, Math.Min(4, c.vid.Length));
+                    }
+                    else
+                        c.pid = "????";
 
                     Match mName = Regex.Match(c.name, namePattern);
                     if (mName.Success)
                     {
                         c.name = mName.Value;
                         c.num = int.Parse(c.name.Substring(3));
+                        if (c.num == 0)
+                            c.name = "????";
                     }
                     else
                     {
-                        c.name = "COM??";
+                        c.name = "????";
                         c.num = 0;
                     }
+
+                    c.board = MatchBoard(c.vid, c.pid);
 
                     return c;
 
                 }).ToList();
+
+                // remove all unusable ports from the list
+                detectedPorts.RemoveAll(p => p.name == "????"); 
+
+                return (detectedPorts);
             }
         }
 
