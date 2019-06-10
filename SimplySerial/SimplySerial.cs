@@ -420,9 +420,9 @@ namespace SimplySerial
         /// </summary>
         static void ShowHelp()
         {
-            Console.WriteLine("\nUsage: ss.exe [-help] [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VALUE]");
-            Console.WriteLine("              [-stopbits:VALUE][-quiet][-nowait]\n");
-            Console.WriteLine("Barebones serial terminal for IoT device programming in general, and working with");
+            Console.WriteLine("\nUsage: ss.exe [-help] [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
+            Console.WriteLine("              [-stopbits:VAL][-autoconnect:VAL][-quiet]\n");
+            Console.WriteLine("A basic serial terminal for IoT device programming in general, and working with");
             Console.WriteLine("CircuitPython devices specifically!  With no command-line arguments specified,");
             Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
             Console.WriteLine("at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are");
@@ -439,7 +439,7 @@ namespace SimplySerial
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine(" Press CTRL-X to exit a running instance of SimplySerial.");
+            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
 
