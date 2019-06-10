@@ -1,6 +1,6 @@
 # SimplySerial
 
-###### A simple serial terminal that runs as a Windows console application.
+###### A serial terminal that runs as a Windows console application.
   
   Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
 
@@ -11,7 +11,7 @@
 
 # Description
 
-  SimplySerial is a simple serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  
+  SimplySerial is a basic serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  
 
   SimplySerial can be used directly from Command Prompt/PowerShell and should work with most
   devices that appear in Device Manager as "COMxx".  It was, however, written specifically for
@@ -44,9 +44,9 @@
 
   `-s, --stopbits` sets the number of stop bits to use (ex. `-s:1`, `--stopbits:1.5`)
 
+  `-a, --autoconnect` sets the desired auto-(re)connect behaviour (ex. `a:NONE`, `--autoconnect:ANY`)
+  
   `-q, --quiet` prevents any application messages (connection banner, error messages, etc.) from printing out to the console.
-
-  `-n, --nowait` prevents the system from waiting for user input ("press any key to exit", etc.)
 
 If you wanted to connect to a device on COM17 at 115200 baud, you would use the command `ss -c:17 -b:115200`, or if you really enjoy typing `ss --com:17 --baud:115200`.
 
@@ -54,6 +54,17 @@ Once you're connected, you should see messages from the device on COMxx appear o
 
 To disconnect and exit SimplySerial, press `CTRL-X` at any time.
 
+
+# Auto-(re)connect functionality
+
+  SimplySerial's `autoconnect` option can be used to determine if and how to connect/reconnect to a device.  These options function as follows:
+  
+  `--autoconnect:ONE` is the default mode of operation.  If a COM port was specified using the `--com` option, SimplySerial will attempt to connect to the specified port, otherwise it will connect to the first available COM port (giving preference to devices known to be CircuitPython-capable).  In either case, the program will wait until the/a COM port is available, and connect to it when it is.  If the device becomes unavailable at any point (because it was disconnected, etc.), SimplySerial will wait until that specific COM port becomes available again, regardless of any other COM ports that may or may not be available.
+  
+  `--autoconnect:ANY` is similar to `ONE`, except that when the connected port becomes unavailable, SimplySerial will attempt to connect to any other available port.  This option is useful if you only ever have one COM port available at a time, but can be problematic if you have multiple COM ports connected, or if you have a built-in COM port that is always available.
+  
+  `--autoconnect:NONE` prevents SimplySerial from waiting for devices and automatically re-connecting.
+  
 
 # Using SimplySerial in Visual Studio Code (VSCode)
 
