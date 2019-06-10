@@ -10,12 +10,19 @@ Project("{840C416C-B8F3-42BC-B0DD-F6BB14C9F8CB}") = "Installer", "..\Installer\I
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE} = {3C7DB929-519C-44A3-A68F-2646CC595CAE}
 	EndProjectSection
 EndProject
+Project("{840C416C-B8F3-42BC-B0DD-F6BB14C9F8CB}") = "Installer-System", "..\Installer-System\Installer-System.aiproj", "{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE} = {3C7DB929-519C-44A3-A68F-2646CC595CAE}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		All|Any CPU = All|Any CPU
 		All|x86 = All|x86
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x86 = Debug|x86
+		DefaultBuild|Any CPU = DefaultBuild|Any CPU
+		DefaultBuild|x86 = DefaultBuild|x86
 		Release|Any CPU = Release|Any CPU
 		Release|x86 = Release|x86
 	EndGlobalSection
@@ -28,6 +35,10 @@ Global
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Debug|x86.ActiveCfg = Debug|x86
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Debug|x86.Build.0 = Debug|x86
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.DefaultBuild|Any CPU.ActiveCfg = Debug|Any CPU
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.DefaultBuild|Any CPU.Build.0 = Debug|Any CPU
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.DefaultBuild|x86.ActiveCfg = Debug|x86
+		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.DefaultBuild|x86.Build.0 = Debug|x86
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3C7DB929-519C-44A3-A68F-2646CC595CAE}.Release|x86.ActiveCfg = Release|x86
@@ -40,10 +51,30 @@ Global
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Debug|Any CPU.Build.0 = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Debug|x86.ActiveCfg = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Debug|x86.Build.0 = DefaultBuild
+		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.DefaultBuild|Any CPU.ActiveCfg = DefaultBuild
+		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.DefaultBuild|Any CPU.Build.0 = DefaultBuild
+		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.DefaultBuild|x86.ActiveCfg = DefaultBuild
+		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.DefaultBuild|x86.Build.0 = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Release|Any CPU.ActiveCfg = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Release|Any CPU.Build.0 = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Release|x86.ActiveCfg = DefaultBuild
 		{DCC10C6B-B172-4172-9961-E6D643DF6BCF}.Release|x86.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.All|Any CPU.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.All|Any CPU.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.All|x86.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.All|x86.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Debug|Any CPU.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Debug|Any CPU.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Debug|x86.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Debug|x86.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.DefaultBuild|Any CPU.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.DefaultBuild|Any CPU.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.DefaultBuild|x86.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.DefaultBuild|x86.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Release|Any CPU.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Release|Any CPU.Build.0 = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Release|x86.ActiveCfg = DefaultBuild
+		{D9A5E8D5-C2FF-450D-96E1-D82DB339B186}.Release|x86.Build.0 = DefaultBuild
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

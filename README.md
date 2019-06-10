@@ -23,9 +23,13 @@ _The required version of .NET framework is already included in Windows 8 and new
 
 # Installation
 
-Download the [latest release](https://github.com/fasteddy516/SimplySerial/releases/latest) of this application in one of two formats:
+Download the [latest release](https://github.com/fasteddy516/SimplySerial/releases/latest) of this application in one of three formats:
 
-`SimplySerial_x.x.x_setup.msi` is a windows installer package that puts everything where it needs to go and adds the location of the SimplySerial executable to your `PATH` environment variable, which makes it easily accessible from Command Prompt, PowerShell and Visual Studio Code.  **This is the preferred installation method.**
+`SimplySerial_x.x.x_user_setup.msi` is a windows installer package that puts everything where it needs to go and adds the location of the SimplySerial executable to your `PATH` environment variable, which makes it easily accessible from Command Prompt, PowerShell and Visual Studio Code.  Installation is per-user, and does not require Administrative rights to install.  **This is the preferred installation method,** _and works well with the "user setup" version of VSCode_.
+
+`SimplySerial_x.x.x_system_setup.msi` is similar to `user_setup.msi` except that the installation is system-wide (for all users), and **requires administrative rights to install.**  _This version will work with both the "user setup" and "system setup" versions of VSCode_.
+
+##### If you are unsure which version of VSCode you have installed, load it up and go to `Help > About` - beside the version number it will say either `user` or `system` setup.
 
 `SimplySerial_x.x.x_standalone.zip` is a standard compressed archive containing the SimplySerial executable and some documentation.  You can unzip it whereever you like, and add that location to your `PATH` or not.  **Advanced users may prefer this format/process.**
 
