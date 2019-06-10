@@ -10,12 +10,13 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        enum AutoConnect { NONE, ONE, ANY };
-
+        static readonly string version = "0.3.0";
+        static List<ComPort> availablePorts;
         static SerialPort serialPort;
 
+        enum AutoConnect { NONE, ONE, ANY };
+
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
-        static readonly string version = "0.2.0";
         static bool Quiet = false;
         static bool NoWait = false;
         static AutoConnect autoConnect = AutoConnect.ONE;
@@ -30,17 +31,17 @@ namespace SimplySerial
             // process all command-line arguments
             ProcessArguments(args);
 
-            // set up keyboard input for program control and relay to serial port
+            // set up keyboard input for program control / relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
 
             // this is where data read from the serial port will be temporarily stored
             string received = string.Empty;
 
-            //main loop - keep this up until instructed otherwise
+            //main loop - keep this up until user presses CTRL-X or an exception takes us down
             do
             {
-                // exit the program if CTRL-X was pressed
+                // first things first, check for (and respect) a request to exit the program via CTRL-X
                 if (Console.KeyAvailable)
                 {
                     keyInfo = Console.ReadKey(intercept: true);
@@ -51,7 +52,59 @@ namespace SimplySerial
                     }
                 }
 
-                // set up the serial port
+                // get a list of available ports
+                availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
+
+                // if no port was specified/selected, pick one automatically
+                if (port.name == String.Empty)
+                {
+                    // if there are com ports available, pick one
+                    if (availablePorts.Count() >= 1)
+                    {
+                        // first, try to default to something that we assume is running CircuitPython
+                        SimplySerial.port = availablePorts.Find(p => p.board.isCircuitPython == true);
+
+                        // if that doesn't work out, just default to the first available COM port
+                        if (SimplySerial.port.name == null)
+                            SimplySerial.port = availablePorts[0];
+                    }
+
+                    // if there are no com ports available, exit or try again depending on autoconnect setting 
+                    else
+                    {
+                        if (autoConnect == AutoConnect.NONE)
+                            ExitProgram("No COM ports detected.", exitCode: -1);
+                        else
+                            continue;
+                    }
+                }
+
+                // if a specific port has been selected, try to match it with one that actually exists
+                else
+                {
+                    bool portMatched = false;
+
+                    foreach (ComPort p in availablePorts)
+                    {
+                        if (p.name == port.name)
+                        {
+                            portMatched = true;
+                            port = p;
+                            break;
+                        }
+                    }
+
+                    // if the specified port is not available, exit or try again depending on autoconnect setting
+                    if (!portMatched)
+                    {
+                        if (autoConnect == AutoConnect.NONE)
+                            ExitProgram(("Invalid port specified <" + port.name + ">"), exitCode: -1);
+                        else
+                            continue;
+                    }
+                }
+
+                // if we get this far, it should be safe to set up the specified/selected serial port
                 serialPort = new SerialPort(port.name, baud, parity, dataBits, stopBits)
                 {
                     Handshake = Handshake.None, // we don't need to support any handshaking at this point 
@@ -61,23 +114,38 @@ namespace SimplySerial
                     RtsEnable = true // without this we don't ever receive any data
                 };
 
-                // attempt to open the serial port, terminate on error
+                // attempt to open the serial port, deal with failures
                 try
                 {
                     serialPort.Open();
                 }
-                catch (System.UnauthorizedAccessException uae)
-                {
-                    Output(uae.GetType() + " occurred while attempting to open " + port.name + ".  Is this port already in use in another application?");
-                    serialPort.Dispose();
-                    Thread.Sleep(1000);
-                    continue;
-                }
                 catch (Exception e)
                 {
-                    Output(e.GetType() + " occurred while attempting to open " + port.name + ".");
+                    // if auto-connect is disabled than any exception should result in program termination
+                    if (autoConnect == AutoConnect.NONE)
+                    {
+                        if (e is UnauthorizedAccessException)
+                            ExitProgram((e.GetType() + " occurred while attempting to open " + port.name + ".  Is this port already in use in another application?"), exitCode: -1);
+                        else
+                            ExitProgram((e.GetType() + " occurred while attempting to open " + port.name + "."), exitCode: -1);
+                    }
+
+                    // if auto-connect is enabled, prepare to try again
                     serialPort.Dispose();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts
+                    /*
+                    if (autoConnect == AutoConnect.ANY)
+                    {
+                        port.name = String.Empty;
+                        Console.Clear();
+                        Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
+                    }
+                    else if (autoConnect == AutoConnect.ONE)
+                    {
+                        Console.Clear();
+                        Output("<<< Attempting to re-connect to " + port.name + ".  Use CTRL-X to cancel >>>");
+                    }
+                    */
                     continue;
                 }
 
@@ -150,16 +218,30 @@ namespace SimplySerial
                     }
                     catch (Exception e)
                     {
-                        Output(e.GetType() + " occurred while attempting to read/write to/from " + port.name + ".");
+                        if (autoConnect == AutoConnect.NONE)
+                            ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
+                        else
+                            Output("\n<<< Communications Interrupted >>>\n");
                         serialPort.Dispose();
-                        Thread.Sleep(1000);
+                        Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
+                        Console.Clear();
+                        if (autoConnect == AutoConnect.ANY)
+                        {
+                            port.name = String.Empty;
+                            Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
+                        }
+                        else if (autoConnect == AutoConnect.ONE)
+                        {
+                            Console.Clear();
+                            Output("<<< Attempting to re-connect to " + port.name + ". Use CTRL-X to cancel >>>");
+                        }
                         break;
                     }
                 }
             } while (autoConnect > AutoConnect.NONE);
 
-            // the program should have ended gracefully before now - there is no good reason for us to be here!
-            ExitProgram("<<< SimplySerial session terminated >>>", exitCode: -1);
+            // if we get to this point, we should be exiting gracefully
+            ExitProgram("<<< SimplySerial session terminated >>>", exitCode: 0);
         }
 
 
@@ -169,12 +251,6 @@ namespace SimplySerial
         /// <param name="args">Command-line parameters</param>
         static void ProcessArguments(string[] args)
         {
-            // get a list of all available ports
-            List<ComPort> availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
-            //List<ComPort> availablePorts = SimplySerial.GetSerialPorts();
-            //availablePorts = (availablePorts.OrderBy(p => p.board.pid)).ToList();
-
-            // set default port information
             port.name = String.Empty;
 
             // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
@@ -200,6 +276,9 @@ namespace SimplySerial
                 // list available ports
                 else if (argument[0].StartsWith("l"))
                 {
+                    // get a list of all available ports
+                    availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
+
                     if (availablePorts.Count >= 1)
                     {
                         Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
@@ -327,40 +406,20 @@ namespace SimplySerial
                 }
             }
 
-            // if no port was specified, default to the first/only available com port, exit with error if no ports are available
-            if (port.name == String.Empty)
+            Console.Clear();
+            if (autoConnect == AutoConnect.ANY)
             {
-                if (availablePorts.Count() >= 1)
-                {
-                    // first, try to default to something that we assume is running CircuitPython
-                    SimplySerial.port = availablePorts.Find(p => p.board.isCircuitPython == true);
-
-                    // if that doesn't work out, just default to the first available COM port
-                    if (SimplySerial.port.name == null)
-                        SimplySerial.port = availablePorts[0];
-                }
+                Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
+            }
+            else if (autoConnect == AutoConnect.ONE)
+            {
+                Console.Clear();
+                if (port.name == String.Empty)
+                    Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
                 else
-                    ExitProgram("No COM ports detected.", exitCode: -1);
+                    Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to concel >>>");
             }
-
-            // if a port name was specified, try to match it with one that actually exists and fail if it doesn't
-            else
-            {
-                bool portMatched = false;
-
-                foreach (ComPort p in availablePorts)
-                {
-                    if (p.name == port.name)
-                    {
-                        portMatched = true;
-                        port = p;
-                        break;
-                    }
-                }
-                if (!portMatched)
-                    ExitProgram(("Invalid port specified <" + port.name + ">"), exitCode: -1);
-            }
-
+                       
             // if we made it this far, everything has been processed and we're ready to proceed!
         }
 
