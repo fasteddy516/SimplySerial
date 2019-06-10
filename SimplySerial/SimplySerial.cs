@@ -10,7 +10,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        static readonly string version = "0.3.0";
+        static readonly string version = "0.4.0";
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
 
