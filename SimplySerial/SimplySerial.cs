@@ -18,7 +18,6 @@ namespace SimplySerial
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
         static bool Quiet = false;
-        static bool NoWait = false;
         static AutoConnect autoConnect = AutoConnect.ONE;
         static ComPort port;
         static int baud = 9600;
@@ -133,19 +132,6 @@ namespace SimplySerial
                     // if auto-connect is enabled, prepare to try again
                     serialPort.Dispose();
                     Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts
-                    /*
-                    if (autoConnect == AutoConnect.ANY)
-                    {
-                        port.name = String.Empty;
-                        Console.Clear();
-                        Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
-                    }
-                    else if (autoConnect == AutoConnect.ONE)
-                    {
-                        Console.Clear();
-                        Output("<<< Attempting to re-connect to " + port.name + ".  Use CTRL-X to cancel >>>");
-                    }
-                    */
                     continue;
                 }
 
@@ -308,12 +294,6 @@ namespace SimplySerial
                     SimplySerial.Quiet = true;
                 }
 
-                // nowait (disables the "press any key to exit" function)
-                else if (argument[0].StartsWith("n"))
-                {
-                    SimplySerial.NoWait = true;
-                }
-
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
                 else if (argument.Count() < 2)
                 {
@@ -459,7 +439,6 @@ namespace SimplySerial
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine("  -nowait           don't wait for user input (i.e. 'press any key to exit')\n");
             Console.WriteLine(" Press CTRL-X to exit a running instance of SimplySerial.");
         }
 
@@ -475,17 +454,8 @@ namespace SimplySerial
             // the serial port should be closed before exiting
             if (serialPort != null && serialPort.IsOpen)
                 serialPort.Close();
-
             if (!silent)
                 Output("\n" + message);
-
-            if (!(SimplySerial.NoWait || silent))
-            {
-                // we output this line regardless of the 'quiet' option to make it clear that we're waiting for user input
-                Console.WriteLine("\nPress any key to exit...");
-                while (!Console.KeyAvailable)
-                    Thread.Sleep(25);
-            }
             Environment.Exit(exitCode);
         }
 
@@ -777,9 +747,8 @@ namespace SimplySerial
             // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
             // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
-            // 'n' enables the 'nowait' option, which needs to be enabled before anything that would trigger an artificial delay 
             // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
-            foreach (char c in "?hlqnc")
+            foreach (char c in "?hlqc")
             {
                 if (x[0] == c)
                     return (-1);
