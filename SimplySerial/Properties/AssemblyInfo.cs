@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SimplySerial")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A Windows console application for serial communications")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("fasteddy516")]
 [assembly: AssemblyProduct("SimplySerial")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright © 2019 Edward Wright (fasteddy516)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
