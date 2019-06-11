@@ -29,7 +29,9 @@ Download the [latest release](https://github.com/fasteddy516/SimplySerial/releas
 
 `SimplySerial_x.x.x_system_setup.msi` is similar to `user_setup.msi` except that the installation is system-wide (for all users), and **requires administrative rights to install.**  _This version will work with both the "user setup" and "system setup" versions of VSCode_.
 
-##### If you are unsure which version of VSCode you have installed, load it up and go to `Help > About` - beside the version number it will say either `user` or `system` setup.
+**_If you are unsure which version of VSCode you have installed, load it up and go to `Help > About` - beside the version number it will say either `user` or `system` setup._**
+
+**_The installer versions are unsigned, and may trigger a "Windows Defender SmartScreen" warning. To install you have to press "More Info" followed by "Run Anyway"._**
 
 `SimplySerial_x.x.x_standalone.zip` is a standard compressed archive containing the SimplySerial executable and some documentation.  You can unzip it whereever you like, and add that location to your `PATH` or not.  **Advanced users may prefer this format/process.**
 
