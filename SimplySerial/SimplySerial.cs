@@ -511,7 +511,7 @@ namespace SimplySerial
                         c.vid = c.vid.Substring(0, Math.Min(4, c.vid.Length));
                     }
                     else
-                        c.vid = "????";
+                        c.vid = "----";
 
                     if (mPID.Success)
                     {
@@ -519,7 +519,7 @@ namespace SimplySerial
                         c.pid = c.pid.Substring(0, Math.Min(4, c.vid.Length));
                     }
                     else
-                        c.pid = "????";
+                        c.pid = "----";
 
                     Match mName = Regex.Match(c.name, namePattern);
                     if (mName.Success)
@@ -527,11 +527,11 @@ namespace SimplySerial
                         c.name = mName.Value;
                         c.num = int.Parse(c.name.Substring(3));
                         if (c.num == 0)
-                            c.name = "????";
+                            c.name = "?";
                     }
                     else
                     {
-                        c.name = "????";
+                        c.name = "?";
                         c.num = 0;
                     }
 
@@ -542,7 +542,7 @@ namespace SimplySerial
                 }).ToList();
 
                 // remove all unusable ports from the list
-                detectedPorts.RemoveAll(p => p.name == "????"); 
+                detectedPorts.RemoveAll(p => p.name == "?"); 
 
                 return (detectedPorts);
             }
