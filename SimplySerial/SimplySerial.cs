@@ -10,7 +10,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        static readonly string version = "0.4.0";
+        static readonly string version = "0.4.1";
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
 
@@ -208,7 +208,14 @@ namespace SimplySerial
                             ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                         else
                             Output("\n<<< Communications Interrupted >>>\n");
-                        serialPort.Dispose();
+                        try
+                        {
+                            serialPort.Dispose();
+                        }
+                        catch (Exception ex)
+                        {
+                            //nothing to do here, other than prevent execution from stopping if dispose() throws an exception
+                        }
                         Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
                         Console.Clear();
                         if (autoConnect == AutoConnect.ANY)
