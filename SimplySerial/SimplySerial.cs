@@ -404,7 +404,7 @@ namespace SimplySerial
                 if (port.name == String.Empty)
                     Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
                 else
-                    Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to concel >>>");
+                    Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to cancel >>>");
             }
                        
             // if we made it this far, everything has been processed and we're ready to proceed!
