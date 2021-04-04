@@ -6,12 +6,14 @@ Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
 
 Available at https://github.com/fasteddy516/SimplySerial
 
-
 # Description
 
 SimplySerial is a basic serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  SimplySerial can be used directly from Command Prompt/PowerShell and should work with most devices that appear in Device Manager as "COMx".  It was, however, written specifically for
 use within a "terminal" window in [Visual Studio Code](https://code.visualstudio.com/) to provide serial communications with devices running [CircuitPython](https://circuitpython.org/).  Most of the testing and development of this application was done with this use case in mind.  
 
+# A Quick Note For CircuitPython Users
+
+If your primary interest in SimplySerial is for programming CircuitPython devices in Visual Studio Code, _I encourage you to check out Joe DeVivo's excellent VSCode extension_ in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=joedevivo.vscode-circuitpython) or [On Github](https://github.com/joedevivo/vscode-circuitpython).  His extension has tons of awesome features that go well beyond the basic 'serial terminal' functionality provided by SimplySerial.  That being said, SimplySerial is still a handy little tool for quickly connecting to serial devices in a command prompt/powershell, for use in VSCode for non-CircuitPython devices, or for those who prefer its simplicity over the full-featured CircuitPython extension.
 
 # Requirements
 
