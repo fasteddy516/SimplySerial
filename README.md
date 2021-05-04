@@ -88,6 +88,13 @@ If you wanted to connect to a device on COM17 at 115200 baud, you would use the 
 
   If you want to make things even simpler, or if you need to use a bunch of command-line arguments and don't want to enter them every time (**and you don't use the terminal window in Visual Studio Code for anything else**) you can have VSCode launch SimplySerial directly whenever you open a terminal window by changing the `terminal.integrated.shell.windows` setting to point to `ss.exe` + any arguments you need to add.  This works well, but will prevent you from having multiple VSCode terminal windows open, as only one application can connect to any given serial port at a given time.
 
+# Using SimplySerial with Windows Terminal
+
+You can add a new profile to Windows Terminal to directly launch SimplySerial into its own tab. Unfortunately, launching ss.exe directly gives a cryptic error. The workaround is the launch using PowerShell.  For example, to open COM4 at 115200 baud, you can specify the command as
+
+    cmd.exe /c "ss -com:4 -baud:115200"
+
+which will use the quick-loading cmd to setup the console, then execute SimplySerial inside it.
 
 # Contributing
 
