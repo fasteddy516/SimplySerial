@@ -90,11 +90,14 @@ If you wanted to connect to a device on COM17 at 115200 baud, you would use the 
 
 # Using SimplySerial with Windows Terminal
 
-You can add a new profile to Windows Terminal to directly launch SimplySerial into its own tab. Unfortunately, launching ss.exe directly gives a cryptic error. The workaround is the launch using PowerShell.  For example, to open COM4 at 115200 baud, you can specify the command as
+[Windows Terminal](https://docs.microsoft.com/en-us/windows/terminal/) is a tabbed alternative to the command shell that Microsoft has developed as an open source project.  It is easy to setup SimplySerial as a new terminal profile; you just need to create a new profile in the settings GUI and specify the ss command line.  If you have problems, make sure that the SimplySerial executable is in your system path.
 
-    cmd.exe /c "ss -com:4 -baud:115200"
+If you're directly editing the settings.json, the profile section will look like the code below, but with your specific command-line parameters.
 
-which will use the quick-loading cmd to setup the console, then execute SimplySerial inside it.
+    {
+        "commandline": "ss -com:4 -baud:115200",
+        "name": "COM4"
+    }
 
 # Contributing
 
