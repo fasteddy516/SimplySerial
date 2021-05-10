@@ -13,7 +13,6 @@ namespace SimplySerial
     class SimplySerial
     {
         const string version = "0.5.0-beta";
-        const int bufferSize = 4096;
             
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
@@ -32,6 +31,7 @@ namespace SimplySerial
         static FileMode logMode = FileMode.Create;
         static string logFile = string.Empty;
         static string logData = string.Empty;
+        static int bufferSize = 4096;
 
 
         static void Main(string[] args)
@@ -361,7 +361,7 @@ namespace SimplySerial
                 else if (argument[0].StartsWith("p"))
                 {
                     argument[1] = argument[1].ToLower();
-                    
+
                     if (argument[1].StartsWith("e"))
                         parity = Parity.Even;
                     else if (argument[1].StartsWith("m"))
@@ -406,7 +406,7 @@ namespace SimplySerial
                 else if (argument[0].StartsWith("a"))
                 {
                     argument[1] = argument[1].ToLower();
-                    
+
                     if (argument[1].StartsWith("n"))
                         autoConnect = AutoConnect.NONE;
                     else if (argument[1].StartsWith("o"))
@@ -421,7 +421,7 @@ namespace SimplySerial
                 else if (argument[0].StartsWith("logm"))
                 {
                     argument[1] = argument[1].ToLower();
-                    
+
                     if (argument[1].StartsWith("o"))
                         logMode = FileMode.Create;
                     else if (argument[1].StartsWith("a"))
@@ -430,10 +430,27 @@ namespace SimplySerial
                         ExitProgram(("Invalid log mode setting specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
+                // set size of logging buffer
+                else if (argument[0].StartsWith("logb"))
+                {
+                    try
+                    {
+                        int newSize = int.Parse(argument[1]);
+                        if ((newSize < 0) || (newSize > 100000))
+                            throw new ArgumentOutOfRangeException("Log buffer size must be between 0 and 100000 bytes.");
+                        else
+                            bufferSize = newSize;
+                    }
+                    catch
+                    {
+                        ExitProgram(("Invalid log buffer size specified < " + argument[1] + " > "), exitCode: -1);
+                    }
+                }
+
                 // specify log file (and enable logging)
                 else if (argument[0].StartsWith("lo"))
                 {
-                    logging = true; 
+                    logging = true;
                     logFile = argument[1];
                 }
 
@@ -525,6 +542,8 @@ namespace SimplySerial
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("  -log:<logfile>    Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
+            Console.WriteLine("  -logBuffer:VAL    Number of bytes of data to buffer before writing to");
+            Console.WriteLine("                    log file.  Valid range is 0-100000.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
