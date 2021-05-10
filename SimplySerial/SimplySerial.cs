@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 using System.IO.Ports;
+using System.Text;
 using System.Threading;
 using System.Management;
 using System.Text.RegularExpressions;
@@ -10,7 +12,9 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        static readonly string version = "0.4.1";
+        const string version = "0.5.0-beta";
+        const int bufferSize = 4096;
+            
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
 
@@ -24,12 +28,35 @@ namespace SimplySerial
         static Parity parity = Parity.None;
         static int dataBits = 8;
         static StopBits stopBits = StopBits.One;
+        static bool logging = false;
+        static FileMode logMode = FileMode.Create;
+        static string logFile = string.Empty;
+        static string logData = string.Empty;
+
 
         static void Main(string[] args)
         {
             // process all command-line arguments
             ProcessArguments(args);
 
+            // verify log-related settings
+            if (logging)
+            {
+                try
+                { 
+                    FileStream stream = new FileStream(logFile, logMode, FileAccess.Write);
+                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                    {
+                        writer.WriteLine($"\n----- LOGGING STARTED ({DateTime.Now}) ------------------------------------");
+                    }
+                }
+                catch (Exception e)
+                {
+                    logging = false;
+                    ExitProgram($"* Error accessing log file '{logFile}'\n  > {e.GetType()}: {e.Message}", exitCode: -1);
+                }
+            }
+            
             // set up keyboard input for program control / relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
@@ -137,26 +164,25 @@ namespace SimplySerial
 
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 Console.Clear();
-                if (!SimplySerial.Quiet)
-                {
-                    Console.WriteLine(("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                                      "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                                      "Device    : {8}{9} {10}{11}{12}\n" +
-                                      "---\n\nUse CTRL-X to exit.\n"),
-                        version,
-                        port.name,
-                        baud,
-                        (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
-                        dataBits,
-                        (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
-                        (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
-                        port.board.make,
-                        (port.board.make == "VID") ? ":" + port.vid : "",
-                        port.board.model,
-                        (port.board.model == "PID") ? ":" + port.pid : "",
-                        (port.board.isCircuitPython) ? " (CircuitPython-capable)" : ""
-                    );
-                }
+
+                Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
+                    "Device    : {8}{9} {10}{11}{12}\n{13}" +
+                    "---\n\nUse CTRL-X to exit.\n",
+                    version,
+                    port.name,
+                    baud,
+                    (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
+                    dataBits,
+                    (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
+                    (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
+                    port.board.make,
+                    (port.board.make == "VID") ? ":" + port.vid : "",
+                    port.board.model,
+                    (port.board.model == "PID") ? ":" + port.pid : "",
+                    (port.board.isCircuitPython) ? " (CircuitPython-capable)" : "",
+                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
+                ), flush: true);
 
                 // this is the core functionality - loop while the serial port is open
                 while (serialPort.IsOpen)
@@ -199,7 +225,7 @@ namespace SimplySerial
                                 received = "\b \b";
 
                             // write what was received to console
-                            Console.Write(received);
+                            Output(received, force: true, newline: false);
                         }
                     }
                     catch (Exception e)
@@ -212,7 +238,7 @@ namespace SimplySerial
                         {
                             serialPort.Dispose();
                         }
-                        catch (Exception ex)
+                        catch
                         {
                             //nothing to do here, other than prevent execution from stopping if dispose() throws an exception
                         }
@@ -248,7 +274,7 @@ namespace SimplySerial
 
             // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
             for (int i = 0; i < args.Count(); i++)
-                args[i] = (args[i].TrimStart('/', '-')).ToLower();
+                args[i] = args[i].TrimStart('/', '-');
 
             // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output, etc.)
             Array.Sort(args, new ArgumentSorter());
@@ -257,7 +283,8 @@ namespace SimplySerial
             foreach (string arg in args)
             {
                 // split argument into components based on 'key:value' formatting             
-                string[] argument = arg.Split(':');
+                string[] argument = arg.Split(new [] { ':' }, 2);
+                argument[0] = argument[0].ToLower();
 
                 // help
                 if (argument[0].StartsWith("h") || argument[0].StartsWith("?"))
@@ -267,7 +294,7 @@ namespace SimplySerial
                 }
 
                 // list available ports
-                else if (argument[0].StartsWith("l"))
+                else if ((argument[0] == "l") || (argument[0].StartsWith("li")))
                 {
                     // get a list of all available ports
                     availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
@@ -333,6 +360,8 @@ namespace SimplySerial
                 // validate parity, terminate on error
                 else if (argument[0].StartsWith("p"))
                 {
+                    argument[1] = argument[1].ToLower();
+                    
                     if (argument[1].StartsWith("e"))
                         parity = Parity.Even;
                     else if (argument[1].StartsWith("m"))
@@ -376,6 +405,8 @@ namespace SimplySerial
                 // validate auto connect, terminate on error
                 else if (argument[0].StartsWith("a"))
                 {
+                    argument[1] = argument[1].ToLower();
+                    
                     if (argument[1].StartsWith("n"))
                         autoConnect = AutoConnect.NONE;
                     else if (argument[1].StartsWith("o"))
@@ -384,6 +415,26 @@ namespace SimplySerial
                         autoConnect = AutoConnect.ANY;
                     else
                         ExitProgram(("Invalid auto connect setting specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
+                // set logging mode (overwrite or append)
+                else if (argument[0].StartsWith("logm"))
+                {
+                    argument[1] = argument[1].ToLower();
+                    
+                    if (argument[1].StartsWith("o"))
+                        logMode = FileMode.Create;
+                    else if (argument[1].StartsWith("a"))
+                        logMode = FileMode.Append;
+                    else
+                        ExitProgram(("Invalid log mode setting specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
+                // specify log file (and enable logging)
+                else if (argument[0].StartsWith("lo"))
+                {
+                    logging = true; 
+                    logFile = argument[1];
                 }
 
                 // an invalid/incomplete argument was passed
@@ -415,10 +466,36 @@ namespace SimplySerial
         /// Writes messages using Console.WriteLine() as long as the 'Quiet' option hasn't been enabled
         /// </summary>
         /// <param name="message">Message to output (assuming 'Quiet' is false)</param>
-        static void Output(string message)
+        static void Output(string message, bool force=false, bool newline=true, bool flush=false)
         {
-            if (!SimplySerial.Quiet)
-                Console.WriteLine(message);
+            if (!SimplySerial.Quiet || force)
+            {
+                if (newline)
+                    message += "\n";
+
+                Console.Write(message);
+
+                if (logging)
+                {
+                    logData += message;
+                    if ((logData.Length >= bufferSize) || flush)
+                    {
+                        try
+                        {
+                            FileStream stream = new FileStream(logFile, FileMode.Append, FileAccess.Write);
+                            using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                            {
+                                writer.Write(logData);
+                            }
+                        }
+                        catch
+                        {
+                            Console.WriteLine($"({DateTime.Now}) Error accessing log file '{logFile}'");
+                        }
+                        logData = string.Empty;
+                    }
+                }
+            }
         }
 
 
@@ -446,6 +523,8 @@ namespace SimplySerial
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
+            Console.WriteLine("  -log:<logfile>    Logs all output to the specified file.");
+            Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
@@ -462,7 +541,13 @@ namespace SimplySerial
             if (serialPort != null && serialPort.IsOpen)
                 serialPort.Close();
             if (!silent)
-                Output("\n" + message);
+                Output("\n" + message, flush: true);
+            else if (logging)
+                Output("", force: true, newline: false, flush: true);
+#if DEBUG
+            Console.WriteLine("\n>> Press any key to exit <<");
+            Console.ReadKey();
+#endif
             Environment.Exit(exitCode);
         }
 
@@ -755,11 +840,20 @@ namespace SimplySerial
             // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
+            
+            x = x.ToLower();
+            if (x.StartsWith("lo"))
+                x = "z"; // mask out logging options so that they are not interpreted as the list option
+            
+            y = y.ToLower();
+            if (y.StartsWith("lo"))
+                y = "z"; // mask out logging options so that they are not interpreted as the list option
+            
             foreach (char c in "?hlqc")
             {
-                if (x[0] == c)
+                if (x.ToLower()[0] == c)
                     return (-1);
-                else if (y[0] == c)
+                else if (y.ToLower()[0] == c)
                     return (1);
             }
 
