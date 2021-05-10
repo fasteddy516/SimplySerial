@@ -521,8 +521,9 @@ namespace SimplySerial
         /// </summary>
         static void ShowHelp()
         {
-            Console.WriteLine("\nUsage: ss.exe [-help] [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
-            Console.WriteLine("              [-stopbits:VAL][-autoconnect:VAL][-quiet]\n");
+            Console.WriteLine("\nUsage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
+            Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
+            Console.WriteLine("              [-logbuffer:VAL] [-quiet]\n");
             Console.WriteLine("A basic serial terminal for IoT device programming in general, and working with");
             Console.WriteLine("CircuitPython devices specifically!  With no command-line arguments specified,");
             Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
@@ -539,11 +540,11 @@ namespace SimplySerial
             Console.WriteLine("  -stopbits:VAL     0 | 1 | 1.5 | 2");
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
-            Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine("  -log:<logfile>    Logs all output to the specified file.");
+            Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -logBuffer:VAL    Number of bytes of data to buffer before writing to");
             Console.WriteLine("                    log file.  Valid range is 0-100000.");
+            Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
