@@ -32,6 +32,7 @@ namespace SimplySerial
         static string logFile = string.Empty;
         static string logData = string.Empty;
         static int bufferSize = 4096;
+        static DateTime lastFlush = DateTime.Now;
 
 
         static void Main(string[] args)
@@ -184,6 +185,12 @@ namespace SimplySerial
                     (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
                 ), flush: true);
 
+
+                lastFlush = DateTime.Now;
+                DateTime start = DateTime.Now;
+                TimeSpan timeSinceRX = new TimeSpan();
+                TimeSpan timeSinceFlush = new TimeSpan();
+
                 // this is the core functionality - loop while the serial port is open
                 while (serialPort.IsOpen)
                 {
@@ -226,6 +233,22 @@ namespace SimplySerial
 
                             // write what was received to console
                             Output(received, force: true, newline: false);
+                            start = DateTime.Now;
+                        }
+                        else
+                        {
+                            Thread.Sleep(1);
+                            if (logging)
+                            {
+                                timeSinceRX = DateTime.Now - start;
+                                timeSinceFlush = DateTime.Now - lastFlush;
+                                if ((timeSinceRX.TotalSeconds >= 2) || (timeSinceFlush.TotalSeconds >= 10))
+                                {
+                                    if (logData.Length > 0)
+                                        Output("", force: true, newline: false, flush: true);
+                                    start = DateTime.Now;
+                                }
+                            }
                         }
                     }
                     catch (Exception e)
@@ -490,7 +513,8 @@ namespace SimplySerial
                 if (newline)
                     message += "\n";
 
-                Console.Write(message);
+                if (message.Length > 0)
+                    Console.Write(message);
 
                 if (logging)
                 {
@@ -504,6 +528,7 @@ namespace SimplySerial
                             {
                                 writer.Write(logData);
                             }
+                            lastFlush = DateTime.Now;
                         }
                         catch
                         {
