@@ -12,7 +12,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.5.0-beta";
+        const string version = "0.5.0-beta.2";
             
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
@@ -546,11 +546,12 @@ namespace SimplySerial
         /// </summary>
         static void ShowHelp()
         {
-            Console.WriteLine("\nUsage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
+            Console.WriteLine($"\n<<< SimplySerial v{version} >>>\n");
+            Console.WriteLine("Usage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
             Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
             Console.WriteLine("              [-logbuffer:VAL] [-quiet]\n");
             Console.WriteLine("A basic serial terminal for IoT device programming in general, and working with");
-            Console.WriteLine("CircuitPython devices specifically!  With no command-line arguments specified,");
+            Console.WriteLine("CircuitPython devices specifically.  With no command-line arguments specified,");
             Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
             Console.WriteLine("at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are");
             Console.WriteLine("detected, it will default to the first available serial (COM) port.\n");
