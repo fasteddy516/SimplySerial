@@ -12,7 +12,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.5.0-beta.2";
+        const string version = "0.5.0";
             
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
@@ -31,7 +31,7 @@ namespace SimplySerial
         static FileMode logMode = FileMode.Create;
         static string logFile = string.Empty;
         static string logData = string.Empty;
-        static int bufferSize = 4096;
+        static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
 
 
@@ -236,18 +236,18 @@ namespace SimplySerial
                             start = DateTime.Now;
                         }
                         else
-                        {
                             Thread.Sleep(1);
-                            if (logging)
+
+                        if (logging)
+                        {
+                            timeSinceRX = DateTime.Now - start;
+                            timeSinceFlush = DateTime.Now - lastFlush;
+                            if ((timeSinceRX.TotalSeconds >= 2) || (timeSinceFlush.TotalSeconds >= 10))
                             {
-                                timeSinceRX = DateTime.Now - start;
-                                timeSinceFlush = DateTime.Now - lastFlush;
-                                if ((timeSinceRX.TotalSeconds >= 2) || (timeSinceFlush.TotalSeconds >= 10))
-                                {
-                                    if (logData.Length > 0)
-                                        Output("", force: true, newline: false, flush: true);
-                                    start = DateTime.Now;
-                                }
+                                if (logData.Length > 0)
+                                    Output("", force: true, newline: false, flush: true);
+                                start = DateTime.Now;
+                                lastFlush = DateTime.Now;
                             }
                         }
                     }
@@ -453,23 +453,6 @@ namespace SimplySerial
                         ExitProgram(("Invalid log mode setting specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
-                // set size of logging buffer
-                else if (argument[0].StartsWith("logb"))
-                {
-                    try
-                    {
-                        int newSize = int.Parse(argument[1]);
-                        if ((newSize < 0) || (newSize > 100000))
-                            throw new ArgumentOutOfRangeException("Log buffer size must be between 0 and 100000 bytes.");
-                        else
-                            bufferSize = newSize;
-                    }
-                    catch
-                    {
-                        ExitProgram(("Invalid log buffer size specified < " + argument[1] + " > "), exitCode: -1);
-                    }
-                }
-
                 // specify log file (and enable logging)
                 else if (argument[0].StartsWith("lo"))
                 {
@@ -528,7 +511,6 @@ namespace SimplySerial
                             {
                                 writer.Write(logData);
                             }
-                            lastFlush = DateTime.Now;
                         }
                         catch
                         {
@@ -547,9 +529,12 @@ namespace SimplySerial
         static void ShowHelp()
         {
             Console.WriteLine($"\n<<< SimplySerial v{version} >>>\n");
+            Console.WriteLine($"{AppDomain.CurrentDomain.BaseDirectory}");
+
+
             Console.WriteLine("Usage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
             Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
-            Console.WriteLine("              [-logbuffer:VAL] [-quiet]\n");
+            Console.WriteLine("              [-quiet]\n");
             Console.WriteLine("A basic serial terminal for IoT device programming in general, and working with");
             Console.WriteLine("CircuitPython devices specifically.  With no command-line arguments specified,");
             Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
@@ -568,8 +553,6 @@ namespace SimplySerial
             Console.WriteLine("                    a device is disconnected / reconnected.");
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
-            Console.WriteLine("  -logBuffer:VAL    Number of bytes of data to buffer before writing to");
-            Console.WriteLine("                    log file.  Valid range is 0-100000.");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
