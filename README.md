@@ -66,6 +66,10 @@ If you have multiple COM ports, multiple CircuitPython devices connected, or nee
 
   `-a, --autoconnect` sets the desired auto-(re)connect behaviour (ex. `a:NONE`, `--autoconnect:ANY`)
   
+  `-l, --log` Logs all output to the specified file.  (ex. `-l:ss.log`, `-log:"C:\Users\My Name\my log.txt"`)
+            
+  `--logmode` Instructs SimplySerial to either `APPEND` to an existing log file, or `OVERWRITE` an existing log file.  In either case, if the specified log file does not exist, it will be created.  If neither option is specified, `OVERWRITE` is assumed.  (ex. `--logmode:APPEND`)
+
   `-q, --quiet` prevents any application messages (connection banner, error messages, etc.) from printing out to the console.
 
 If you wanted to connect to a device on COM17 at 115200 baud, you would use the command `ss -c:17 -b:115200`, or if you really enjoy typing `ss --com:17 --baud:115200`.
