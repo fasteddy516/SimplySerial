@@ -7,13 +7,29 @@ using System.Text;
 using System.Threading;
 using System.Management;
 using System.Text.RegularExpressions;
+using System.Runtime.InteropServices;
 
 namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.5.0";
-            
+        const string version = "0.6.0";
+
+        private const int STD_OUTPUT_HANDLE = -11;
+        private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
+
+        [DllImport("kernel32.dll")]
+        private static extern bool GetConsoleMode(IntPtr hConsoleHandle, out uint lpMode);
+
+        [DllImport("kernel32.dll")]
+        private static extern bool SetConsoleMode(IntPtr hConsoleHandle, uint dwMode);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern IntPtr GetStdHandle(int nStdHandle);
+
+        [DllImport("kernel32.dll")]
+        public static extern uint GetLastError();
+
         static List<ComPort> availablePorts;
         static SerialPort serialPort;
 
@@ -34,6 +50,7 @@ namespace SimplySerial
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
 
+        // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
         {
             { ConsoleKey.UpArrow, "\x1B[A" },
@@ -44,6 +61,19 @@ namespace SimplySerial
 
         static void Main(string[] args)
         {
+            // attempt to enable virtual terminal escape sequence processing
+            try
+            {
+                var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+                GetConsoleMode(iStdOut, out uint outConsoleMode);
+                outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                SetConsoleMode(iStdOut, outConsoleMode);
+            }
+            catch
+            {
+                // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
+            }
+
             // process all command-line arguments
             ProcessArguments(args);
 
@@ -192,7 +222,6 @@ namespace SimplySerial
                     (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
                 ), flush: true);
 
-
                 lastFlush = DateTime.Now;
                 DateTime start = DateTime.Now;
                 TimeSpan timeSinceRX = new TimeSpan();
@@ -216,13 +245,6 @@ namespace SimplySerial
                                 ExitProgram(silent: true);
                             }
 
-                            // properly process the backspace character
-                            else if (keyInfo.Key == ConsoleKey.Backspace)
-                            {
-                                serialPort.Write("\b");
-                                Thread.Sleep(150); // sort of cheating here - by adding this delay we ensure that when we process the receive buffer it will contain the correct backspace control sequence
-                            }
-
                             // check for keys that require special processing (cursor keys, etc.)
                             else if (specialKeys.ContainsKey(keyInfo.Key))
                                 serialPort.Write(specialKeys[keyInfo.Key]);
@@ -238,10 +260,6 @@ namespace SimplySerial
                         // if anything was received, process it
                         if (received.Length > 0)
                         {
-                            // properly process backspace
-                            if (received == ("\b\x1B[K"))
-                                received = "\b \b";
-
                             // write what was received to console
                             Output(received, force: true, newline: false);
                             start = DateTime.Now;
