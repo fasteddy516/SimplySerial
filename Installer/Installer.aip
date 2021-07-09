@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.3" Modules="simple" RootPath="." Language="en" Id="{813739C4-1EBF-4720-9196-4AC91588D7AC}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.4" Modules="simple" RootPath="." Language="en" Id="{813739C4-1EBF-4720-9196-4AC91588D7AC}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
@@ -13,10 +13,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/fasteddy516/SimplySerial"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/fasteddy516/SimplySerial/releases"/>
     <ROW Property="Manufacturer" Value="fasteddy516"/>
-    <ROW Property="ProductCode" Value="1033:{41F04A28-BE55-4E7E-B3C9-4B8554742D13} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{4BEF8D2B-0368-43D8-8987-D4C78E56D1D4} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SimplySerial"/>
-    <ROW Property="ProductVersion" Value="0.6.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.5.990" Type="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{64061592-EDD5-474E-B846-4CA070788BBE}"/>
