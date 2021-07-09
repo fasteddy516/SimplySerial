@@ -34,6 +34,13 @@ namespace SimplySerial
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
 
+        static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
+        {
+            { ConsoleKey.UpArrow, "\x1B[A" },
+            { ConsoleKey.DownArrow, "\x1B[B" },
+            { ConsoleKey.RightArrow, "\x1B[C" },
+            { ConsoleKey.LeftArrow, "\x1B[D" }
+        };
 
         static void Main(string[] args)
         {
@@ -215,6 +222,10 @@ namespace SimplySerial
                                 serialPort.Write("\b");
                                 Thread.Sleep(150); // sort of cheating here - by adding this delay we ensure that when we process the receive buffer it will contain the correct backspace control sequence
                             }
+
+                            // check for keys that require special processing (cursor keys, etc.)
+                            else if (specialKeys.ContainsKey(keyInfo.Key))
+                                serialPort.Write(specialKeys[keyInfo.Key]);
 
                             // everything else just gets sent right on through
                             else
