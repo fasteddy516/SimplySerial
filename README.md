@@ -110,4 +110,6 @@ If you're directly editing the settings.json, the profile section will look like
 
 # Acknowledgements
 
-  The code used to obtain extra details about connected serial devices (VID, PID, etc.) is a modified version of examples posted by Kamil Górski (freakone) at http://blog.gorski.pm/serial-port-details-in-c-sharp and https://github.com/freakone/serial-reader.  Some modifications were made based on this stackoverflow thread: https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp.
+  The code used to obtain extra details about connected serial devices (VID, PID, etc.) is a modified version of examples posted by Kamil Górski (@freakone) at http://blog.gorski.pm/serial-port-details-in-c-sharp and https://github.com/freakone/serial-reader.  Some modifications were made based on this stackoverflow thread: https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp.
+
+  The code implemented in v0.6.0 to enable virtual terminal processing is based on Tamás Deme's (@tomzorz) gist about [Enabling VT100 terminal emulation in the current console window](https://gist.github.com/tomzorz/6142d69852f831fb5393654c90a1f22e).
