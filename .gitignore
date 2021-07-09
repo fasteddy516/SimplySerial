@@ -331,6 +331,7 @@ ASALocalRun/
 
 ### AdvancedInstaller ###
 # Advanced Installer caches and default build output
+*.back.aip
 *-cache/
 *-SetupFiles/
 Prerequisites/
