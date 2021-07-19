@@ -56,7 +56,13 @@ namespace SimplySerial
             { ConsoleKey.UpArrow, "\x1B[A" },
             { ConsoleKey.DownArrow, "\x1B[B" },
             { ConsoleKey.RightArrow, "\x1B[C" },
-            { ConsoleKey.LeftArrow, "\x1B[D" }
+            { ConsoleKey.LeftArrow, "\x1B[D" },
+            { ConsoleKey.Home, "\x1B[H" },
+            { ConsoleKey.End, "\x1B[F" },
+            { ConsoleKey.Insert, "\x1B[2~" },
+            { ConsoleKey.Delete, "\x1B[3~" },
+            { ConsoleKey.PageUp, "\x1B[5~" },
+            { ConsoleKey.PageDown, "\x1B[6~" }
         };
 
         static void Main(string[] args)
