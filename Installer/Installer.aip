@@ -13,10 +13,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/fasteddy516/SimplySerial"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/fasteddy516/SimplySerial/releases"/>
     <ROW Property="Manufacturer" Value="fasteddy516"/>
-    <ROW Property="ProductCode" Value="1033:{4BEF8D2B-0368-43D8-8987-D4C78E56D1D4} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{9D293E0C-6634-40CA-B159-2D583D971267} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SimplySerial"/>
-    <ROW Property="ProductVersion" Value="0.5.990" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.6.0" Type="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{64061592-EDD5-474E-B846-4CA070788BBE}"/>
