@@ -331,7 +331,7 @@ namespace SimplySerial
                         if (autoConnect == AutoConnect.ANY)
                         {
                             port.name = String.Empty;
-                            Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
+                            Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
                         }
                         else if (autoConnect == AutoConnect.ONE)
                         {
@@ -524,7 +524,7 @@ namespace SimplySerial
             Console.Clear();
             if (autoConnect == AutoConnect.ANY)
             {
-                Output("<<< Attemping to connect to any avaiable COM port.  Use CTRL-X to cancel >>>");
+                Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
             }
             else if (autoConnect == AutoConnect.ONE)
             {
