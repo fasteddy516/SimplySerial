@@ -39,7 +39,7 @@ namespace SimplySerial
         static bool Quiet = false;
         static AutoConnect autoConnect = AutoConnect.ONE;
         static ComPort port;
-        static int baud = 9600;
+        static int baud = -1;
         static Parity parity = Parity.None;
         static int dataBits = 8;
         static StopBits stopBits = StopBits.One;
@@ -187,6 +187,14 @@ namespace SimplySerial
                 // attempt to set the baud rate, fail if the specified value is not supported by the hardware
                 try
                 {
+                    if (baud < 0)
+                    {
+                        if (port.board.isCircuitPython)
+                            baud = 115200;
+                        else
+                            baud = 9600;
+                    }
+                    
                     serialPort.BaudRate = baud;
                 }
                 catch (ArgumentOutOfRangeException)
