@@ -308,6 +308,10 @@ namespace SimplySerial
                                 lastFlush = DateTime.Now;
                             }
                         }
+
+                        // if the serial port is unexpectedly closed, throw an exception
+                        if (!serialPort.IsOpen)
+                            throw new IOException();
                     }
                     catch (Exception e)
                     {
@@ -324,7 +328,6 @@ namespace SimplySerial
                             //nothing to do here, other than prevent execution from stopping if dispose() throws an exception
                         }
                         Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
-                        Console.Clear();
                         if (autoConnect == AutoConnect.ANY)
                         {
                             port.name = String.Empty;
@@ -332,7 +335,6 @@ namespace SimplySerial
                         }
                         else if (autoConnect == AutoConnect.ONE)
                         {
-                            Console.Clear();
                             Output("<<< Attempting to re-connect to " + port.name + ". Use CTRL-X to cancel >>>");
                         }
                         break;
