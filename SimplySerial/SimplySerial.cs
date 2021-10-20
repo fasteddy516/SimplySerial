@@ -13,7 +13,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.6.0";
+        const string version = "0.7.0";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -175,7 +175,7 @@ namespace SimplySerial
                 }
 
                 // if we get this far, it should be safe to set up the specified/selected serial port
-                serialPort = new SerialPort(port.name, baud, parity, dataBits, stopBits)
+                serialPort = new SerialPort(port.name)
                 {
                     Handshake = Handshake.None, // we don't need to support any handshaking at this point 
                     ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
@@ -183,6 +183,21 @@ namespace SimplySerial
                     DtrEnable = true, // without this we don't ever receive any data
                     RtsEnable = true // without this we don't ever receive any data
                 };
+
+                // attempt to set the baud rate, fail if the specified value is not supported by the hardware
+                try
+                {
+                    serialPort.BaudRate = baud;
+                }
+                catch (ArgumentOutOfRangeException)
+                {
+                    ExitProgram(("The specified baud rate (" + baud + ") is not supported."), exitCode: -2);
+                }
+
+                // set other port parameters (which have already been validated)
+                serialPort.Parity = parity;
+                serialPort.DataBits = dataBits;
+                serialPort.StopBits = stopBits;
 
                 // attempt to open the serial port, deal with failures
                 try
@@ -403,16 +418,10 @@ namespace SimplySerial
                     autoConnect = AutoConnect.ONE;
                 }
 
-                // validate baud rate, terminate on error
+                // process baud rate, invalid rates will throw exceptions and get handled elsewhere
                 else if (argument[0].StartsWith("b"))
                 {
-                    // these are the baud rates we're supporting for now
-                    string[] availableBaudRates = new string[] { "1200", "2400", "4800", "7200", "9600", "14400", "19200", "38400", "57600", "115200" };
-
-                    if (availableBaudRates.Contains(argument[1]))
-                        baud = Convert.ToInt32(argument[1]);
-                    else
-                        ExitProgram(("Invalid baud rate specified <" + argument[1] + ">"), exitCode: -1);
+                    baud = Convert.ToInt32(argument[1]);
                 }
 
                 // validate parity, terminate on error
@@ -580,7 +589,7 @@ namespace SimplySerial
             Console.WriteLine("  -list             Display a list of available serial (COM) ports");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
-            Console.WriteLine("                    57600 | 115200");
+            Console.WriteLine("                    57600 | 115200 | (Any valid baud rate for the specified port.)");
             Console.WriteLine("  -parity:PARITY    NONE | EVEN | ODD | MARK | SPACE");
             Console.WriteLine("  -databits:VAL     4 | 5 |  | 7 | 8");
             Console.WriteLine("  -stopbits:VAL     0 | 1 | 1.5 | 2");
