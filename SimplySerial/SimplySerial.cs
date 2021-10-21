@@ -8,6 +8,7 @@ using System.Threading;
 using System.Management;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 
 namespace SimplySerial
 {
@@ -30,15 +31,13 @@ namespace SimplySerial
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
-        static List<ComPort> availablePorts;
+        static List<ComPort> availablePorts = new List<ComPort>();
         static SerialPort serialPort;
-
-        enum AutoConnect { NONE, ONE, ANY };
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
         static bool Quiet = false;
         static AutoConnect autoConnect = AutoConnect.ONE;
-        static ComPort port;
+        static ComPort port = new ComPort();
         static int baud = -1;
         static Parity parity = Parity.None;
         static int dataBits = 8;
@@ -132,10 +131,10 @@ namespace SimplySerial
                     if (availablePorts.Count() >= 1)
                     {
                         // first, try to default to something that we assume is running CircuitPython
-                        SimplySerial.port = availablePorts.Find(p => p.board.isCircuitPython == true);
+                        SimplySerial.port = availablePorts.Find(p => p.isCircuitPython == true);
 
                         // if that doesn't work out, just default to the first available COM port
-                        if (SimplySerial.port.name == null)
+                        if (SimplySerial.port == null)
                             SimplySerial.port = availablePorts[0];
                     }
 
@@ -189,7 +188,7 @@ namespace SimplySerial
                 {
                     if (baud < 0)
                     {
-                        if (port.board.isCircuitPython)
+                        if (port.isCircuitPython)
                             baud = 115200;
                         else
                             baud = 9600;
@@ -247,7 +246,7 @@ namespace SimplySerial
                     (port.board.make == "VID") ? ":" + port.vid : "",
                     port.board.model,
                     (port.board.model == "PID") ? ":" + port.pid : "",
-                    (port.board.isCircuitPython) ? " (CircuitPython-capable)" : "",
+                    (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
                     (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
                 ), flush: true);
 
@@ -346,7 +345,6 @@ namespace SimplySerial
             ExitProgram("<<< SimplySerial session terminated >>>", exitCode: 0);
         }
 
-
         /// <summary>
         /// Validates and processes any command-line arguments that were passed in.  Invalid arguments will halt program execution.
         /// </summary>
@@ -392,7 +390,7 @@ namespace SimplySerial
                                 p.name,
                                 p.vid,
                                 p.pid,
-                                (p.board.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                                (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
                                 ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
                             );
                         }
@@ -637,24 +635,6 @@ namespace SimplySerial
 
 
         /// <summary>
-        /// Custom structure containing the name, VID, PID and description of a serial (COM) port
-        /// Modified from the example written by Kamil Górski (freakone) available at
-        /// http://blog.gorski.pm/serial-port-details-in-c-sharp
-        /// https://github.com/freakone/serial-reader
-        /// </summary>
-        struct ComPort // custom struct with our desired values
-        {
-            public string name;
-            public int num;
-            public string vid;
-            public string pid;
-            public string description;
-            public string busDescription;
-            public Board board;
-        }
-
-
-        /// <summary>
         /// Returns a list of available serial ports with their associated PID, VID and descriptions 
         /// Modified from the example written by Kamil Górski (freakone) available at
         /// http://blog.gorski.pm/serial-port-details-in-c-sharp
@@ -701,22 +681,12 @@ namespace SimplySerial
                 // extract and clean up device's VID
                 Match mVID = Regex.Match(pidvid, vidPattern, RegexOptions.IgnoreCase);
                 if (mVID.Success)
-                {
-                    c.vid = mVID.Groups[1].Value;
-                    c.vid = c.vid.Substring(0, Math.Min(4, c.vid.Length));
-                }
-                else
-                    c.vid = "----";
+                    c.vid = mVID.Groups[1].Value.Substring(0, Math.Min(4, c.vid.Length));
 
                 // extract and clean up device's PID
                 Match mPID = Regex.Match(pidvid, pidPattern, RegexOptions.IgnoreCase);
                 if (mPID.Success)
-                {
-                    c.pid = mPID.Groups[1].Value;
-                    c.pid = c.pid.Substring(0, Math.Min(4, c.pid.Length));
-                }
-                else
-                    c.pid = "----";
+                    c.pid = mPID.Groups[1].Value.Substring(0, Math.Min(4, c.pid.Length));
 
                 // extract the device's friendly description (caption)
                 c.description = p.GetPropertyValue("Caption").ToString();
@@ -742,7 +712,7 @@ namespace SimplySerial
                 foreach (string prefix in cpb_descriptions)
                 {
                     if (c.busDescription.StartsWith(prefix))
-                        c.board.isCircuitPython = true;
+                        c.isCircuitPython = true;
                 }
 
                 // add this port to our list of detected ports
@@ -752,183 +722,44 @@ namespace SimplySerial
             return detectedPorts;
         }
 
+        // TODO: Replace temporary JSON code with file-based 'board.json'
+        private const string vendors_json = "[{\"vid\":\"04D8\",\"vendor\":\"Various\",\"boards\":[{\"pid\":\"ED5F\",\"make\":\"Itaca Innovation\",\"model\":\"uChip M0\"},{\"pid\":\"ED94\",\"make\":\"Max Holliday\",\"model\":\"KickSat Sprite\"},{\"pid\":\"EDB3\",\"make\":\"Capable Robot Components\",\"model\":\"Programable USB Hub\"},{\"pid\":\"EDBE\",\"make\":\"Max Holliday\",\"model\":\"SAM32\"}]},{\"vid\":\"1209\",\"vendor\":\"Various\",\"boards\":[{\"pid\":\"2017\",\"make\":\"Benjamin Shockley\",\"model\":\"Mini SAM M4\"},{\"pid\":\"4D43\",\"make\":\"Robotics Masters\",\"model\":\"Robo HAT MM1\"},{\"pid\":\"BAB1\",\"make\":\"Electronic Cats\",\"model\":\"Meow Meow\"},{\"pid\":\"BAB2\",\"make\":\"Electronic Cats\",\"model\":\"CatWAN USB Stick\"},{\"pid\":\"BAB3\",\"make\":\"Electronic Cats\",\"model\":\"Bast Pro Mini M0\"},{\"pid\":\"BAB6\",\"make\":\"Electronic Cats\",\"model\":\"Escornabot Makech\"}]},{\"vid\":\"1B4F\",\"vendor\":\"Sparkfun\",\"boards\":[{\"pid\":\"0015\",\"model\":\"RedBoard Turbo\"},{\"pid\":\"0017\",\"model\":\"LumiDrive\"},{\"pid\":\"5289\",\"model\":\"NRF52840 Mini\"},{\"pid\":\"8D22\",\"model\":\"SAMD21 Mini\"},{\"pid\":\"8D23\",\"model\":\"SAMD21 Dev\"}]},{\"vid\":\"2341\",\"vendor\":\"Arduino\",\"boards\":[{\"pid\":\"8053\",\"model\":\"MKR WAN 1300\"},{\"pid\":\"824D\",\"model\":\"Zero\"}]},{\"vid\":\"239A\",\"vendor\":\"Adafruit\",\"boards\":[{\"pid\":\"8012\",\"model\":\"ItsyBitsy M0 Express\"},{\"pid\":\"8014\",\"model\":\"Metro M0 Express\"},{\"pid\":\"8015\",\"model\":\"Feather M0 Family\"},{\"pid\":\"8019\",\"model\":\"Circuit Playground Express\"},{\"pid\":\"801D\",\"model\":\"Gemma M0\"},{\"pid\":\"801F\",\"model\":\"Trinket M0\"},{\"pid\":\"8021\",\"model\":\"Metro M4 Express\"},{\"pid\":\"8023\",\"model\":\"Feather M0 Express Family\"},{\"pid\":\"8026\",\"model\":\"Feather M4 Express\"},{\"pid\":\"8028\",\"model\":\"pIRkey\"},{\"pid\":\"802A\",\"make\":\"Nordic Semiconductor\",\"model\":\"NRF52840 Family\"},{\"pid\":\"802C\",\"model\":\"ItsyBitsy M4 Express\"},{\"pid\":\"8030\",\"model\":\"NeoTrellis M4\"},{\"pid\":\"8032\",\"model\":\"Grand Central M4 Express\"},{\"pid\":\"8034\",\"model\":\"PyBadge\"},{\"pid\":\"8036\",\"model\":\"PyPortal\"},{\"pid\":\"8038\",\"model\":\"Metro M4 AirLift Lite\"},{\"pid\":\"803C\",\"make\":\"Electronut Labs\",\"model\":\"Papyr\"},{\"pid\":\"803E\",\"model\":\"PyGamer\"},{\"pid\":\"8050\",\"make\":\"Arduino\",\"model\":\"MKR Zero\"},{\"pid\":\"D1ED\",\"model\":\"HalloWing M0 Express\"},{\"pid\":\"80CC\",\"model\":\"QT Py M0\"},{\"pid\":\"00CC\",\"model\":\"QT Py M0 Haxpress\"}]},{\"vid\":\"2B04\",\"vendor\":\"Particle\",\"boards\":[{\"pid\":\"c00c\",\"model\":\"Argon\"},{\"pid\":\"c00d\",\"model\":\"Boron\"},{\"pid\":\"c00e\",\"model\":\"Xenon\"}]},{\"vid\":\"4097\",\"vendor\":\"Datalore\",\"boards\":[{\"pid\":\"0001\",\"model\":\"IP M4\"}]}]";
+        static List<Vendor> vendors = JsonConvert.DeserializeObject<List<Vendor>>(vendors_json);
 
         /// <summary>
-        /// Custom structure containing information about supported CircuitPython boards
-        /// </summary>
-        struct Board
-        {
-            public string pid;
-            public string make;
-            public string model;
-            public bool isCircuitPython;
-        }
-
-
-        /// <summary>
-        /// Custom structure containing information about CircuitPython board vendors
-        /// </summary>
-        struct Vendor
-        {
-            public string vid;
-            public string vendor;
-            public bool isCircuitPython;
-            public List<Board> boards;
-        }
-
-        /// <summary>
-        /// Master list of all of the CircuitPython boards we know about
-        /// </summary>
-        static readonly List<Vendor> vendors = new List<Vendor>()
-        {
-            new Vendor()
-            {
-                vid = "04D8",
-                vendor = "Various",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "ED5F" , make = "Itaca Innovation", model = "uChip M0", isCircuitPython = true },
-                    new Board() { pid = "ED94" , make = "Max Holliday", model = "KickSat Sprite", isCircuitPython = true },
-                    new Board() { pid = "EDB3" , make = "Capable Robot Components", model = "Programable USB Hub", isCircuitPython = true },
-                    new Board() { pid = "EDBE" , make = "Max Holliday", model = "SAM32", isCircuitPython = true }
-                }
-            },
-            new Vendor()
-            {
-                vid = "1209",
-                vendor = "Various",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "2017" , make = "Benjamin Shockley", model = "Mini SAM M4", isCircuitPython = true },
-                    new Board() { pid = "4D43" , make = "Robotics Masters", model = "Robo HAT MM1", isCircuitPython = true },
-                    new Board() { pid = "BAB1" , make = "Electronic Cats", model = "Meow Meow", isCircuitPython = true },
-                    new Board() { pid = "BAB2" , make = "Electronic Cats", model = "CatWAN USB Stick", isCircuitPython = true },
-                    new Board() { pid = "BAB3" , make = "Electronic Cats", model = "Bast Pro Mini M0", isCircuitPython = true },
-                    new Board() { pid = "BAB6" , make = "Electronic Cats", model = "Escornabot Makech", isCircuitPython = true }
-                }
-            },
-            new Vendor()
-            {
-                vid = "1B4F",
-                vendor = "Sparkfun",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "0015" , make = "", model = "RedBoard Turbo", isCircuitPython = true },
-                    new Board() { pid = "0017" , make = "", model = "LumiDrive", isCircuitPython = true },
-                    new Board() { pid = "5289" , make = "", model = "NRF52840 Mini", isCircuitPython = true },
-                    new Board() { pid = "8D22" , make = "", model = "SAMD21 Mini", isCircuitPython = true },
-                    new Board() { pid = "8D23" , make = "", model = "SAMD21 Dev", isCircuitPython = true },
-                }
-            },
-            new Vendor()
-            {
-                vid = "2341",
-                vendor = "Arduino",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "8053" , make = "", model = "MKR WAN 1300", isCircuitPython = true },
-                    new Board() { pid = "824D" , make = "", model = "Zero", isCircuitPython = true },
-                }
-            },
-            new Vendor()
-            {
-                vid = "239A",
-                vendor = "Adafruit",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "8012" , make = "", model = "ItsyBitsy M0 Express", isCircuitPython = true },
-                    new Board() { pid = "8014" , make = "", model = "Metro M0 Express", isCircuitPython = true },
-                    new Board() { pid = "8015" , make = "", model = "Feather M0 Family", isCircuitPython = true },
-                    new Board() { pid = "8019" , make = "", model = "Circuit Playground Express", isCircuitPython = true },
-                    new Board() { pid = "801D" , make = "", model = "Gemma M0", isCircuitPython = true },
-                    new Board() { pid = "801F" , make = "", model = "Trinket M0", isCircuitPython = true },
-                    new Board() { pid = "8021" , make = "", model = "Metro M4 Express", isCircuitPython = true },
-                    new Board() { pid = "8023" , make = "", model = "Feather M0 Express Family", isCircuitPython = true },
-                    new Board() { pid = "8026" , make = "", model = "Feather M4 Express", isCircuitPython = true },
-                    new Board() { pid = "8028" , make = "", model = "pIRkey", isCircuitPython = true },
-                    new Board() { pid = "802A" , make = "Nordic Semiconductor", model = "NRF52840 Family", isCircuitPython = true },
-                    new Board() { pid = "802C" , make = "", model = "ItsyBitsy M4 Express", isCircuitPython = true },
-                    new Board() { pid = "8030" , make = "", model = "NeoTrellis M4", isCircuitPython = true },
-                    new Board() { pid = "8032" , make = "", model = "Grand Central M4 Express", isCircuitPython = true },
-                    new Board() { pid = "8034" , make = "", model = "PyBadge", isCircuitPython = true },
-                    new Board() { pid = "8036" , make = "", model = "PyPortal", isCircuitPython = true },
-                    new Board() { pid = "8038" , make = "", model = "Metro M4 AirLift Lite", isCircuitPython = true },
-                    new Board() { pid = "803C" , make = "Electronut Labs", model = "Papyr", isCircuitPython = true },
-                    new Board() { pid = "803E" , make = "", model = "PyGamer", isCircuitPython = true },
-                    new Board() { pid = "8050" , make = "Arduino", model = "MKR Zero", isCircuitPython = true },
-                    new Board() { pid = "D1ED" , make = "", model = "HalloWing M0 Express", isCircuitPython = true },
-                }
-            },
-            new Vendor()
-            {
-                vid = "2B04",
-                vendor = "Particle",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "c00c" , make = "", model = "Argon", isCircuitPython = true },
-                    new Board() { pid = "c00d" , make = "", model = "Boron", isCircuitPython = true },
-                    new Board() { pid = "c00e" , make = "", model = "Xenon", isCircuitPython = true },
-                }
-            },
-            new Vendor()
-            {
-                vid = "4097",
-                vendor = "Datalore",
-                isCircuitPython = true,
-                boards = new List<Board>()
-                {
-                    new Board() { pid = "0001" , make = "", model = "IP M4", isCircuitPython = true },
-                }
-            }
-        };
-
-
-        /// <summary>
-        /// Searches for a CircuitPython Vendor/Board match based on VID and PID
+        /// Matches to a known development board based on VID and PID
         /// </summary>
         /// <param name="vid">VID of board</param>
         /// <param name="pid">PID of board</param>
-        /// <returns>Board structure containing information about the matched board, if any</returns>
+        /// <returns>Board structure containing information about the matched board, or generic values otherwise/returns>
         static Board MatchBoard(string vid, string pid)
         {
-            Board mBoard = new Board();
+            Board mBoard = null;
 
             // search for matching vendor
             Vendor mVendor = vendors.Find(v => v.vid == vid);
 
             // if a matching vendor is found, look for a matching board
-            if (mVendor.vid != null)
-            {
+            if (mVendor != null)
                 mBoard = mVendor.boards.Find(b => b.pid == pid);
-
-                // if the board's 'make' field is blank, use the vendor name instead
-                if (mBoard.make == "")
-                    mBoard.make = mVendor.vendor;
-            }
-
-            // if no matching vendor is found we will return generic information and assume CircuitPython is not running
             else
             {
-                mBoard.pid = pid;
-                mBoard.make = "VID";
-                mBoard.model = "PID";
-                mBoard.isCircuitPython = false;
+                mVendor = new Vendor();
+                mVendor.vendor = "VID";
             }
 
-            // if a vendor was matched but not the board, fill in gaps with generic/assumed information based on vendor
-            if (mBoard.pid == null)
+            // if no matching board is found, substitute generic information
+            if (mBoard == null)
             {
+                mBoard = new Board();
                 mBoard.pid = pid;
                 mBoard.make = mVendor.vendor;
                 mBoard.model = "PID";
-                mBoard.isCircuitPython = mVendor.isCircuitPython;
             }
+
+            // if the board's 'make' field is blank, use the vendor name instead
+            if (mBoard.make == "")
+                mBoard.make = mVendor.vendor;
 
             return mBoard;
         }
@@ -974,3 +805,5 @@ namespace SimplySerial
         }
     }
 }
+
+
