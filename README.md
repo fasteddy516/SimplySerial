@@ -17,10 +17,12 @@ If your primary interest in SimplySerial is for programming CircuitPython device
 
 # Requirements
 
-* Windows 7, 8, 8.1 or 10
+* Windows 7, 8, 8.1, 10 or 11
 * .NET Framework 4.5 or newer
 
 _The required version of .NET framework is already included in Windows 8 and newer.  If you're running Windows 7, you may need to download and install it from Microsoft at https://dotnet.microsoft.com/download/dotnet-framework._
+
+_Enhanced terminal processing (cursor keys, colour processing, etc.) is only supported on Windows 10 and newer._
 
 
 # Installation
@@ -110,6 +112,10 @@ If you're directly editing the settings.json, the profile section will look like
 
 # Acknowledgements
 
-  The code used to obtain extra details about connected serial devices (VID, PID, etc.) is a modified version of examples posted by Kamil Górski (@freakone) at http://blog.gorski.pm/serial-port-details-in-c-sharp and https://github.com/freakone/serial-reader.  Some modifications were made based on this stackoverflow thread: https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp.
+  The code used to obtain extra details about connected serial devices (VID, PID, etc.) is a modified version of [serial-reader](https://github.com/freakone/serial-reader) and its [associated examples](http://blog.gorski.pm/serial-port-details-in-c-sharp) by Kamil Górski (@freakone).  Some modifications were made based on [this stackoverflow thread](https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp).
 
   The code implemented in v0.6.0 to enable virtual terminal processing is based on Tamás Deme's (@tomzorz) gist about [Enabling VT100 terminal emulation in the current console window](https://gist.github.com/tomzorz/6142d69852f831fb5393654c90a1f22e).
+
+  The improved detection of CircuitPython boards in version 0.7.0 is based on Simon Mourier's answer on [this stackoverflow thread](https://stackoverflow.com/questions/69362886/get-devpkey-device-busreporteddevicedesc-from-win32-pnpentity-in-c-sharp) regarding the retrieval of a device's hardware bus description through WMI, with some pointers taken from Adafruit's [adafruit_board_toolkit](https://github.com/adafruit/Adafruit_Board_Toolkit/blob/main/adafruit_board_toolkit).
+
+
