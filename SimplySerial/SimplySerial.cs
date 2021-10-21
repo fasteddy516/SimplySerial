@@ -385,14 +385,15 @@ namespace SimplySerial
                     if (availablePorts.Count >= 1)
                     {
                         Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
-                        Console.WriteLine("------------------------------------------------------------");
+                        Console.WriteLine("----------------------------------------------------------------------");
                         foreach (ComPort p in availablePorts)
                         {
-                            Console.WriteLine("{0}\t{1}\t{2}\t{3}",
+                            Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
                                 p.name,
                                 p.vid,
                                 p.pid,
-                                (p.board.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description
+                                (p.board.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                                ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
                             );
                         }
                         Console.WriteLine("");
@@ -648,6 +649,7 @@ namespace SimplySerial
             public string vid;
             public string pid;
             public string description;
+            public string busDescription;
             public Board board;
         }
 
@@ -659,6 +661,8 @@ namespace SimplySerial
         /// https://github.com/freakone/serial-reader
         /// Some modifications were based on this stackoverflow thread:
         /// https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp
+        /// Hardware Bus Description through WMI is based on Simon Mourier's answer on this stackoverflow thread:
+        /// https://stackoverflow.com/questions/69362886/get-devpkey-device-busreporteddevicedesc-from-win32-pnpentity-in-c-sharp
         /// </summary>
         /// <returns>List of available serial ports</returns>
         private static List<ComPort> GetSerialPorts()
@@ -666,61 +670,86 @@ namespace SimplySerial
             const string vidPattern = @"VID_([0-9A-F]{4})";
             const string pidPattern = @"PID_([0-9A-F]{4})";
             const string namePattern = @"(?<=\()COM[0-9]{1,3}(?=\)$)";
+            const string query = "SELECT * FROM Win32_PnPEntity WHERE ClassGuid=\"{4d36e978-e325-11ce-bfc1-08002be10318}\"";
 
-            using (var searcher = new ManagementObjectSearcher("root\\CIMV2", "SELECT * FROM Win32_PnPEntity WHERE ClassGuid=\"{4d36e978-e325-11ce-bfc1-08002be10318}\""))
+            // as per INTERFACE_PREFIXES in adafruit_board_toolkit
+            // (see https://github.com/adafruit/Adafruit_Board_Toolkit/blob/main/adafruit_board_toolkit)
+            string[] cpb_descriptions = new string[] { "CircuitPython CDC ", "Sol CDC ", "StringCarM0Ex CDC " };
+
+            List<ComPort> detectedPorts = new List<ComPort>();
+            
+            foreach (var p in new ManagementObjectSearcher("root\\CIMV2", query).Get().OfType<ManagementObject>())
             {
-                var ports = searcher.Get().Cast<ManagementBaseObject>().ToList();
-                List<ComPort> detectedPorts = ports.Select(p =>
+                ComPort c = new ComPort();
+
+                // extract and clean up port name and number
+                c.name = p.GetPropertyValue("Name").ToString();
+                Match mName = Regex.Match(c.name, namePattern);
+                if (mName.Success)
                 {
-                    ComPort c = new ComPort();
-                    c.name = p.GetPropertyValue("Name").ToString();
-                    c.vid = p.GetPropertyValue("PNPDeviceID").ToString();
-                    c.description = p.GetPropertyValue("Caption").ToString();
+                    c.name = mName.Value;
+                    c.num = int.Parse(c.name.Substring(3));
+                }
+                
+                // if the port name or number cannot be determined, skip this port and move on
+                if (c.num < 1)
+                    continue;
 
-                    Match mVID = Regex.Match(c.vid, vidPattern, RegexOptions.IgnoreCase);
-                    Match mPID = Regex.Match(c.vid, pidPattern, RegexOptions.IgnoreCase);
+                // get the device's VID and PID
+                string pidvid = p.GetPropertyValue("PNPDeviceID").ToString();
 
-                    if (mVID.Success)
+                // extract and clean up device's VID
+                Match mVID = Regex.Match(pidvid, vidPattern, RegexOptions.IgnoreCase);
+                if (mVID.Success)
+                {
+                    c.vid = mVID.Groups[1].Value;
+                    c.vid = c.vid.Substring(0, Math.Min(4, c.vid.Length));
+                }
+                else
+                    c.vid = "----";
+
+                // extract and clean up device's PID
+                Match mPID = Regex.Match(pidvid, pidPattern, RegexOptions.IgnoreCase);
+                if (mPID.Success)
+                {
+                    c.pid = mPID.Groups[1].Value;
+                    c.pid = c.pid.Substring(0, Math.Min(4, c.pid.Length));
+                }
+                else
+                    c.pid = "----";
+
+                // extract the device's friendly description (caption)
+                c.description = p.GetPropertyValue("Caption").ToString();
+                
+                // attempt to match this device with a known board
+                c.board = MatchBoard(c.vid, c.pid);
+
+                // extract the device's hardware bus description
+                c.busDescription = "";
+                var inParams = new object[] { new string[] { "DEVPKEY_Device_BusReportedDeviceDesc" }, null };
+                p.InvokeMethod("GetDeviceProperties", inParams);
+                var outParams = (ManagementBaseObject[])inParams[1];
+                if (outParams.Length > 0)
+                {
+                    var data = outParams[0].Properties.OfType<PropertyData>().FirstOrDefault(d => d.Name == "Data");
+                    if (data != null)
                     {
-                        c.vid = mVID.Groups[1].Value;
-                        c.vid = c.vid.Substring(0, Math.Min(4, c.vid.Length));
+                        c.busDescription = data.Value.ToString();
                     }
-                    else
-                        c.vid = "----";
+                }
 
-                    if (mPID.Success)
-                    {
-                        c.pid = mPID.Groups[1].Value;
-                        c.pid = c.pid.Substring(0, Math.Min(4, c.vid.Length));
-                    }
-                    else
-                        c.pid = "----";
+                // we can determine if this is a CircuitPython board by it's bus description
+                foreach (string prefix in cpb_descriptions)
+                {
+                    if (c.busDescription.StartsWith(prefix))
+                        c.board.isCircuitPython = true;
+                }
 
-                    Match mName = Regex.Match(c.name, namePattern);
-                    if (mName.Success)
-                    {
-                        c.name = mName.Value;
-                        c.num = int.Parse(c.name.Substring(3));
-                        if (c.num == 0)
-                            c.name = "?";
-                    }
-                    else
-                    {
-                        c.name = "?";
-                        c.num = 0;
-                    }
-
-                    c.board = MatchBoard(c.vid, c.pid);
-
-                    return c;
-
-                }).ToList();
-
-                // remove all unusable ports from the list
-                detectedPorts.RemoveAll(p => p.name == "?"); 
-
-                return (detectedPorts);
+                // add this port to our list of detected ports
+                detectedPorts.Add(c); 
             }
+
+            return detectedPorts;
         }
 
 
