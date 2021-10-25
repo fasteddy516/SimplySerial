@@ -6,18 +6,33 @@ namespace SimplySerial
     
     public enum AutoConnect { NONE, ONE, ANY };
 
+    public class BoardData
+    {
+        public string version = "";
+        public List<Vendor> vendors;
+        public List<Board> boards;
+    }
+    
     public class Board
     {
+        public string vid;
         public string pid;
-        public string make = "";
-        public string model = "";
+        public string make;
+        public string model;
+    
+        public Board(string vid="----", string pid="----", string make="VID", string model="PID")
+        {
+            this.vid = vid;
+            this.pid = pid;
+            this.make = make;
+            this.model = model;
+        }
     }
 
     public class Vendor
     {
-        public string vid;
-        public string vendor;
-        public List<Board> boards;
+        public string vid = "----";
+        public string make = "VID";
     }
 
     /// <summary>

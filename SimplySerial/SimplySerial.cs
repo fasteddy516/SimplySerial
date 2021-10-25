@@ -231,6 +231,7 @@ namespace SimplySerial
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 Console.Clear();
 
+                // TODO: Clean up make/model nonsense - build default/generic make/model when board is identified
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
                     "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
                     "Device    : {8}{9} {10}{11}{12}\n{13}" +
@@ -576,6 +577,10 @@ namespace SimplySerial
         }
 
 
+        // TODO: Clean up current file location display and indicate user vs system vs standalone install
+        // TODO: Display board.json version (or note if file could not be found)
+        // TODO: Correct databits options
+
         /// <summary>
         /// Displays help information about this application and its command-line arguments
         /// </summary>
@@ -708,7 +713,7 @@ namespace SimplySerial
                     }
                 }
 
-                // we can determine if this is a CircuitPython board by it's bus description
+                // we can determine if this is a CircuitPython board by its bus description
                 foreach (string prefix in cpb_descriptions)
                 {
                     if (c.busDescription.StartsWith(prefix))
@@ -723,8 +728,8 @@ namespace SimplySerial
         }
 
         // TODO: Replace temporary JSON code with file-based 'board.json'
-        private const string vendors_json = "[{\"vid\":\"04D8\",\"vendor\":\"Various\",\"boards\":[{\"pid\":\"ED5F\",\"make\":\"Itaca Innovation\",\"model\":\"uChip M0\"},{\"pid\":\"ED94\",\"make\":\"Max Holliday\",\"model\":\"KickSat Sprite\"},{\"pid\":\"EDB3\",\"make\":\"Capable Robot Components\",\"model\":\"Programable USB Hub\"},{\"pid\":\"EDBE\",\"make\":\"Max Holliday\",\"model\":\"SAM32\"}]},{\"vid\":\"1209\",\"vendor\":\"Various\",\"boards\":[{\"pid\":\"2017\",\"make\":\"Benjamin Shockley\",\"model\":\"Mini SAM M4\"},{\"pid\":\"4D43\",\"make\":\"Robotics Masters\",\"model\":\"Robo HAT MM1\"},{\"pid\":\"BAB1\",\"make\":\"Electronic Cats\",\"model\":\"Meow Meow\"},{\"pid\":\"BAB2\",\"make\":\"Electronic Cats\",\"model\":\"CatWAN USB Stick\"},{\"pid\":\"BAB3\",\"make\":\"Electronic Cats\",\"model\":\"Bast Pro Mini M0\"},{\"pid\":\"BAB6\",\"make\":\"Electronic Cats\",\"model\":\"Escornabot Makech\"}]},{\"vid\":\"1B4F\",\"vendor\":\"Sparkfun\",\"boards\":[{\"pid\":\"0015\",\"model\":\"RedBoard Turbo\"},{\"pid\":\"0017\",\"model\":\"LumiDrive\"},{\"pid\":\"5289\",\"model\":\"NRF52840 Mini\"},{\"pid\":\"8D22\",\"model\":\"SAMD21 Mini\"},{\"pid\":\"8D23\",\"model\":\"SAMD21 Dev\"}]},{\"vid\":\"2341\",\"vendor\":\"Arduino\",\"boards\":[{\"pid\":\"8053\",\"model\":\"MKR WAN 1300\"},{\"pid\":\"824D\",\"model\":\"Zero\"}]},{\"vid\":\"239A\",\"vendor\":\"Adafruit\",\"boards\":[{\"pid\":\"8012\",\"model\":\"ItsyBitsy M0 Express\"},{\"pid\":\"8014\",\"model\":\"Metro M0 Express\"},{\"pid\":\"8015\",\"model\":\"Feather M0 Family\"},{\"pid\":\"8019\",\"model\":\"Circuit Playground Express\"},{\"pid\":\"801D\",\"model\":\"Gemma M0\"},{\"pid\":\"801F\",\"model\":\"Trinket M0\"},{\"pid\":\"8021\",\"model\":\"Metro M4 Express\"},{\"pid\":\"8023\",\"model\":\"Feather M0 Express Family\"},{\"pid\":\"8026\",\"model\":\"Feather M4 Express\"},{\"pid\":\"8028\",\"model\":\"pIRkey\"},{\"pid\":\"802A\",\"make\":\"Nordic Semiconductor\",\"model\":\"NRF52840 Family\"},{\"pid\":\"802C\",\"model\":\"ItsyBitsy M4 Express\"},{\"pid\":\"8030\",\"model\":\"NeoTrellis M4\"},{\"pid\":\"8032\",\"model\":\"Grand Central M4 Express\"},{\"pid\":\"8034\",\"model\":\"PyBadge\"},{\"pid\":\"8036\",\"model\":\"PyPortal\"},{\"pid\":\"8038\",\"model\":\"Metro M4 AirLift Lite\"},{\"pid\":\"803C\",\"make\":\"Electronut Labs\",\"model\":\"Papyr\"},{\"pid\":\"803E\",\"model\":\"PyGamer\"},{\"pid\":\"8050\",\"make\":\"Arduino\",\"model\":\"MKR Zero\"},{\"pid\":\"D1ED\",\"model\":\"HalloWing M0 Express\"},{\"pid\":\"80CC\",\"model\":\"QT Py M0\"},{\"pid\":\"00CC\",\"model\":\"QT Py M0 Haxpress\"}]},{\"vid\":\"2B04\",\"vendor\":\"Particle\",\"boards\":[{\"pid\":\"c00c\",\"model\":\"Argon\"},{\"pid\":\"c00d\",\"model\":\"Boron\"},{\"pid\":\"c00e\",\"model\":\"Xenon\"}]},{\"vid\":\"4097\",\"vendor\":\"Datalore\",\"boards\":[{\"pid\":\"0001\",\"model\":\"IP M4\"}]}]";
-        static List<Vendor> vendors = JsonConvert.DeserializeObject<List<Vendor>>(vendors_json);
+        private const string board_json = "{\"version\":\"2021-10-25T08:05:42.065255\",\"vendors\":[{\"vid\":\"0403\",\"make\":\"FTDI\"}],\"boards\":[{\"vid\":\"0403\",\"pid\":\"6015\",\"make\":\"FTDI\",\"model\":\"Thunderlinx\"},{\"vid\":\"239A\",\"pid\":\"80CC\",\"make\":\"Adafruit\",\"model\":\"QT Py M0\"}]}";
+        static BoardData boardData = JsonConvert.DeserializeObject<BoardData>(board_json);
 
         /// <summary>
         /// Matches to a known development board based on VID and PID
@@ -734,32 +739,16 @@ namespace SimplySerial
         /// <returns>Board structure containing information about the matched board, or generic values otherwise/returns>
         static Board MatchBoard(string vid, string pid)
         {
-            Board mBoard = null;
+            Board mBoard = boardData.boards.Find(b => (b.vid == vid) && (b.pid == pid));
 
-            // search for matching vendor
-            Vendor mVendor = vendors.Find(v => v.vid == vid);
-
-            // if a matching vendor is found, look for a matching board
-            if (mVendor != null)
-                mBoard = mVendor.boards.Find(b => b.pid == pid);
-            else
-            {
-                mVendor = new Vendor();
-                mVendor.vendor = "VID";
-            }
-
-            // if no matching board is found, substitute generic information
             if (mBoard == null)
             {
-                mBoard = new Board();
-                mBoard.pid = pid;
-                mBoard.make = mVendor.vendor;
-                mBoard.model = "PID";
-            }
+                mBoard = new Board(vid:vid, pid:pid);
 
-            // if the board's 'make' field is blank, use the vendor name instead
-            if (mBoard.make == "")
-                mBoard.make = mVendor.vendor;
+                Vendor mVendor = boardData.vendors.Find(v => v.vid == vid);
+                if (mVendor != null)
+                    mBoard.make = mVendor.make;
+            }
 
             return mBoard;
         }
