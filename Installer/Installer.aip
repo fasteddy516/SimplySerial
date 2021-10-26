@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.4" Modules="simple" RootPath="." Language="en" Id="{813739C4-1EBF-4720-9196-4AC91588D7AC}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.8" Modules="simple" RootPath="." Language="en" Id="{813739C4-1EBF-4720-9196-4AC91588D7AC}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
@@ -51,6 +51,7 @@
     <ROW File="ss.exe" Component_="ss.exe" FileName="ss.exe" Attributes="0" SourcePath="..\SimplySerial\bin\x86\Release\ss.exe" SelfReg="false" DigSign="true"/>
     <ROW File="LICENSE" Component_="LICENSE" FileName="LICENSE" Attributes="0" SourcePath="..\LICENSE" SelfReg="false"/>
     <ROW File="README.md" Component_="LICENSE" FileName="README.md" Attributes="0" SourcePath="..\README.md" SelfReg="false"/>
+    <ROW File="boards.json" Component_="LICENSE" FileName="BOARDS~1.JSO|boards.json" Attributes="0" SourcePath="..\SimplySerial\bin\x86\Release\boards.json" SelfReg="false"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
