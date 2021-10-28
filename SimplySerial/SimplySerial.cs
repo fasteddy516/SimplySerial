@@ -236,11 +236,9 @@ namespace SimplySerial
 
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 Console.Clear();
-
-                // TODO: Clean up make/model nonsense - build default/generic make/model when board is identified
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
                     "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                    "Device    : {8}{9} {10}{11}{12}\n{13}" +
+                    "Device    : {8} {9}{10}\n{11}" +
                     "---\n\nUse CTRL-X to exit.\n",
                     version,
                     port.name,
@@ -250,9 +248,7 @@ namespace SimplySerial
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     port.board.make,
-                    (port.board.make == "VID") ? ":" + port.vid : "",
                     port.board.model,
-                    (port.board.model == "PID") ? ":" + port.pid : "",
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
                     (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
                 ), flush: true);

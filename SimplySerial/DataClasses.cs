@@ -20,12 +20,20 @@ namespace SimplySerial
         public string make;
         public string model;
     
-        public Board(string vid="----", string pid="----", string make="VID", string model="PID")
+        public Board(string vid="----", string pid="----", string make="", string model="")
         {
-            this.vid = vid;
-            this.pid = pid;
-            this.make = make;
-            this.model = model;
+            this.vid = vid.ToUpper();
+            this.pid = pid.ToUpper();
+            
+            if (make != "")
+                this.make = make;
+            else
+                this.make = $"VID:{this.vid}";
+
+            if (model != "")
+                this.model = model;
+            else
+                this.model = $"PID:{this.pid}";
         }
     }
 
