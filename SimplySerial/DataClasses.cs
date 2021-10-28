@@ -2,8 +2,6 @@
 
 namespace SimplySerial
 {
-    // TODO: Comment and cleanup
-    
     public enum AutoConnect { NONE, ONE, ANY };
 
     public class BoardData
