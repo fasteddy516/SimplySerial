@@ -31,6 +31,8 @@ namespace SimplySerial
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
+        static string appFolder = AppDomain.CurrentDomain.BaseDirectory;
+
         static List<ComPort> availablePorts = new List<ComPort>();
         static SerialPort serialPort;
 
@@ -577,7 +579,6 @@ namespace SimplySerial
         }
 
 
-        // TODO: Clean up current file location display and indicate user vs system vs standalone install
         // TODO: Display board.json version (or note if file could not be found)
         // TODO: Correct databits options
 
@@ -586,10 +587,18 @@ namespace SimplySerial
         /// </summary>
         static void ShowHelp()
         {
-            Console.WriteLine($"\n<<< SimplySerial v{version} >>>\n");
-            Console.WriteLine($"{AppDomain.CurrentDomain.BaseDirectory}");
+            string installType;
 
+            // determine installation type (user/system/standalone)
+            if (appFolder.ToLower().Contains("appdata\\roaming"))
+                installType = "User";
+            else if (appFolder.ToLower().Contains("program files"))
+                installType = "System";
+            else
+                installType = "Standalone/Manual";
 
+            Console.WriteLine($"\n<<< SimplySerial v{version} ({installType} Installation) >>>\n");
+            Console.WriteLine($"Installation Path:\n\t{appFolder}\n");
             Console.WriteLine("Usage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
             Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
             Console.WriteLine("              [-quiet]\n");
@@ -728,7 +737,7 @@ namespace SimplySerial
         }
 
         // TODO: Replace temporary JSON code with file-based 'board.json'
-        private const string board_json = "{\"version\":\"2021-10-25T08:05:42.065255\",\"vendors\":[{\"vid\":\"0403\",\"make\":\"FTDI\"}],\"boards\":[{\"vid\":\"0403\",\"pid\":\"6015\",\"make\":\"FTDI\",\"model\":\"Thunderlinx\"},{\"vid\":\"239A\",\"pid\":\"80CC\",\"make\":\"Adafruit\",\"model\":\"QT Py M0\"}]}";
+        private const string board_json = "{\"version\":\"2021-10-25T08:05:42.065255\",\"vendors\":[{\"vid\":\"239A\",\"make\":\"Adafruit\"}],\"boards\":[{\"vid\":\"0403\",\"pid\":\"6015\",\"make\":\"FTDI\",\"model\":\"Thunderlinx\"},{\"vid\":\"239A\",\"pid\":\"80CC\",\"make\":\"Adafruit\",\"model\":\"QT Py M0\"}]}";
         static BoardData boardData = JsonConvert.DeserializeObject<BoardData>(board_json);
 
         /// <summary>
