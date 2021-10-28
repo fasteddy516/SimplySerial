@@ -580,7 +580,6 @@ namespace SimplySerial
 
 
         // TODO: Display board.json version (or note if file could not be found)
-        // TODO: Correct databits options
 
         /// <summary>
         /// Displays help information about this application and its command-line arguments
@@ -614,7 +613,7 @@ namespace SimplySerial
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
             Console.WriteLine("                    57600 | 115200 | (Any valid baud rate for the specified port.)");
             Console.WriteLine("  -parity:PARITY    NONE | EVEN | ODD | MARK | SPACE");
-            Console.WriteLine("  -databits:VAL     4 | 5 |  | 7 | 8");
+            Console.WriteLine("  -databits:VAL     4 | 5 | 6 | 7 | 8");
             Console.WriteLine("  -stopbits:VAL     0 | 1 | 1.5 | 2");
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
