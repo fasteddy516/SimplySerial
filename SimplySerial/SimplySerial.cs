@@ -32,6 +32,7 @@ namespace SimplySerial
         public static extern uint GetLastError();
 
         static string appFolder = AppDomain.CurrentDomain.BaseDirectory;
+        static BoardData boardData;
 
         static List<ComPort> availablePorts = new List<ComPort>();
         static SerialPort serialPort;
@@ -80,6 +81,9 @@ namespace SimplySerial
             {
                 // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
             }
+
+            // load and parse data in boards.json
+            LoadBoards();
 
             // process all command-line arguments
             ProcessArguments(args);
@@ -579,8 +583,6 @@ namespace SimplySerial
         }
 
 
-        // TODO: Display board.json version (or note if file could not be found)
-
         /// <summary>
         /// Displays help information about this application and its command-line arguments
         /// </summary>
@@ -598,6 +600,7 @@ namespace SimplySerial
 
             Console.WriteLine($"\n<<< SimplySerial v{version} ({installType} Installation) >>>\n");
             Console.WriteLine($"Installation Path:\n\t{appFolder}\n");
+            Console.WriteLine($"Board Data File Version: {boardData.version}\n");
             Console.WriteLine("Usage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
             Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
             Console.WriteLine("              [-quiet]\n");
@@ -735,9 +738,6 @@ namespace SimplySerial
             return detectedPorts;
         }
 
-        // TODO: Replace temporary JSON code with file-based 'board.json'
-        private const string board_json = "{\"version\":\"2021-10-25T08:05:42.065255\",\"vendors\":[{\"vid\":\"239A\",\"make\":\"Adafruit\"}],\"boards\":[{\"vid\":\"0403\",\"pid\":\"6015\",\"make\":\"FTDI\",\"model\":\"Thunderlinx\"},{\"vid\":\"239A\",\"pid\":\"80CC\",\"make\":\"Adafruit\",\"model\":\"QT Py M0\"}]}";
-        static BoardData boardData = JsonConvert.DeserializeObject<BoardData>(board_json);
 
         /// <summary>
         /// Matches to a known development board based on VID and PID
@@ -747,18 +747,39 @@ namespace SimplySerial
         /// <returns>Board structure containing information about the matched board, or generic values otherwise/returns>
         static Board MatchBoard(string vid, string pid)
         {
-            Board mBoard = boardData.boards.Find(b => (b.vid == vid) && (b.pid == pid));
+            Board mBoard = null;
+            if (boardData.boards != null)
+                mBoard = boardData.boards.Find(b => (b.vid == vid) && (b.pid == pid));
 
             if (mBoard == null)
             {
                 mBoard = new Board(vid:vid, pid:pid);
 
-                Vendor mVendor = boardData.vendors.Find(v => v.vid == vid);
+                Vendor mVendor = null;
+                if (boardData.vendors != null)
+                    mVendor = boardData.vendors.Find(v => v.vid == vid);
                 if (mVendor != null)
                     mBoard.make = mVendor.make;
             }
 
             return mBoard;
+        }
+    
+        static void LoadBoards()
+        {
+            try
+            {
+                using (StreamReader r = new StreamReader($"{appFolder}\\boards.json"))
+                {
+                    string json = r.ReadToEnd();
+                    boardData = JsonConvert.DeserializeObject<BoardData>(json);
+                }
+            }
+            catch (Exception e)
+            {
+                boardData = new BoardData();
+                boardData.version = "(boards.json is missing or invalid)";
+            }
         }
     }
 
