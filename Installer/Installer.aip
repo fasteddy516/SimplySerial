@@ -4,6 +4,14 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
     <ROW Property="AI_PREDEF_LCONDS_PROPS" Value="AI_DETECTED_DOTNET_VERSION"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_Newtonsoft.Json.dll" Value="..\SimplySerial\packages\Newtonsoft.Json.13.0.1\lib\net45"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json" Value="..\SimplySerial\bin\x86\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe" Value="..\SimplySerial\bin\x86\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\x86\Release"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll" Value="Newtonsoft.Json.dll"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_boards.json" Value="boards.json"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ss.exe" Value="ss.exe"/>
+    <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ss.exe.config" Value="ss.exe.config"/>
     <ROW Property="AI_REQUIRED_DOTNET_DISPLAY" MultiBuildValue="DefaultBuild:4.5" ValueLocId="-"/>
     <ROW Property="AI_REQUIRED_DOTNET_VERSION" MultiBuildValue="DefaultBuild:4.5" ValueLocId="-"/>
     <ROW Property="AI_RUN_AS_ADMIN" Value="0"/>
@@ -38,20 +46,28 @@
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
+    <ROW Component="AI_PROPPATH_FILENAME_PERBUILD_ss.exe" ComponentId="{D328E50B-745A-44B1-A52A-AA88CF0D4B5B}" Directory_="APPDIR" Attributes="0" KeyPath="ss.exe"/>
     <ROW Component="APPDIR" ComponentId="{1B2EDF24-19CA-4CC3-8AD5-EDA96FB119C1}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="LICENSE" ComponentId="{10A5105B-3C39-43BC-8A5F-1F31FD20C306}" Directory_="APPDIR" Attributes="0" KeyPath="LICENSE" Type="0"/>
     <ROW Component="ProductInformation" ComponentId="{E25AA39B-E31D-4953-B138-D9AC744188A9}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
-    <ROW Component="ss.exe" ComponentId="{D5FA87B9-1930-47B5-9648-C544D1FF674F}" Directory_="APPDIR" Attributes="0" KeyPath="ss.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="MainFeature" Title="MainFeature" Description="Description" Display="1" Level="1" Directory_="APPDIR" Attributes="0"/>
     <ATTRIBUTE name="CurrentFeature" value="MainFeature"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="ss.exe" Component_="ss.exe" FileName="ss.exe" Attributes="0" SourcePath="..\SimplySerial\bin\x86\Release\ss.exe" SelfReg="false" DigSign="true"/>
     <ROW File="LICENSE" Component_="LICENSE" FileName="LICENSE" Attributes="0" SourcePath="..\LICENSE" SelfReg="false"/>
     <ROW File="README.md" Component_="LICENSE" FileName="README.md" Attributes="0" SourcePath="..\README.md" SelfReg="false"/>
-    <ROW File="boards.json" Component_="LICENSE" FileName="BOARDS~1.JSO|boards.json" Attributes="0" SourcePath="..\SimplySerial\bin\x86\Release\boards.json" SelfReg="false"/>
+    <ROW File="ss.exe" Component_="AI_PROPPATH_FILENAME_PERBUILD_ss.exe" FileName="[|AI_PROPPATH_FILENAME_PERBUILD_ss.exe]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ss.exe&gt;" SelfReg="false" DigSign="true"/>
+    <ROW File="ss.exe.config" Component_="LICENSE" FileName="SSEXE~1.CON|[|AI_PROPPATH_FILENAME_PERBUILD_ss.exe.config]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_ss.exe.config&gt;" SelfReg="false"/>
+    <ROW File="Newtonsoft.Json.dll" Component_="LICENSE" FileName="NEWTON~1.DLL|[|AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_Newtonsoft.Json.dll&gt;" SelfReg="false"/>
+    <ROW File="boards.json" Component_="LICENSE" FileName="BOARDS~1.JSO|[|AI_PROPPATH_FILENAME_PERBUILD_boards.json]" Attributes="0" SourcePath="&lt;AI_APPPATH_PERBUILD_boards.json&gt;" SelfReg="false"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.AppPathsComponent">
+    <ROW Name="AI_APPPATH_PERBUILD_Newtonsoft.Json.dll" Path="[|AI_PROPPATH_DIR_PERBUILD_Newtonsoft.Json.dll]\[|AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_boards.json" Path="[|AI_PROPPATH_DIR_PERBUILD_boards.json]\[|AI_PROPPATH_FILENAME_PERBUILD_boards.json]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_ss.exe" Path="[|AI_PROPPATH_DIR_PERBUILD_ss.exe]\[|AI_PROPPATH_FILENAME_PERBUILD_ss.exe]" Type="2" Content="0"/>
+    <ROW Name="AI_APPPATH_PERBUILD_ss.exe.config" Path="[|AI_PROPPATH_DIR_PERBUILD_ss.exe.config]\[|AI_PROPPATH_FILENAME_PERBUILD_ss.exe.config]" Type="2" Content="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" DownloadFolder="[AppDataFolder][|Manufacturer]\[|ProductName]\prerequisites" Options="2"/>
@@ -142,9 +158,9 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatCompsComponent">
     <ROW Feature_="MainFeature" Component_="ProductInformation"/>
-    <ROW Feature_="MainFeature" Component_="ss.exe"/>
     <ROW Feature_="MainFeature" Component_="LICENSE"/>
     <ROW Feature_="MainFeature" Component_="APPDIR"/>
+    <ROW Feature_="MainFeature" Component_="AI_PROPPATH_FILENAME_PERBUILD_ss.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstExSeqComponent">
     <ROW Action="AI_DOWNGRADE" Condition="AI_NEWERPRODUCTFOUND AND (UILevel &lt;&gt; 5)" Sequence="210"/>
@@ -181,5 +197,11 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiUpgradeComponent">
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="0.0.1" VersionMax="[|ProductVersion]" Attributes="257" ActionProperty="OLDPRODUCTS"/>
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.VsProjectComponent">
+    <ROW ProjectId="{3c7db929-519c-44a3-a68f-2646cc595cae}" ProjectName="SimplySerial" OutputGroup="PrimaryOutput" OutputFile="ss.exe"/>
+    <ROW ProjectId="{3c7db929-519c-44a3-a68f-2646cc595cae}" ProjectName="SimplySerial" OutputGroup="PrimaryOutput" OutputFile="ss.exe.config"/>
+    <ROW ProjectId="{3c7db929-519c-44a3-a68f-2646cc595cae}" ProjectName="SimplySerial" OutputGroup="References" OutputFile="Newtonsoft.Json.dll"/>
+    <ROW ProjectId="{3c7db929-519c-44a3-a68f-2646cc595cae}" ProjectName="SimplySerial" OutputGroup="ContentOutput" OutputFile="boards.json"/>
   </COMPONENT>
 </DOCUMENT>

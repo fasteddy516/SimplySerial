@@ -113,6 +113,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Program Files\7-Zip\7z.exe" a "$(TargetDir)\SimplySerial_standalone.zip" "$(TargetDir)\ss.exe" "$(ProjectDir)\..\LICENSE" "$(ProjectDir)\..\README.md" "$(TargetDir)\boards.json"</PostBuildEvent>
+    <PostBuildEvent>"C:\Program Files\7-Zip\7z.exe" a "$(TargetDir)\SimplySerial_standalone.zip" "$(TargetDir)\ss.exe" "$(ProjectDir)\..\LICENSE" "$(ProjectDir)\..\README.md" "$(TargetDir)\boards.json" "$(TargetDir)\ss.exe.config" "$(TargetDir)\Newtonsoft.Json.dll"</PostBuildEvent>
   </PropertyGroup>
 </Project>

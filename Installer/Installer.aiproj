@@ -22,6 +22,15 @@
       <SubType>Code</SubType>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SimplySerial\SimplySerial.csproj">
+      <Name>SimplySerial</Name>
+      <Project>{3c7db929-519c-44a3-a68f-2646cc595cae}</Project>
+      <Private>True</Private>
+      <CreateShortcut>False</CreateShortcut>
+      <OutputsToImport>PrimaryOutput;References;ContentOutput</OutputsToImport>
+    </ProjectReference>
+  </ItemGroup>
   <Target Name="Build">
     <Error Text="This project requires Advanced Installer tool. Please download it from https://www.advancedinstaller.com/download.html" />
   </Target>
