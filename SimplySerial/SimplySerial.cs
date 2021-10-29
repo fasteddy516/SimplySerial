@@ -377,6 +377,13 @@ namespace SimplySerial
                     ExitProgram(silent: true);
                 }
 
+                // version
+                if (argument[0].StartsWith("v"))
+                {
+                    ShowVersion();
+                    ExitProgram(silent: true);
+                }
+
                 // list available ports
                 else if ((argument[0] == "l") || (argument[0].StartsWith("li")))
                 {
@@ -584,19 +591,6 @@ namespace SimplySerial
         /// </summary>
         static void ShowHelp()
         {
-            string installType;
-
-            // determine installation type (user/system/standalone)
-            if (appFolder.ToLower().Contains("appdata\\roaming"))
-                installType = "User";
-            else if (appFolder.ToLower().Contains("program files"))
-                installType = "System";
-            else
-                installType = "Standalone/Manual";
-
-            Console.WriteLine($"\n<<< SimplySerial v{version} ({installType} Installation) >>>\n");
-            Console.WriteLine($"Installation Path:\n\t{appFolder}\n");
-            Console.WriteLine($"Board Data File Version: {boardData.version}\n");
             Console.WriteLine("Usage: ss.exe [-com:PORT] [-baud:RATE] [-parity:PARITY] [-databits:VAL]");
             Console.WriteLine("              [-stopbits:VAL] [-autoconnect:VAL] [-log:LOGFILE] [-logmode:MODE]");
             Console.WriteLine("              [-quiet]\n");
@@ -619,7 +613,27 @@ namespace SimplySerial
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
+            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.");
+        }
+
+        /// <summary>
+        /// Displays version and installation information about this application
+        /// </summary>
+        static void ShowVersion()
+        {
+            string installType;
+
+            // determine installation type (user/system/standalone)
+            if (appFolder.ToLower().Contains("appdata\\roaming"))
+                installType = "User";
+            else if (appFolder.ToLower().Contains("program files"))
+                installType = "System";
+            else
+                installType = "Standalone/Manual";
+
+            Console.WriteLine($"SimplySerial v{version} ({installType} Installation)");
+            Console.WriteLine($"Installation Path: {appFolder}");
+            Console.WriteLine($"Board Data File Version: {boardData.version}");
         }
 
 
@@ -794,7 +808,8 @@ namespace SimplySerial
         public int Compare(string x, string y)
         {
             // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
-            // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help'
+            // 'v' triggers the 'version' text output and supersedes all other command-line arguments aside from 'help'
+            // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help' and 'version'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
             
@@ -806,7 +821,7 @@ namespace SimplySerial
             if (y.StartsWith("lo"))
                 y = "z"; // mask out logging options so that they are not interpreted as the list option
             
-            foreach (char c in "?hlqc")
+            foreach (char c in "?hvlqc")
             {
                 if (x.ToLower()[0] == c)
                     return (-1);
