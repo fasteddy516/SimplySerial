@@ -597,10 +597,11 @@ namespace SimplySerial
             Console.WriteLine("A basic serial terminal for IoT device programming in general, and working with");
             Console.WriteLine("CircuitPython devices specifically.  With no command-line arguments specified,");
             Console.WriteLine("SimplySerial will attempt to identify and connect to a CircuitPython-capable board");
-            Console.WriteLine("at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are");
-            Console.WriteLine("detected, it will default to the first available serial (COM) port.\n");
+            Console.WriteLine("at 115200 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are");
+            Console.WriteLine("detected, it will default to the first available serial (COM) port at 9600 baud.\n");
             Console.WriteLine("Optional arguments:");
             Console.WriteLine("  -help             Display this help message");
+            Console.WriteLine("  -version          Display version and installation information");
             Console.WriteLine("  -list             Display a list of available serial (COM) ports");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
@@ -613,7 +614,7 @@ namespace SimplySerial
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.");
+            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
         /// <summary>
@@ -631,9 +632,10 @@ namespace SimplySerial
             else
                 installType = "Standalone/Manual";
 
-            Console.WriteLine($"SimplySerial v{version} ({installType} Installation)");
-            Console.WriteLine($"Installation Path: {appFolder}");
-            Console.WriteLine($"Board Data File Version: {boardData.version}");
+            Console.WriteLine($"SimplySerial version {version}");
+            Console.WriteLine($"  Installation Type : {installType}");
+            Console.WriteLine($"  Installation Path : {appFolder}");
+            Console.WriteLine($"  Board Data File   : {boardData.version}\n");
         }
 
 
