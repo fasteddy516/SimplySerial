@@ -8,12 +8,11 @@ Available at https://github.com/fasteddy516/SimplySerial
 
 # Description
 
-SimplySerial is a basic serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through the Windows Command Prompt or PowerShell.  SimplySerial can be used directly from Command Prompt/PowerShell and should work with most devices that appear in Device Manager as "COMx".  It was, however, written specifically for
-use within a "terminal" window in [Visual Studio Code](https://code.visualstudio.com/) to provide serial communications with devices running [CircuitPython](https://circuitpython.org/).  Most of the testing and development of this application was done with this use case in mind.  
+SimplySerial is a basic serial terminal that runs as a Windows console application.  It provides a quick way to connect to - and communicate with - serial devices through Command Prompt or PowerShell.  SimplySerial can be used directly from Command Prompt/PowerShell and should work with most devices that appear in Device Manager as "COMx".  It was, however, written specifically for use within a "terminal" window in [Visual Studio Code](https://code.visualstudio.com/) to provide serial communications with devices running [CircuitPython](https://circuitpython.org/).  Most of the testing and development of this application was done with this use case in mind.  
 
 # A Quick Note For CircuitPython Users
 
-If your primary interest in SimplySerial is for programming CircuitPython devices in Visual Studio Code, _I encourage you to check out Joe DeVivo's excellent VSCode extension_ in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=joedevivo.vscode-circuitpython) or [On Github](https://github.com/joedevivo/vscode-circuitpython).  His extension has tons of awesome features that go well beyond the basic 'serial terminal' functionality provided by SimplySerial.  That being said, SimplySerial is still a handy little tool for quickly connecting to serial devices in a command prompt/powershell, for use in VSCode for non-CircuitPython devices, or for those who prefer its simplicity over the full-featured CircuitPython extension.
+If your primary interest in SimplySerial is for programming CircuitPython devices in Visual Studio Code, _I encourage you to check out Joe DeVivo's excellent VSCode extension_ in the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=joedevivo.vscode-circuitpython) or [On GitHub](https://github.com/joedevivo/vscode-circuitpython).  His extension has tons of awesome features that go well beyond the basic 'serial terminal' functionality provided by SimplySerial.  That being said, SimplySerial is still a handy little tool for quickly connecting to serial devices in a Command Prompt/PowerShell, for use in VSCode for non-CircuitPython devices, or for those who prefer its simplicity over the full-featured CircuitPython extension.
 
 # Requirements
 
@@ -37,14 +36,14 @@ Download the [latest release](https://github.com/fasteddy516/SimplySerial/releas
 
 **_The installer versions are unsigned, and may trigger a "Windows Defender SmartScreen" warning. To install you have to press "More Info" followed by "Run Anyway"._**
 
-`SimplySerial_x.x.x_standalone.zip` is a standard compressed archive containing the SimplySerial executable and some documentation.  You can unzip it whereever you like, and add that location to your `PATH` or not.  **Advanced users may prefer this format/process.**
+`SimplySerial_x.x.x_standalone.zip` is a standard compressed archive containing SimplySerial's program files and some documentation.  You can unzip it wherever you like, and add that location to your `PATH` or not.  **Advanced users may prefer this format/process.**
 
 
 # Using SimplySerial
 
 For CircuitPython users, type `ss` in a Command Prompt, PowerShell or VSCode Terminal Window and press `enter`.  That's it!
 
-By default, SimplySerial will attempt to identify and connect to a CircuitPython-capable board at 9600 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are detected, it will default to the first available serial (COM) port.  If there are no COM ports available, it will wait until one shows up, then connect to it. 
+By default, SimplySerial will attempt to identify and connect to a CircuitPython-capable board at 115200 baud, no parity, 8 data bits and 1 stop bit.  If no known boards are detected, it will default to the first available serial (COM) port at 9600 baud.  If there are no COM ports available, it will wait until one shows up, then connect to it. 
 
 Once you're connected, you should see messages from the device on COMx appear on screen, and anything you type into Command Prompt/PowerShell will be sent to the device.  CircuitPython users can access the REPL using `CTRL-C` and exit the REPL using `CTRL-D`.
 
@@ -53,6 +52,8 @@ You can exit SimplySerial any time by pressing `CTRL-X`.
 If you have multiple COM ports, multiple CircuitPython devices connected, or need to use different communications settings, you will need to use the appropriate command-line arguments listed below:
 
   `-h, --help` displays a list of valid command-line arguments
+
+  `-v, --version` displays version and installation information
 
   `-l, --list` displays a list of available COM ports  
 
@@ -107,7 +108,7 @@ If you're directly editing the settings.json, the profile section will look like
 
 # Contributing
 
-  If you have questions, problems, feature requests, etc. please post them to the [Issues section on Github](https://github.com/fasteddy516/SimplySerial/issues).  If you would like to contribute, please let me know.  I have already put some "enhancement requests" in the Github Issues section with some ideas for improvements, most of which were either beyond my limited C#/Windows programming knowledge, or required more time than I had available! 
+  If you have questions, problems, feature requests, etc. please post them to the [Issues section on GitHub](https://github.com/fasteddy516/SimplySerial/issues).  If you would like to contribute, please let me know.  I have already put some "enhancement requests" in the GitHub Issues section with some ideas for improvements, most of which were either beyond my limited C#/Windows programming knowledge, or required more time than I had available! 
 
 
 # Acknowledgements
