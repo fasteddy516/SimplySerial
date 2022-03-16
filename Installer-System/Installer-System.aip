@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.8" Modules="simple" RootPath="." Language="en" Id="{9BAEE6C8-7726-40BA-ADC1-9001E7BBCAF9}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="16.0" version="18.8.1" Modules="simple" RootPath="." Language="en" Id="{9BAEE6C8-7726-40BA-ADC1-9001E7BBCAF9}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
-    <ROW Property="AI_CURRENT_YEAR" Value="2021" ValueLocId="-"/>
+    <ROW Property="AI_CURRENT_YEAR" Value="2022" ValueLocId="-"/>
     <ROW Property="AI_PREDEF_LCONDS_PROPS" Value="AI_DETECTED_DOTNET_VERSION"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Newtonsoft.Json.dll" Value="..\SimplySerial\packages\Newtonsoft.Json.13.0.1\lib\net45"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json_1" Value="..\SimplySerial\bin\x86\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\x86\Release"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe_1" Value="..\SimplySerial\bin\x86\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json_1" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe_1" Value="..\SimplySerial\bin\Release"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll" Value="Newtonsoft.Json.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_boards.json_1" Value="boards.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ss.exe.config" Value="ss.exe.config"/>
@@ -21,10 +21,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/fasteddy516/SimplySerial"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/fasteddy516/SimplySerial/releases"/>
     <ROW Property="Manufacturer" Value="fasteddy516"/>
-    <ROW Property="ProductCode" Value="1033:{53E79726-9EFB-4135-B57B-3E41FD235023} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{1D75FB52-BB73-4A1B-980F-D3EAD367899C} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SimplySerial"/>
-    <ROW Property="ProductVersion" Value="0.7.0" Type="32"/>
+    <ROW Property="ProductVersion" Value="0.7.1" Type="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{6A3965D3-95B6-4145-8B3C-6F55E2A16C31}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
