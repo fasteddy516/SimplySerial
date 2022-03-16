@@ -424,6 +424,12 @@ namespace SimplySerial
                     SimplySerial.Quiet = true;
                 }
 
+                // force linefeeds in place of carriage returns in received data
+                else if (argument[0].StartsWith("f"))
+                {
+                    forceNewline = true;
+                }
+
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
                 else if (argument.Count() < 2)
                 {
@@ -525,12 +531,6 @@ namespace SimplySerial
                 {
                     logging = true;
                     logFile = argument[1];
-                }
-
-                // force linefeeds in place of carriage returns in received data
-                else if (argument[0].StartsWith("f"))
-                {
-                    forceNewline = true;
                 }
 
                 // an invalid/incomplete argument was passed
