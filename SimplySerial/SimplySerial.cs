@@ -14,7 +14,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.7.0";
+        const string version = "0.8.0-alpha.1";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -51,6 +51,7 @@ namespace SimplySerial
         static string logData = string.Empty;
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
+        static bool forceNewline = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -291,6 +292,9 @@ namespace SimplySerial
                         // if anything was received, process it
                         if (received.Length > 0)
                         {
+                            if (forceNewline)
+                                received = received.Replace("\r", "\n");
+
                             // write what was received to console
                             Output(received, force: true, newline: false);
                             start = DateTime.Now;
@@ -523,6 +527,12 @@ namespace SimplySerial
                     logFile = argument[1];
                 }
 
+                // force linefeeds in place of carriage returns in received data
+                else if (argument[0].StartsWith("f"))
+                {
+                    forceNewline = true;
+                }
+
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -614,6 +624,7 @@ namespace SimplySerial
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
+            Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
