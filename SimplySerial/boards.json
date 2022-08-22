@@ -1,5 +1,5 @@
 {
-    "version": "2022-03-16T10:53:02.860056",
+    "version": "2022-08-22T10:16:04.484338",
     "vendors": [
         {
             "vid": "04D8",
@@ -67,6 +67,12 @@
         }
     ],
     "boards": [
+        {
+            "vid": "04D8",
+            "pid": "E799",
+            "make": "Cytron",
+            "model": "Maker Zero SAMD21"
+        },
         {
             "vid": "04D8",
             "pid": "EA2A",
@@ -243,6 +249,12 @@
         },
         {
             "vid": "1209",
+            "pid": "5A52",
+            "make": "ZRichard",
+            "model": "RP2.65-F"
+        },
+        {
+            "vid": "1209",
             "pid": "5BF0",
             "make": "Foosn",
             "model": "Fomu"
@@ -255,15 +267,33 @@
         },
         {
             "vid": "1209",
+            "pid": "7382",
+            "make": "Invector Labs AB",
+            "model": "iLabs Challenger 840"
+        },
+        {
+            "vid": "1209",
             "pid": "805A",
             "make": "Electronic Cats",
             "model": "BastBLE"
         },
         {
             "vid": "1209",
+            "pid": "8CAE",
+            "make": "takayoshiotake",
+            "model": "Octave RP2040"
+        },
+        {
+            "vid": "1209",
             "pid": "A182",
             "make": "Solder Party",
             "model": "RP2040 Stamp"
+        },
+        {
+            "vid": "1209",
+            "pid": "B182",
+            "make": "Solder Party",
+            "model": "BBQ20 Keyboard"
         },
         {
             "vid": "1209",
@@ -315,15 +345,33 @@
         },
         {
             "vid": "1209",
+            "pid": "D1B5",
+            "make": "Radomir Dopieralski",
+            "model": "PewPew LCD"
+        },
+        {
+            "vid": "1209",
             "pid": "E3E3",
             "make": "StackRduino",
             "model": "StackRduino M0 PRO"
         },
         {
             "vid": "1209",
+            "pid": "F123",
+            "make": "Electrolama",
+            "model": "minik"
+        },
+        {
+            "vid": "1209",
             "pid": "F500",
             "make": "Silicognition",
             "model": "M4-Shim"
+        },
+        {
+            "vid": "1209",
+            "pid": "F502",
+            "make": "Silicognition",
+            "model": "RP2040-Shim"
         },
         {
             "vid": "16D0",
@@ -417,6 +465,12 @@
         },
         {
             "vid": "1B4F",
+            "pid": "002E",
+            "make": "SparkFun",
+            "model": "Teensy MicroMod"
+        },
+        {
+            "vid": "1B4F",
             "pid": "5289",
             "make": "SparkFun",
             "model": "SFE_nRF52840_Mini"
@@ -470,6 +524,12 @@
             "model": "BlueMicro840"
         },
         {
+            "vid": "2019",
+            "pid": "7103",
+            "make": "Benjamin Shockley",
+            "model": "Fig Pi"
+        },
+        {
             "vid": "2341",
             "pid": "8053",
             "make": "Arduino",
@@ -510,6 +570,12 @@
             "pid": "00CF",
             "make": "Arduino",
             "model": "Arduino Nano RP2040 Connect"
+        },
+        {
+            "vid": "239A",
+            "pid": "102E",
+            "make": "WeAct Studio",
+            "model": "Pico"
         },
         {
             "vid": "239A",
@@ -917,7 +983,7 @@
             "vid": "239A",
             "pid": "80A6",
             "make": "Espressif",
-            "model": "ESP32-S2-DevKitC-1-N4R2"
+            "model": "Saola 1 w/WROVER"
         },
         {
             "vid": "239A",
@@ -1251,6 +1317,12 @@
         },
         {
             "vid": "239A",
+            "pid": "8114",
+            "make": "Adafruit",
+            "model": "Adafruit Feather ESP32S3 No PSRAM"
+        },
+        {
+            "vid": "239A",
             "pid": "8118",
             "make": "Adafruit",
             "model": "Camera"
@@ -1260,6 +1332,18 @@
             "pid": "811A",
             "make": "Adafruit",
             "model": "QT Py ESP32S3 no psram"
+        },
+        {
+            "vid": "239A",
+            "pid": "811C",
+            "make": "Adafruit",
+            "model": "Adafruit Feather ESP32S3 4MB Flash 2MB PSRAM"
+        },
+        {
+            "vid": "239A",
+            "pid": "811E",
+            "make": "Adafruit",
+            "model": "Feather ESP32-S3 TFT"
         },
         {
             "vid": "239A",
@@ -1449,6 +1533,18 @@
         },
         {
             "vid": "2E8A",
+            "pid": "1019",
+            "make": "Pimoroni",
+            "model": "Motor 2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "101A",
+            "make": "Pimoroni",
+            "model": "Servo 2040"
+        },
+        {
+            "vid": "2E8A",
             "pid": "101B",
             "make": "Pimoroni",
             "model": "Badger 2040"
@@ -1464,6 +1560,30 @@
             "pid": "101F",
             "make": "Waveshare Electronics",
             "model": "RP2040-Zero"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1023",
+            "make": "Invector Labs",
+            "model": "Challenger RP2040 LoRa"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1026",
+            "make": "ELECFREAKS",
+            "model": "Pico:ed"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1027",
+            "make": "WIZnet",
+            "model": "W5100S-EVB-Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1029",
+            "make": "WIZnet",
+            "model": "W5500-EVB-Pico"
         },
         {
             "vid": "303A",
@@ -1488,6 +1608,30 @@
             "pid": "7007",
             "make": "Espressif",
             "model": "ESP32-S3-DevKitM-1-N8"
+        },
+        {
+            "vid": "303A",
+            "pid": "7009",
+            "make": "Espressif",
+            "model": "ESP32-S2-DevKitC-1-N4"
+        },
+        {
+            "vid": "303A",
+            "pid": "700B",
+            "make": "Espressif",
+            "model": "ESP32-S3-USB-OTG-N8"
+        },
+        {
+            "vid": "303A",
+            "pid": "700D",
+            "make": "Espressif",
+            "model": "ESP32-S3-Box-Lite"
+        },
+        {
+            "vid": "303A",
+            "pid": "700F",
+            "make": "Espressif",
+            "model": "ESP32-S3-EYE"
         },
         {
             "vid": "303A",
@@ -1614,6 +1758,48 @@
             "pid": "80ED",
             "make": "LILYGO",
             "model": "TTGO T8 ESP32-S2"
+        },
+        {
+            "vid": "303A",
+            "pid": "80F9",
+            "make": "Cytron",
+            "model": "Cytron Maker Feather AIoT S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "80FC",
+            "make": "Espressif",
+            "model": "MixGo CE"
+        },
+        {
+            "vid": "303A",
+            "pid": "80FD",
+            "make": "Espressif",
+            "model": "MixGo CE"
+        },
+        {
+            "vid": "303A",
+            "pid": "810A",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S2-Pico"
+        },
+        {
+            "vid": "303A",
+            "pid": "810C",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S2-Pico-LCD"
+        },
+        {
+            "vid": "303A",
+            "pid": "8111",
+            "make": "Smart Bee Designs",
+            "model": "Bee-S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8114",
+            "make": "Smart Bee Designs",
+            "model": "Bee-Motion-S3"
         },
         {
             "vid": "30A4",
