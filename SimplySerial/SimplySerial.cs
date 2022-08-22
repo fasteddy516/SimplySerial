@@ -14,7 +14,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.8.0-alpha.1";
+        const string version = "0.8.0-alpha.2";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -65,7 +65,19 @@ namespace SimplySerial
             { ConsoleKey.Insert, "\x1B[2~" },
             { ConsoleKey.Delete, "\x1B[3~" },
             { ConsoleKey.PageUp, "\x1B[5~" },
-            { ConsoleKey.PageDown, "\x1B[6~" }
+            { ConsoleKey.PageDown, "\x1B[6~" },
+            { ConsoleKey.F1, "\x1B[11~" },
+            { ConsoleKey.F2, "\x1B[12~" },
+            { ConsoleKey.F3, "\x1B[13~" },
+            { ConsoleKey.F4, "\x1B[14~" },
+            { ConsoleKey.F5, "\x1B[15~" },
+            { ConsoleKey.F6, "\x1B[17~" },
+            { ConsoleKey.F7, "\x1B[18~" },
+            { ConsoleKey.F8, "\x1B[19~" },
+            { ConsoleKey.F9, "\x1B[20~" },
+            { ConsoleKey.F10, "\x1B[21~" },
+            { ConsoleKey.F11, "\x1B[23~" },
+            { ConsoleKey.F12, "\x1B[24~" }
         };
 
         static void Main(string[] args)
