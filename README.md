@@ -16,13 +16,10 @@ If your primary interest in SimplySerial is for programming CircuitPython device
 
 # Requirements
 
-* Windows 7, 8, 8.1, 10 or 11
+* Windows 10 or 11 _(Version [0.6.0](https://github.com/fasteddy516/SimplySerial/releases/tag/v0.6.0) and older will also run on Windows 7, 8 and 8.1)_
 * .NET Framework 4.5 or newer
 
-_The required version of .NET framework is already included in Windows 8 and newer.  If you're running Windows 7, you may need to download and install it from Microsoft at https://dotnet.microsoft.com/download/dotnet-framework._
-
-_Enhanced terminal processing (cursor keys, colour processing, etc.) is only supported on Windows 10 and newer._
-
+_The required version of .NET framework is already included in supported Windows versions.  If it is missing on your machine, you can download and install it from Microsoft at https://dotnet.microsoft.com/download/dotnet-framework._
 
 # Installation
 
