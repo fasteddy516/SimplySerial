@@ -95,6 +95,8 @@ namespace SimplySerial
                 // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
             }
 
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             // load and parse data in boards.json
             LoadBoards();
 
