@@ -14,7 +14,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.8.0-alpha.2";
+        const string version = "0.8.0-beta.1";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;

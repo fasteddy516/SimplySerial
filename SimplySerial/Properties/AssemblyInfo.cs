@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("fasteddy516")]
 [assembly: AssemblyProduct("SimplySerial")]
-[assembly: AssemblyCopyright("Copyright © 2019 Edward Wright (fasteddy516)")]
+[assembly: AssemblyCopyright("Copyright © 2023 Edward Wright (fasteddy516)")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
