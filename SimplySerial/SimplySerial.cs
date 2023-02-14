@@ -52,6 +52,7 @@ namespace SimplySerial
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
         static bool forceNewline = false;
+        static Encoding encoding = Encoding.UTF8;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -95,13 +96,13 @@ namespace SimplySerial
                 // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
             }
 
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
-
             // load and parse data in boards.json
             LoadBoards();
 
             // process all command-line arguments
             ProcessArguments(args);
+
+            Console.OutputEncoding = encoding;
 
             // verify log-related settings
             if (logging)
@@ -109,7 +110,7 @@ namespace SimplySerial
                 try
                 { 
                     FileStream stream = new FileStream(logFile, logMode, FileAccess.Write);
-                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                    using (StreamWriter writer = new StreamWriter(stream, encoding))
                     {
                         writer.WriteLine($"\n----- LOGGING STARTED ({DateTime.Now}) ------------------------------------");
                     }
@@ -202,7 +203,7 @@ namespace SimplySerial
                     WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
                     DtrEnable = true, // without this we don't ever receive any data
                     RtsEnable = true, // without this we don't ever receive any data
-                    Encoding = Encoding.UTF8
+                    Encoding = encoding
                 };
 
                 // attempt to set the baud rate, fail if the specified value is not supported by the hardware
@@ -253,8 +254,8 @@ namespace SimplySerial
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 Console.Clear();
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                    "Device    : {8} {9}{10}\n{11}" +
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
+                    "Device    : {9} {10}{11}\n{12}" +
                     "---\n\nUse CTRL-X to exit.\n",
                     version,
                     port.name,
@@ -262,12 +263,13 @@ namespace SimplySerial
                     (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
                     dataBits,
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
+                    (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
-                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
-                ), flush: true);
+                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n") : ""
+                ), flush: true); ;
 
                 lastFlush = DateTime.Now;
                 DateTime start = DateTime.Now;
@@ -548,6 +550,19 @@ namespace SimplySerial
                     logFile = argument[1];
                 }
 
+                // specify encoding
+                else if (argument[0].StartsWith("e"))
+                {
+                    argument[1] = argument[1].ToLower();
+
+                    if (argument[1].StartsWith("a"))
+                        encoding = Encoding.ASCII;
+                    else if (argument[1].StartsWith("u"))
+                        encoding = Encoding.UTF8;
+                    else
+                        ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -595,7 +610,7 @@ namespace SimplySerial
                         try
                         {
                             FileStream stream = new FileStream(logFile, FileMode.Append, FileAccess.Write);
-                            using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                            using (StreamWriter writer = new StreamWriter(stream, encoding))
                             {
                                 writer.Write(logData);
                             }
