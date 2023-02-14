@@ -53,6 +53,7 @@ namespace SimplySerial
         static DateTime lastFlush = DateTime.Now;
         static bool forceNewline = false;
         static Encoding encoding = Encoding.UTF8;
+        static bool convertToPrintable = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -263,7 +264,7 @@ namespace SimplySerial
                     (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
                     dataBits,
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
-                    (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : "ASCII",
+                    (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     port.board.make,
                     port.board.model,
@@ -556,9 +557,20 @@ namespace SimplySerial
                     argument[1] = argument[1].ToLower();
 
                     if (argument[1].StartsWith("a"))
+                    { 
                         encoding = Encoding.ASCII;
+                        convertToPrintable = false;
+                    }
+                    else if (argument[1].StartsWith("r"))
+                    {
+                        encoding = Encoding.GetEncoding(1252);
+                        convertToPrintable = true;
+                    }
                     else if (argument[1].StartsWith("u"))
+                    { 
                         encoding = Encoding.UTF8;
+                        convertToPrintable = false;
+                    }
                     else
                         ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
                 }
@@ -600,7 +612,21 @@ namespace SimplySerial
                     message += "\n";
 
                 if (message.Length > 0)
+                {
+                    if (convertToPrintable)
+                    {
+                        string newMessage = "";
+                        foreach (byte c in message)
+                        {
+                            if ((c > 31 && c < 128) || (c == 8) || (c == 9) || (c == 10) || (c == 13) || (c == 27))
+                                newMessage += (char) c;
+                            else
+                                newMessage += $"[{c:X2}]";
+                        }
+                        message = newMessage;
+                    }
                     Console.Write(message);
+                }
 
                 if (logging)
                 {
@@ -655,6 +681,7 @@ namespace SimplySerial
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
+            Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
