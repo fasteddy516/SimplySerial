@@ -201,7 +201,8 @@ namespace SimplySerial
                     ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
                     WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
                     DtrEnable = true, // without this we don't ever receive any data
-                    RtsEnable = true // without this we don't ever receive any data
+                    RtsEnable = true, // without this we don't ever receive any data
+                    Encoding = Encoding.UTF8
                 };
 
                 // attempt to set the baud rate, fail if the specified value is not supported by the hardware
