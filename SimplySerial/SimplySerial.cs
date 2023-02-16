@@ -55,6 +55,7 @@ namespace SimplySerial
         static Encoding encoding = Encoding.UTF8;
         static bool convertToPrintable = false;
         static bool clearScreen = true;
+        static bool noStatus = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -321,6 +322,13 @@ namespace SimplySerial
                         // if anything was received, process it
                         if (received.Length > 0)
                         {
+                            // if we're trying to filter out title/status updates in received data, try to ensure we've got the whole string
+                            if (noStatus && received.Contains("\x1b"))
+                            {
+                                Thread.Sleep(100);
+                                received += serialPort.ReadExisting();
+                            }
+
                             if (forceNewline)
                                 received = received.Replace("\r", "\n");
 
@@ -353,7 +361,9 @@ namespace SimplySerial
                         if (autoConnect == AutoConnect.NONE)
                             ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                         else
+                        {
                             Output("\n<<< Communications Interrupted >>>\n");
+                        }
                         try
                         {
                             serialPort.Dispose();
@@ -463,6 +473,12 @@ namespace SimplySerial
                 else if (argument[0].StartsWith("noc"))
                 {
                     clearScreen = false;
+                }
+
+                // disable status/title updates from virtual terminal sequences
+                else if (argument[0].StartsWith("nos"))
+                {
+                    noStatus = true;
                 }
 
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
@@ -637,6 +653,12 @@ namespace SimplySerial
 
                 if (message.Length > 0)
                 {
+                    if (noStatus)
+                    {
+                        Regex r = new Regex(@"\x1b\][02];.*\x1b\\");
+                        message = r.Replace(message, string.Empty);
+                    }
+
                     if (convertToPrintable)
                     {
                         string newMessage = "";
@@ -707,6 +729,7 @@ namespace SimplySerial
             Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
             Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
+            Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
