@@ -54,6 +54,7 @@ namespace SimplySerial
         static bool forceNewline = false;
         static Encoding encoding = Encoding.UTF8;
         static bool convertToPrintable = false;
+        static bool clearScreen = true;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -253,7 +254,14 @@ namespace SimplySerial
                 }
 
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
-                Console.Clear();
+                if (clearScreen)
+                {
+                    Console.Clear();
+                }
+                else
+                {
+                    Output("");
+                }
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
                     "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
                     "Device    : {9} {10}{11}\n{12}" +
@@ -448,6 +456,12 @@ namespace SimplySerial
                     forceNewline = true;
                 }
 
+                // disable screen clearing
+                else if (argument[0].StartsWith("noc"))
+                {
+                    clearScreen = false;
+                }
+
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
                 else if (argument.Count() < 2)
                 {
@@ -582,14 +596,21 @@ namespace SimplySerial
                 }
             }
 
-            Console.Clear();
+            if (clearScreen)
+            {
+                Console.Clear();
+            }
+
             if (autoConnect == AutoConnect.ANY)
             {
                 Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
             }
             else if (autoConnect == AutoConnect.ONE)
             {
-                Console.Clear();
+                if (clearScreen)
+                {
+                    Console.Clear();
+                }
                 if (port.name == String.Empty)
                     Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
                 else
@@ -682,6 +703,7 @@ namespace SimplySerial
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
+            Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
