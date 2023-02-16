@@ -1,20 +1,20 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
-using System.Threading;
+using System.Linq;
 using System.Management;
-using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.8.0-alpha.2";
+        const string version = "0.8.0-beta.1";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -52,6 +52,10 @@ namespace SimplySerial
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
         static bool forceNewline = false;
+        static Encoding encoding = Encoding.UTF8;
+        static bool convertToPrintable = false;
+        static bool clearScreen = true;
+        static bool noStatus = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -82,32 +86,37 @@ namespace SimplySerial
 
         static void Main(string[] args)
         {
-            // attempt to enable virtual terminal escape sequence processing
-            try
-            {
-                var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-                GetConsoleMode(iStdOut, out uint outConsoleMode);
-                outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-                SetConsoleMode(iStdOut, outConsoleMode);
-            }
-            catch
-            {
-                // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
-            }
-
             // load and parse data in boards.json
             LoadBoards();
 
             // process all command-line arguments
             ProcessArguments(args);
 
+            // attempt to enable virtual terminal escape sequence processing
+            if (!convertToPrintable)
+            {
+                try
+                {
+                    var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+                    GetConsoleMode(iStdOut, out uint outConsoleMode);
+                    outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                    SetConsoleMode(iStdOut, outConsoleMode);
+                }
+                catch
+                {
+                    // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
+                }
+            }
+
+            Console.OutputEncoding = encoding;
+
             // verify log-related settings
             if (logging)
             {
                 try
-                { 
+                {
                     FileStream stream = new FileStream(logFile, logMode, FileAccess.Write);
-                    using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                    using (StreamWriter writer = new StreamWriter(stream, encoding))
                     {
                         writer.WriteLine($"\n----- LOGGING STARTED ({DateTime.Now}) ------------------------------------");
                     }
@@ -118,7 +127,7 @@ namespace SimplySerial
                     ExitProgram($"* Error accessing log file '{logFile}'\n  > {e.GetType()}: {e.Message}", exitCode: -1);
                 }
             }
-            
+
             // set up keyboard input for program control / relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
@@ -199,7 +208,8 @@ namespace SimplySerial
                     ReadTimeout = 1, // minimal timeout - we don't want to wait forever for data that may not be coming!
                     WriteTimeout = 250, // small delay - if we go too small on this it causes System.IO semaphore timeout exceptions
                     DtrEnable = true, // without this we don't ever receive any data
-                    RtsEnable = true // without this we don't ever receive any data
+                    RtsEnable = true, // without this we don't ever receive any data
+                    Encoding = encoding
                 };
 
                 // attempt to set the baud rate, fail if the specified value is not supported by the hardware
@@ -212,7 +222,7 @@ namespace SimplySerial
                         else
                             baud = 9600;
                     }
-                    
+
                     serialPort.BaudRate = baud;
                 }
                 catch (ArgumentOutOfRangeException)
@@ -247,11 +257,20 @@ namespace SimplySerial
                     continue;
                 }
 
+                Console.Title = $"{port.name}: {port.board.make} {port.board.model}";
+
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
-                Console.Clear();
+                if (clearScreen)
+                {
+                    Console.Clear();
+                }
+                else
+                {
+                    Output("");
+                }
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, auto-connect {7}.\n" +
-                    "Device    : {8} {9}{10}\n{11}" +
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
+                    "Device    : {9} {10}{11}\n{12}" +
                     "---\n\nUse CTRL-X to exit.\n",
                     version,
                     port.name,
@@ -259,12 +278,13 @@ namespace SimplySerial
                     (parity == Parity.None) ? "no" : (parity.ToString()).ToLower(),
                     dataBits,
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
+                    (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
-                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n" ) : ""
-                ), flush: true);
+                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n") : ""
+                ), flush: true); ;
 
                 lastFlush = DateTime.Now;
                 DateTime start = DateTime.Now;
@@ -304,6 +324,13 @@ namespace SimplySerial
                         // if anything was received, process it
                         if (received.Length > 0)
                         {
+                            // if we're trying to filter out title/status updates in received data, try to ensure we've got the whole string
+                            if (noStatus && received.Contains("\x1b"))
+                            {
+                                Thread.Sleep(100);
+                                received += serialPort.ReadExisting();
+                            }
+
                             if (forceNewline)
                                 received = received.Replace("\r", "\n");
 
@@ -336,7 +363,10 @@ namespace SimplySerial
                         if (autoConnect == AutoConnect.NONE)
                             ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                         else
+                        {
+                            Console.Title = $"{port.name}: (disconnected)";
                             Output("\n<<< Communications Interrupted >>>\n");
+                        }
                         try
                         {
                             serialPort.Dispose();
@@ -348,11 +378,13 @@ namespace SimplySerial
                         Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
                         if (autoConnect == AutoConnect.ANY)
                         {
+                            Console.Title = "SimplySerial: Searching...";
                             port.name = String.Empty;
                             Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
                         }
                         else if (autoConnect == AutoConnect.ONE)
                         {
+                            Console.Title = $"{port.name}: Searching...";
                             Output("<<< Attempting to re-connect to " + port.name + ". Use CTRL-X to cancel >>>");
                         }
                         break;
@@ -383,7 +415,7 @@ namespace SimplySerial
             foreach (string arg in args)
             {
                 // split argument into components based on 'key:value' formatting             
-                string[] argument = arg.Split(new [] { ':' }, 2);
+                string[] argument = arg.Split(new[] { ':' }, 2);
                 argument[0] = argument[0].ToLower();
 
                 // help
@@ -440,6 +472,18 @@ namespace SimplySerial
                 else if (argument[0].StartsWith("f"))
                 {
                     forceNewline = true;
+                }
+
+                // disable screen clearing
+                else if (argument[0].StartsWith("noc"))
+                {
+                    clearScreen = false;
+                }
+
+                // disable status/title updates from virtual terminal sequences
+                else if (argument[0].StartsWith("nos"))
+                {
+                    noStatus = true;
                 }
 
                 // the remainder of possible command-line arguments require two parameters, so let's enforce that now
@@ -545,6 +589,30 @@ namespace SimplySerial
                     logFile = argument[1];
                 }
 
+                // specify encoding
+                else if (argument[0].StartsWith("e"))
+                {
+                    argument[1] = argument[1].ToLower();
+
+                    if (argument[1].StartsWith("a"))
+                    {
+                        encoding = Encoding.ASCII;
+                        convertToPrintable = false;
+                    }
+                    else if (argument[1].StartsWith("r"))
+                    {
+                        encoding = Encoding.GetEncoding(1252);
+                        convertToPrintable = true;
+                    }
+                    else if (argument[1].StartsWith("u"))
+                    {
+                        encoding = Encoding.UTF8;
+                        convertToPrintable = false;
+                    }
+                    else
+                        ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -552,20 +620,34 @@ namespace SimplySerial
                 }
             }
 
-            Console.Clear();
+            if (clearScreen)
+            {
+                Console.Clear();
+            }
+
             if (autoConnect == AutoConnect.ANY)
             {
+                Console.Title = "SimplySerial: Searching...";
                 Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
             }
             else if (autoConnect == AutoConnect.ONE)
             {
-                Console.Clear();
+                if (clearScreen)
+                {
+                    Console.Clear();
+                }
                 if (port.name == String.Empty)
+                {
+                    Console.Title = "SimplySerial: Searching...";
                     Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
+                }
                 else
+                {
+                    Console.Title = $"{port.name}: Searching...";
                     Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to cancel >>>");
+                }
             }
-                       
+
             // if we made it this far, everything has been processed and we're ready to proceed!
         }
 
@@ -574,7 +656,7 @@ namespace SimplySerial
         /// Writes messages using Console.WriteLine() as long as the 'Quiet' option hasn't been enabled
         /// </summary>
         /// <param name="message">Message to output (assuming 'Quiet' is false)</param>
-        static void Output(string message, bool force=false, bool newline=true, bool flush=false)
+        static void Output(string message, bool force = false, bool newline = true, bool flush = false)
         {
             if (!SimplySerial.Quiet || force)
             {
@@ -582,7 +664,27 @@ namespace SimplySerial
                     message += "\n";
 
                 if (message.Length > 0)
+                {
+                    if (noStatus)
+                    {
+                        Regex r = new Regex(@"\x1b\][02];.*\x1b\\");
+                        message = r.Replace(message, string.Empty);
+                    }
+
+                    if (convertToPrintable)
+                    {
+                        string newMessage = "";
+                        foreach (byte c in message)
+                        {
+                            if ((c > 31 && c < 128) || (c == 8) || (c == 9) || (c == 10) || (c == 13))
+                                newMessage += (char)c;
+                            else
+                                newMessage += $"[{c:X2}]";
+                        }
+                        message = newMessage;
+                    }
                     Console.Write(message);
+                }
 
                 if (logging)
                 {
@@ -592,7 +694,7 @@ namespace SimplySerial
                         try
                         {
                             FileStream stream = new FileStream(logFile, FileMode.Append, FileAccess.Write);
-                            using (StreamWriter writer = new StreamWriter(stream, Encoding.UTF8))
+                            using (StreamWriter writer = new StreamWriter(stream, encoding))
                             {
                                 writer.Write(logData);
                             }
@@ -637,6 +739,9 @@ namespace SimplySerial
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
             Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
+            Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
+            Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
+            Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
@@ -668,7 +773,7 @@ namespace SimplySerial
         /// <param name="message">Message to display - should indicate the reason why the program is terminating.</param>
         /// <param name="exitCode">Code to return to parent process.  Should be &lt;0 if an error occurred, &gt;=0 if program is terminating normally.</param>
         /// <param name="silent">Exits without displaying a message or asking for a key press when set to 'true'</param>
-        static void ExitProgram(string message="", int exitCode=0, bool silent=false)
+        static void ExitProgram(string message = "", int exitCode = 0, bool silent = false)
         {
             // the serial port should be closed before exiting
             if (serialPort != null && serialPort.IsOpen)
@@ -708,7 +813,7 @@ namespace SimplySerial
             string[] cpb_descriptions = new string[] { "CircuitPython CDC ", "Sol CDC ", "StringCarM0Ex CDC " };
 
             List<ComPort> detectedPorts = new List<ComPort>();
-            
+
             foreach (var p in new ManagementObjectSearcher("root\\CIMV2", query).Get().OfType<ManagementObject>())
             {
                 ComPort c = new ComPort();
@@ -721,7 +826,7 @@ namespace SimplySerial
                     c.name = mName.Value;
                     c.num = int.Parse(c.name.Substring(3));
                 }
-                
+
                 // if the port name or number cannot be determined, skip this port and move on
                 if (c.num < 1)
                     continue;
@@ -741,7 +846,7 @@ namespace SimplySerial
 
                 // extract the device's friendly description (caption)
                 c.description = p.GetPropertyValue("Caption").ToString();
-                
+
                 // attempt to match this device with a known board
                 c.board = MatchBoard(c.vid, c.pid);
 
@@ -767,7 +872,7 @@ namespace SimplySerial
                 }
 
                 // add this port to our list of detected ports
-                detectedPorts.Add(c); 
+                detectedPorts.Add(c);
             }
 
             return detectedPorts;
@@ -788,7 +893,7 @@ namespace SimplySerial
 
             if (mBoard == null)
             {
-                mBoard = new Board(vid:vid, pid:pid);
+                mBoard = new Board(vid: vid, pid: pid);
 
                 Vendor mVendor = null;
                 if (boardData.vendors != null)
@@ -799,7 +904,7 @@ namespace SimplySerial
 
             return mBoard;
         }
-    
+
         static void LoadBoards()
         {
             try
@@ -818,7 +923,7 @@ namespace SimplySerial
         }
     }
 
- 
+
     /// <summary>
     /// Custom string array sorting logic for SimplySerial command-line arguments
     /// </summary>
@@ -837,15 +942,15 @@ namespace SimplySerial
             // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help' and 'version'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
-            
+
             x = x.ToLower();
             if (x.StartsWith("lo"))
                 x = "z"; // mask out logging options so that they are not interpreted as the list option
-            
+
             y = y.ToLower();
             if (y.StartsWith("lo"))
                 y = "z"; // mask out logging options so that they are not interpreted as the list option
-            
+
             foreach (char c in "?hvlqc")
             {
                 if (x.ToLower()[0] == c)
