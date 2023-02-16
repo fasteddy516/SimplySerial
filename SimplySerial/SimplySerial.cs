@@ -1,14 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.IO;
 using System.IO.Ports;
-using System.Text;
-using System.Threading;
+using System.Linq;
 using System.Management;
-using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
-using Newtonsoft.Json;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace SimplySerial
 {
@@ -114,7 +114,7 @@ namespace SimplySerial
             if (logging)
             {
                 try
-                { 
+                {
                     FileStream stream = new FileStream(logFile, logMode, FileAccess.Write);
                     using (StreamWriter writer = new StreamWriter(stream, encoding))
                     {
@@ -127,7 +127,7 @@ namespace SimplySerial
                     ExitProgram($"* Error accessing log file '{logFile}'\n  > {e.GetType()}: {e.Message}", exitCode: -1);
                 }
             }
-            
+
             // set up keyboard input for program control / relay to serial port
             ConsoleKeyInfo keyInfo = new ConsoleKeyInfo();
             Console.TreatControlCAsInput = true; // we need to use CTRL-C to activate the REPL in CircuitPython, so it can't be used to exit the application
@@ -222,7 +222,7 @@ namespace SimplySerial
                         else
                             baud = 9600;
                     }
-                    
+
                     serialPort.BaudRate = baud;
                 }
                 catch (ArgumentOutOfRangeException)
@@ -256,6 +256,8 @@ namespace SimplySerial
                     Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts
                     continue;
                 }
+
+                Console.Title = $"{port.name}: {port.board.make} {port.board.model}";
 
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 if (clearScreen)
@@ -362,6 +364,7 @@ namespace SimplySerial
                             ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                         else
                         {
+                            Console.Title = $"{port.name}: (disconnected)";
                             Output("\n<<< Communications Interrupted >>>\n");
                         }
                         try
@@ -375,11 +378,13 @@ namespace SimplySerial
                         Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
                         if (autoConnect == AutoConnect.ANY)
                         {
+                            Console.Title = "SimplySerial: Searching...";
                             port.name = String.Empty;
                             Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
                         }
                         else if (autoConnect == AutoConnect.ONE)
                         {
+                            Console.Title = $"{port.name}: Searching...";
                             Output("<<< Attempting to re-connect to " + port.name + ". Use CTRL-X to cancel >>>");
                         }
                         break;
@@ -410,7 +415,7 @@ namespace SimplySerial
             foreach (string arg in args)
             {
                 // split argument into components based on 'key:value' formatting             
-                string[] argument = arg.Split(new [] { ':' }, 2);
+                string[] argument = arg.Split(new[] { ':' }, 2);
                 argument[0] = argument[0].ToLower();
 
                 // help
@@ -590,7 +595,7 @@ namespace SimplySerial
                     argument[1] = argument[1].ToLower();
 
                     if (argument[1].StartsWith("a"))
-                    { 
+                    {
                         encoding = Encoding.ASCII;
                         convertToPrintable = false;
                     }
@@ -600,7 +605,7 @@ namespace SimplySerial
                         convertToPrintable = true;
                     }
                     else if (argument[1].StartsWith("u"))
-                    { 
+                    {
                         encoding = Encoding.UTF8;
                         convertToPrintable = false;
                     }
@@ -622,6 +627,7 @@ namespace SimplySerial
 
             if (autoConnect == AutoConnect.ANY)
             {
+                Console.Title = "SimplySerial: Searching...";
                 Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
             }
             else if (autoConnect == AutoConnect.ONE)
@@ -631,11 +637,17 @@ namespace SimplySerial
                     Console.Clear();
                 }
                 if (port.name == String.Empty)
+                {
+                    Console.Title = "SimplySerial: Searching...";
                     Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
+                }
                 else
+                {
+                    Console.Title = $"{port.name}: Searching...";
                     Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to cancel >>>");
+                }
             }
-                       
+
             // if we made it this far, everything has been processed and we're ready to proceed!
         }
 
@@ -644,7 +656,7 @@ namespace SimplySerial
         /// Writes messages using Console.WriteLine() as long as the 'Quiet' option hasn't been enabled
         /// </summary>
         /// <param name="message">Message to output (assuming 'Quiet' is false)</param>
-        static void Output(string message, bool force=false, bool newline=true, bool flush=false)
+        static void Output(string message, bool force = false, bool newline = true, bool flush = false)
         {
             if (!SimplySerial.Quiet || force)
             {
@@ -665,7 +677,7 @@ namespace SimplySerial
                         foreach (byte c in message)
                         {
                             if ((c > 31 && c < 128) || (c == 8) || (c == 9) || (c == 10) || (c == 13))
-                                newMessage += (char) c;
+                                newMessage += (char)c;
                             else
                                 newMessage += $"[{c:X2}]";
                         }
@@ -761,7 +773,7 @@ namespace SimplySerial
         /// <param name="message">Message to display - should indicate the reason why the program is terminating.</param>
         /// <param name="exitCode">Code to return to parent process.  Should be &lt;0 if an error occurred, &gt;=0 if program is terminating normally.</param>
         /// <param name="silent">Exits without displaying a message or asking for a key press when set to 'true'</param>
-        static void ExitProgram(string message="", int exitCode=0, bool silent=false)
+        static void ExitProgram(string message = "", int exitCode = 0, bool silent = false)
         {
             // the serial port should be closed before exiting
             if (serialPort != null && serialPort.IsOpen)
@@ -801,7 +813,7 @@ namespace SimplySerial
             string[] cpb_descriptions = new string[] { "CircuitPython CDC ", "Sol CDC ", "StringCarM0Ex CDC " };
 
             List<ComPort> detectedPorts = new List<ComPort>();
-            
+
             foreach (var p in new ManagementObjectSearcher("root\\CIMV2", query).Get().OfType<ManagementObject>())
             {
                 ComPort c = new ComPort();
@@ -814,7 +826,7 @@ namespace SimplySerial
                     c.name = mName.Value;
                     c.num = int.Parse(c.name.Substring(3));
                 }
-                
+
                 // if the port name or number cannot be determined, skip this port and move on
                 if (c.num < 1)
                     continue;
@@ -834,7 +846,7 @@ namespace SimplySerial
 
                 // extract the device's friendly description (caption)
                 c.description = p.GetPropertyValue("Caption").ToString();
-                
+
                 // attempt to match this device with a known board
                 c.board = MatchBoard(c.vid, c.pid);
 
@@ -860,7 +872,7 @@ namespace SimplySerial
                 }
 
                 // add this port to our list of detected ports
-                detectedPorts.Add(c); 
+                detectedPorts.Add(c);
             }
 
             return detectedPorts;
@@ -881,7 +893,7 @@ namespace SimplySerial
 
             if (mBoard == null)
             {
-                mBoard = new Board(vid:vid, pid:pid);
+                mBoard = new Board(vid: vid, pid: pid);
 
                 Vendor mVendor = null;
                 if (boardData.vendors != null)
@@ -892,7 +904,7 @@ namespace SimplySerial
 
             return mBoard;
         }
-    
+
         static void LoadBoards()
         {
             try
@@ -911,7 +923,7 @@ namespace SimplySerial
         }
     }
 
- 
+
     /// <summary>
     /// Custom string array sorting logic for SimplySerial command-line arguments
     /// </summary>
@@ -930,15 +942,15 @@ namespace SimplySerial
             // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help' and 'version'
             // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
             // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
-            
+
             x = x.ToLower();
             if (x.StartsWith("lo"))
                 x = "z"; // mask out logging options so that they are not interpreted as the list option
-            
+
             y = y.ToLower();
             if (y.StartsWith("lo"))
                 y = "z"; // mask out logging options so that they are not interpreted as the list option
-            
+
             foreach (char c in "?hvlqc")
             {
                 if (x.ToLower()[0] == c)
