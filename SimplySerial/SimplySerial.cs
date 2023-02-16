@@ -85,24 +85,27 @@ namespace SimplySerial
 
         static void Main(string[] args)
         {
-            // attempt to enable virtual terminal escape sequence processing
-            try
-            {
-                var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-                GetConsoleMode(iStdOut, out uint outConsoleMode);
-                outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-                SetConsoleMode(iStdOut, outConsoleMode);
-            }
-            catch
-            {
-                // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
-            }
-
             // load and parse data in boards.json
             LoadBoards();
 
             // process all command-line arguments
             ProcessArguments(args);
+
+            // attempt to enable virtual terminal escape sequence processing
+            if (!convertToPrintable)
+            {
+                try
+                {
+                    var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+                    GetConsoleMode(iStdOut, out uint outConsoleMode);
+                    outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+                    SetConsoleMode(iStdOut, outConsoleMode);
+                }
+                catch
+                {
+                    // if the above fails, it doesn't really matter - it just means escape sequences won't process nicely
+                }
+            }
 
             Console.OutputEncoding = encoding;
 
@@ -639,7 +642,7 @@ namespace SimplySerial
                         string newMessage = "";
                         foreach (byte c in message)
                         {
-                            if ((c > 31 && c < 128) || (c == 8) || (c == 9) || (c == 10) || (c == 13) || (c == 27))
+                            if ((c > 31 && c < 128) || (c == 8) || (c == 9) || (c == 10) || (c == 13))
                                 newMessage += (char) c;
                             else
                                 newMessage += $"[{c:X2}]";
