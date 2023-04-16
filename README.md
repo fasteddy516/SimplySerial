@@ -35,6 +35,12 @@ Download the [latest release](https://github.com/fasteddy516/SimplySerial/releas
 
 `SimplySerial_x.x.x_standalone.zip` is a standard compressed archive containing SimplySerial's program files and some documentation.  You can unzip it wherever you like, and add that location to your `PATH` or not.  **Advanced users may prefer this format/process.**
 
+The standalone version can also be installed with [scoop](https://scoop.sh/).
+
+```powershell
+> scoop bucket add extras
+> scoop install simplyserial
+```
 
 # Using SimplySerial
 
