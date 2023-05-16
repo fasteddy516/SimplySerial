@@ -752,13 +752,23 @@ namespace SimplySerial
         {
             string installType;
 
-            // determine installation type (user/system/standalone)
-            if (appFolder.ToLower().Contains("appdata\\roaming"))
+            // determine installation type (scoop/user/system/standalone)
+            if (appFolder.ToLower().Contains("scoop"))
+            {
+                installType = "Scoop";
+            }
+            else if (appFolder.ToLower().Contains("appdata\\roaming"))
+            {
                 installType = "User";
+            }
             else if (appFolder.ToLower().Contains("program files"))
+            {
                 installType = "System";
+            }
             else
+            {
                 installType = "Standalone/Manual";
+            }
 
             Console.WriteLine($"SimplySerial version {version}");
             Console.WriteLine($"  Installation Type : {installType}");
