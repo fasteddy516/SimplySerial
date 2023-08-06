@@ -433,9 +433,37 @@ namespace SimplySerial
 
             // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output, etc.)
             Array.Sort(args, new ArgumentSorter());
+            List <string> argList = args.ToList();
 
             // iterate through command-line arguments
             foreach (string arg in args)
+            {
+                // split argument into components based on 'key:value' formatting             
+                string[] argument = arg.Split(new[] { ':' }, 2);
+                argument[0] = argument[0].ToLower();
+                // input config file
+                if (argument[0].StartsWith("i"))
+                {
+                    if (argument.Length != 2)
+                    {
+                        ExitProgram(("Input filename not provided"), exitCode: -1);
+                    }
+
+                    try
+                    {
+                        string[] lines = File.ReadAllLines(argument[1]);
+                        argList = lines.ToList();
+                    }
+                    catch (Exception e)
+                    {
+                        ExitProgram(("Invalid file name <" + argument[1] + ">"), exitCode: -1);
+                    }
+                    break;
+                }
+            }
+
+            // iterate through command-line arguments
+            foreach (string arg in argList)
             {
                 // split argument into components based on 'key:value' formatting             
                 string[] argument = arg.Split(new[] { ':' }, 2);
@@ -796,6 +824,7 @@ namespace SimplySerial
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters");
             Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF newline char sent on carriage return.");
+            Console.WriteLine("  -input            Input file whose each line contain an option without '-' infront. eg: com:COM1");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
