@@ -297,7 +297,7 @@ namespace SimplySerial
                     try
                     {
                         // process keypresses for transmission through the serial port
-                        if (Console.KeyAvailable)
+                        while (Console.KeyAvailable)
                         {
                             // determine what key is pressed (including modifiers)
                             keyInfo = Console.ReadKey(intercept: true);
