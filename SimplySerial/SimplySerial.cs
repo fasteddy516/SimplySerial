@@ -56,6 +56,8 @@ namespace SimplySerial
         static bool convertToPrintable = false;
         static bool clearScreen = true;
         static bool noStatus = false;
+        static bool localEcho = false;
+        static string NewlineTxMode = "CR";
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -269,8 +271,8 @@ namespace SimplySerial
                     Output("");
                 }
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
-                    "Device    : {9} {10}{11}\n{12}" +
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}, echo {9}, tx_linefeed:{10}\n" +
+                    "Device    : {11} {12}{13}\n{14}" +
                     "---\n\nUse CTRL-X to exit.\n",
                     version,
                     port.name,
@@ -280,6 +282,8 @@ namespace SimplySerial
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
                     (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
+                    (localEcho == true) ? "on" : "off",
+                    NewlineTxMode,
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
@@ -311,11 +315,30 @@ namespace SimplySerial
 
                             // check for keys that require special processing (cursor keys, etc.)
                             else if (specialKeys.ContainsKey(keyInfo.Key))
+                            {
                                 serialPort.Write(specialKeys[keyInfo.Key]);
+                                
+                                if (localEcho ==  true)
+                                    Output(specialKeys[keyInfo.Key], force:true, newline:false);
+                            }
 
                             // everything else just gets sent right on through
                             else
-                                serialPort.Write(Convert.ToString(keyInfo.KeyChar));
+                            {
+                                string outString = Convert.ToString(keyInfo.KeyChar);
+
+                                if (NewlineTxMode.Equals("LF"))
+                                    outString = outString.Replace("\r", "\n");
+                                else if (NewlineTxMode.Equals("CR"))
+                                    outString = outString.Replace("\n", "\r");
+                                else if (NewlineTxMode.Equals("CRLF"))
+                                    outString = outString.Replace("\r", "\r\n");
+
+                                serialPort.Write(outString);
+
+                                if (localEcho == true)                                    
+                                     Output(outString, force: true, newline: false);
+                            }
                         }
 
                         // process data coming in from the serial port
@@ -590,7 +613,7 @@ namespace SimplySerial
                 }
 
                 // specify encoding
-                else if (argument[0].StartsWith("e"))
+                else if (argument[0].StartsWith("en"))
                 {
                     argument[1] = argument[1].ToLower();
 
@@ -612,7 +635,36 @@ namespace SimplySerial
                     else
                         ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
                 }
+                // specify local echo mode
+                else if (argument[0].StartsWith("ec"))
+                {
+                    argument[1] = argument[1].ToLower();
 
+                    if (argument[1].StartsWith("on"))
+                    {
+                        localEcho = true;
+                    }
+                    else if (argument[1].StartsWith("of"))
+                    {
+                        localEcho = false;
+                    }
+                    else
+                        ExitProgram(("Invalid echo mode specified (use only ON or OFF)<" + argument[1] + ">"), exitCode: -1);
+                }
+                // specify tx linefeed mode
+                else if (argument[0].StartsWith("tx"))
+                {
+                    argument[1] = argument[1].ToLower();
+                    
+                    if (argument[1].Equals("cr"))
+                        NewlineTxMode = "CR";
+                    else if (argument[1].Equals("lf"))
+                        NewlineTxMode = "LF";
+                    else if (argument[1].Equals("crlf"))
+                        NewlineTxMode = "CRLF";
+                    else
+                        ExitProgram(("Invalid newline mode specified (CR | LF | CRLF)<" + argument[1] + ">"), exitCode: -1);
+                }
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -742,6 +794,8 @@ namespace SimplySerial
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
             Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
+            Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters");
+            Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF newline char sent on carriage return.");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
 
