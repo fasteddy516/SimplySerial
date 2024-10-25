@@ -4,9 +4,9 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_PREDEF_LCONDS_PROPS" Value="AI_DETECTED_DOTNET_VERSION"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Newtonsoft.Json.dll" Value="..\SimplySerial\packages\Newtonsoft.Json.13.0.3\lib\net45"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json" Value="..\SimplySerial\bin\Debug"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe" Value="..\SimplySerial\bin\Debug"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\Release"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll" Value="Newtonsoft.Json.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_boards.json" Value="boards.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ss.exe" Value="ss.exe"/>
@@ -16,14 +16,14 @@
     <ROW Property="AI_RUN_AS_ADMIN" Value="0"/>
     <ROW Property="ALLUSERS" Value="1" MultiBuildValue="DefaultBuild:"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
-    <ROW Property="ARPHELPLINK" Value="https://github.com/fasteddy516/SimplySerial/issues"/>
-    <ROW Property="ARPURLINFOABOUT" Value="https://github.com/fasteddy516/SimplySerial"/>
-    <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/fasteddy516/SimplySerial/releases"/>
-    <ROW Property="Manufacturer" Value="fasteddy516"/>
-    <ROW Property="ProductCode" Value="1033:{75BF31C7-AB7A-4D0D-87F5-16C990E8733E} " Type="16"/>
+    <ROW Property="ARPHELPLINK" Value="https://github.com/salvathor79/SimplySerial/issues"/>
+    <ROW Property="ARPURLINFOABOUT" Value="https://github.com/salvathor79/SimplySerial"/>
+    <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/salvathor79/SimplySerial/releases"/>
+    <ROW Property="Manufacturer" Value="salvathor79"/>
+    <ROW Property="ProductCode" Value="1033:{AAA0D35C-E2E8-43D8-B8EF-D4EED2DE1F0D} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SimplySerial"/>
-    <ROW Property="ProductVersion" Value="0.8.0" Options="32"/>
+    <ROW Property="ProductVersion" Value="0.9.0" Options="32"/>
     <ROW Property="REBOOT" MultiBuildValue="DefaultBuild:ReallySuppress"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{64061592-EDD5-474E-B846-4CA070788BBE}"/>

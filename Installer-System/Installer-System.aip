@@ -4,9 +4,9 @@
     <ROW Property="AI_BITMAP_DISPLAY_MODE" Value="0"/>
     <ROW Property="AI_PREDEF_LCONDS_PROPS" Value="AI_DETECTED_DOTNET_VERSION"/>
     <ROW Property="AI_PROPPATH_DIR_PERBUILD_Newtonsoft.Json.dll" Value="..\SimplySerial\packages\Newtonsoft.Json.13.0.3\lib\net45"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json_1" Value="..\SimplySerial\bin\Debug"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\Debug"/>
-    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe_1" Value="..\SimplySerial\bin\Debug"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_boards.json_1" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe.config" Value="..\SimplySerial\bin\Release"/>
+    <ROW Property="AI_PROPPATH_DIR_PERBUILD_ss.exe_1" Value="..\SimplySerial\bin\Release"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_Newtonsoft.Json.dll" Value="Newtonsoft.Json.dll"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_boards.json_1" Value="boards.json"/>
     <ROW Property="AI_PROPPATH_FILENAME_PERBUILD_ss.exe.config" Value="ss.exe.config"/>
