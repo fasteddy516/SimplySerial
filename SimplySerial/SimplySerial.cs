@@ -874,7 +874,7 @@ namespace SimplySerial
             Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters");
-            Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF newline char sent on carriage return.");
+            Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF | CUSTOM=CustomString newline chars sent on carriage return.");
             Console.WriteLine("  -input            Input file whose each line contain an option without '-' infront. eg: com:COM1");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
