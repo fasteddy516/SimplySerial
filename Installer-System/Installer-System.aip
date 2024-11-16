@@ -20,10 +20,10 @@
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/salvathor79/SimplySerial"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/salvathor79/SimplySerial/releases"/>
     <ROW Property="Manufacturer" Value="salvathor79"/>
-    <ROW Property="ProductCode" Value="1033:{4BFE127D-1D9C-46E2-9535-84479C214B32} " Type="16"/>
+    <ROW Property="ProductCode" Value="1033:{40C3F1CB-45FD-45CF-A1D7-C3B6EBF3C5A2} " Type="16"/>
     <ROW Property="ProductLanguage" Value="1033"/>
     <ROW Property="ProductName" Value="SimplySerial"/>
-    <ROW Property="ProductVersion" Value="0.9.0" Options="32"/>
+    <ROW Property="ProductVersion" Value="0.9.1" Options="32"/>
     <ROW Property="SecureCustomProperties" Value="OLDPRODUCTS;AI_NEWERPRODUCTFOUND"/>
     <ROW Property="UpgradeCode" Value="{6A3965D3-95B6-4145-8B3C-6F55E2A16C31}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="DefaultBuild:Windows 9x/ME" ValueLocId="-"/>
