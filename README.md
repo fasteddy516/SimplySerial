@@ -88,7 +88,7 @@ If you have multiple COM ports, multiple CircuitPython devices connected, or nee
 
   `-ec --echo` enable or disable printing typed characters
 
-  `-tx --tx_newline` newline char sent on carriage return
+  `-tx --tx_newline` newline chars sent on carriage return (ex. `-tx:CRLF`, `-tx:custom=CustomString`, `--tx_newline:LF`)
 
   `-i, --input` ut configuration file, with newline separated configuration options. eg: `c:COM1`. Note that the prefix `-` and `--` shall be omitted.
 

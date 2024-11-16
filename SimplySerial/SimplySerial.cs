@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Management;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,7 +58,17 @@ namespace SimplySerial
         static bool clearScreen = true;
         static bool noStatus = false;
         static bool localEcho = false;
-        static string NewlineTxMode = "CR";
+        static string CustomString = string.Empty;
+
+        static Dictionary<Int16, String> NewlineTxDict = new Dictionary<Int16, String>
+        {
+            {0,"" },
+            {1,"\r"},
+            {2,"\n"},
+            {3,"\r\n"}
+        };
+
+        static Int16 NewlineTxMode = 1; // Default value is \r
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -270,6 +281,38 @@ namespace SimplySerial
                 {
                     Output("");
                 }
+
+                if (NewlineTxMode == 1)
+                {
+                    CustomString = "CR";
+                }
+                else if (NewlineTxMode == 2)
+                {
+                    CustomString = "LF";
+                }
+                else if (NewlineTxMode == 3)
+                {
+                    CustomString = "CRLF";
+                }
+                else if (NewlineTxMode == 4)
+                {
+                    
+                    if (NewlineTxDict.TryGetValue(NewlineTxMode, out string t))
+                    {
+                        CustomString = t;
+                    }
+                    else
+                    {
+                        CustomString = "";
+                    }
+                }
+                else
+                {
+                    /* we should never reach this point */
+
+                }
+               
+
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
                     "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}, echo {9}, tx_linefeed:{10}\n" +
                     "Device    : {11} {12}{13}\n{14}" +
@@ -283,7 +326,7 @@ namespace SimplySerial
                     (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     (localEcho == true) ? "on" : "off",
-                    NewlineTxMode,
+                    CustomString,
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
@@ -325,14 +368,17 @@ namespace SimplySerial
                             // everything else just gets sent right on through
                             else
                             {
+                                //String buffer;
                                 string outString = Convert.ToString(keyInfo.KeyChar);
 
-                                if (NewlineTxMode.Equals("LF"))
-                                    outString = outString.Replace("\r", "\n");
-                                else if (NewlineTxMode.Equals("CR"))
-                                    outString = outString.Replace("\n", "\r");
-                                else if (NewlineTxMode.Equals("CRLF"))
-                                    outString = outString.Replace("\r", "\r\n");
+                                if (NewlineTxDict.TryGetValue(NewlineTxMode, out String buffer))
+                                {
+                                    outString = outString.Replace("\r", buffer);
+                                }
+                                else
+                                {
+                                    // Do nothing
+                                }
 
                                 serialPort.Write(outString);
 
@@ -685,13 +731,18 @@ namespace SimplySerial
                     argument[1] = argument[1].ToLower();
                     
                     if (argument[1].Equals("cr"))
-                        NewlineTxMode = "CR";
+                        NewlineTxMode = 1;
                     else if (argument[1].Equals("lf"))
-                        NewlineTxMode = "LF";
+                        NewlineTxMode = 2;
                     else if (argument[1].Equals("crlf"))
-                        NewlineTxMode = "CRLF";
+                        NewlineTxMode = 3;
+                    else if ((argument[1].StartsWith("custom=")) && (argument[1].Length <= (255 + 7)))
+                    {
+                        NewlineTxDict.Add(4, argument[1].Substring(argument[1].IndexOf("=") + 1));
+                        NewlineTxMode = 4;
+                    }
                     else
-                        ExitProgram(("Invalid newline mode specified (CR | LF | CRLF)<" + argument[1] + ">"), exitCode: -1);
+                        ExitProgram(("Invalid newline mode specified (CR | LF | CRLF | CUSTOM=CustomString)\r\n.CustomString should be less than 255 chars.<" + argument[1] + ">"), exitCode: -1);
                 }
                 // an invalid/incomplete argument was passed
                 else
@@ -1008,7 +1059,7 @@ namespace SimplySerial
                     boardData = JsonConvert.DeserializeObject<BoardData>(json);
                 }
             }
-            catch (Exception e)
+            catch (Exception e )
             {
                 boardData = new BoardData();
                 boardData.version = "(boards.json is missing or invalid)";
