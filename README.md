@@ -2,9 +2,13 @@
 
 ###### A serial terminal that runs as a Windows console application.
   
-Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
+Original Written by [Edward Wright](mailto:fasteddy@thewrightspace.net) (fasteddy516).
 
 Available at https://github.com/fasteddy516/SimplySerial
+
+I forked it, merged some pull-requests and added some options
+
+Available at https://github.com/salvathor79/SimplySerial (salvathor79)
 
 # Description
 
@@ -23,7 +27,7 @@ _The required version of .NET framework is already included in supported Windows
 
 # Installation
 
-Download the [latest release](https://github.com/fasteddy516/SimplySerial/releases/latest) of this application in one of three formats:
+Download the [latest release](https://github.com/salvathor79/SimplySerial/releases/latest) of this application in one of three formats:
 
 `SimplySerial_x.x.x_user_setup.msi` is a windows installer package that puts everything where it needs to go and adds the location of the SimplySerial executable to your `PATH` environment variable, which makes it easily accessible from Command Prompt, PowerShell and Visual Studio Code.  Installation is per-user, and does not require Administrative rights to install.  **This is the preferred installation method,** _and works well with the "user setup" version of VSCode_.
 
@@ -88,7 +92,7 @@ If you have multiple COM ports, multiple CircuitPython devices connected, or nee
 
   `-ec --echo` enable or disable printing typed characters
 
-  `-tx --tx_newline` newline chars sent on carriage return (ex. `-tx:CRLF`, `-tx:custom=CustomString`, `--tx_newline:LF`)
+  `-tx --tx_newline` newline chars sent on carriage return. A sequence of bytes can be used with bytes keyword (ex. `-tx:CRLF`, `-tx:custom="CustomString"`, `--tx_newline:LF`, `--tx:bytes="0xFF0xFF"`, `--tx:bytes="0xFF 0xFF"`, `--tx:bytes="FF FF"`, `--tx:bytes="FFFF"`)
 
   `-i, --input` ut configuration file, with newline separated configuration options. eg: `c:COM1`. Note that the prefix `-` and `--` shall be omitted.
 
@@ -125,7 +129,7 @@ If you're directly editing the settings.json, the profile section will look like
 
 # Contributing
 
-  If you have questions, problems, feature requests, etc. please post them to the [Issues section on GitHub](https://github.com/fasteddy516/SimplySerial/issues).  If you would like to contribute, please let me know.  I have already put some "enhancement requests" in the GitHub Issues section with some ideas for improvements, most of which were either beyond my limited C#/Windows programming knowledge, or required more time than I had available! 
+  If you have questions, problems, feature requests, etc. please post them to the [Issues section on GitHub](https://github.com/salvathor79/SimplySerial/issues).  If you would like to contribute, please let me know.  I have already put some "enhancement requests" in the GitHub Issues section with some ideas for improvements, most of which were either beyond my limited C#/Windows programming knowledge, or required more time than I had available! 
 
 
 # Acknowledgements

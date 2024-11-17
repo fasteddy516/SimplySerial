@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -15,7 +16,7 @@ namespace SimplySerial
 {
     class SimplySerial
     {
-        const string version = "0.9.1";
+        const string version = "0.9.2";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -303,7 +304,19 @@ namespace SimplySerial
                     }
                     else
                     {
-                        CustomString = "";
+                        CustomString = String.Empty;
+                    }
+                }
+                else if (NewlineTxMode == 5)
+                {
+
+                    if (NewlineTxDict.TryGetValue(NewlineTxMode, out string t))
+                    {
+                        CustomString = t;
+                    }
+                    else
+                    {
+                        CustomString = String.Empty;
                     }
                 }
                 else
@@ -741,8 +754,39 @@ namespace SimplySerial
                         NewlineTxDict.Add(4, argument[1].Substring(argument[1].IndexOf("=") + 1));
                         NewlineTxMode = 4;
                     }
+                    else if ((argument[1].StartsWith("bytes=")))
+                    {
+                        string temp = argument[1].Substring(argument[1].IndexOf("=") + 1);
+
+                        temp = temp.Replace(" ", "").Replace("\"","").Replace("0x", "");
+                        
+                        if ((temp.Length % 2 != 0) && (temp.Length <= (255 * 2)))
+                        {
+                            ExitProgram(("Invalid format of bytes sequence specified, each byte must be 2 characters long and the maximum number of bytes should be less than 255.\r\nUse bytes with leading or trailing '0'. i.e.: 0D or A0<" + argument[1] + ">"), exitCode: -1);
+                        }
+                        else
+                        {
+                            string plaintext = string.Empty;
+;
+                            for (int read_index = 0; read_index <= (temp.Length - 2); read_index += 2)
+                            {
+                                try
+                                {
+                                    plaintext += Convert.ToChar(Convert.ToByte(temp.Substring(read_index, 2), 16));
+                                }
+                                catch
+                                {
+                                    ExitProgram(("<"+ temp.Substring(read_index, 2) + "> " + "is an invalid byte value. Use only hexadecimal value with or without leading 0x"), exitCode: -1);
+                                }
+                               
+                            }
+                            
+                            NewlineTxDict.Add(5, plaintext);
+                            NewlineTxMode = 5;
+                        }
+                    }
                     else
-                        ExitProgram(("Invalid newline mode specified (CR | LF | CRLF | CUSTOM=CustomString)\r\n.CustomString should be less than 255 chars.<" + argument[1] + ">"), exitCode: -1);
+                        ExitProgram(("Invalid newline mode specified (CR | LF | CRLF | CUSTOM=CustomString | BYTES=\"Custom sequence of bytes\")\r\n.CustomString should be less than 255 chars or bytes should be less than 255.<" + argument[1] + ">"), exitCode: -1);
                 }
                 // an invalid/incomplete argument was passed
                 else
@@ -874,7 +918,9 @@ namespace SimplySerial
             Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters");
-            Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF | CUSTOM=CustomString newline chars sent on carriage return.");
+            Console.WriteLine("  -tx_newline:VAL   CR | LF | CRLF | CUSTOM=\"CustomString\" | BYTES=\"custom sequence of bytes\", each byte must be expressed by 2 chars");
+            Console.WriteLine("                    bytes sequence must be an exadecimal value with or without leading 0x and separated or not by spaces.");
+            Console.WriteLine("                    newline chars sent on carriage return.");
             Console.WriteLine("  -input            Input file whose each line contain an option without '-' infront. eg: com:COM1");
             Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
         }
