@@ -1,22 +1,70 @@
 {
-    "version": "2023-05-16T10:29:28.491914",
+    "version": "2025-02-27T11:43:31.370957",
     "vendors": [
-        { "vid": "04D8", "make": "Microchip Technology" },
-        { "vid": "054C", "make": "Sony" },
-        { "vid": "1209", "make": "Generic" },
-        { "vid": "1915", "make": "Nordic Semiconductor" },
-        { "vid": "1B4F", "make": "Sparkfun" },
-        { "vid": "2341", "make": "Arduino" },
-        { "vid": "239A", "make": "Adafruit" },
-        { "vid": "2786", "make": "Switch Science, Inc." },
-        { "vid": "2886", "make": "Seeed" },
-        { "vid": "2B04", "make": "Spark Labs, Inc." },
-        { "vid": "2E8A", "make": "Raspberry Pi" },
-        { "vid": "303A", "make": "Espressif" },
-        { "vid": "30A4", "make": "Blues Wireless" },
-        { "vid": "3171", "make": "8086 Consultancy" },
-        { "vid": "31E2", "make": "BDMICRO" },
-        { "vid": "32BD", "make": "Alorium Technology, LLC" }
+        {
+            "vid": "04D8",
+            "make": "Microchip Technology"
+        },
+        {
+            "vid": "054C",
+            "make": "Sony"
+        },
+        {
+            "vid": "1209",
+            "make": "Generic"
+        },
+        {
+            "vid": "1915",
+            "make": "Nordic Semiconductor"
+        },
+        {
+            "vid": "1B4F",
+            "make": "Sparkfun"
+        },
+        {
+            "vid": "2341",
+            "make": "Arduino"
+        },
+        {
+            "vid": "239A",
+            "make": "Adafruit"
+        },
+        {
+            "vid": "2786",
+            "make": "Switch Science, Inc."
+        },
+        {
+            "vid": "2886",
+            "make": "Seeed"
+        },
+        {
+            "vid": "2B04",
+            "make": "Spark Labs, Inc."
+        },
+        {
+            "vid": "2E8A",
+            "make": "Raspberry Pi"
+        },
+        {
+            "vid": "303A",
+            "make": "Espressif"
+        },
+        {
+            "vid": "30A4",
+            "make": "Blues Wireless"
+        },
+        {
+            "vid": "3171",
+            "make": "8086 Consultancy"
+        },
+        {
+            "vid": "31E2",
+            "make": "BDMICRO"
+        },
+        {
+            "vid": "32BD",
+            "make": "Alorium Technology, LLC"
+        }
     ],
     "boards": [
         {
@@ -27,11 +75,10 @@
         },
         {
             "vid": "04D8",
-            "pid": "E799",
-            "make": "Cytron",
-            "model": "Maker Zero SAMD21"
+            "pid": "EA2A",
+            "make": "BHDynamics",
+            "model": "DynaLoRa_USB"
         },
-        { "vid": "04D8", "pid": "EA2A", "make": "BHDynamics", "model": "DynaLoRa_USB" },
         {
             "vid": "04D8",
             "pid": "EAD1",
@@ -44,7 +91,12 @@
             "make": "BHDynamics",
             "model": "DynOSSAT-EDU-OBC-v1.0"
         },
-        { "vid": "04D8", "pid": "EC44", "make": "maholli", "model": "PyCubed" },
+        {
+            "vid": "04D8",
+            "pid": "EC44",
+            "make": "maholli",
+            "model": "PyCubed"
+        },
         {
             "vid": "04D8",
             "pid": "EC63",
@@ -57,46 +109,126 @@
             "make": "Kevin Neubauer",
             "model": "CircuitBrains Deluxe"
         },
-        { "vid": "04D8", "pid": "EC72", "make": "XinaBox", "model": "XinaBox CC03" },
-        { "vid": "04D8", "pid": "EC75", "make": "XinaBox", "model": "XinaBox CS11" },
+        {
+            "vid": "04D8",
+            "pid": "EC72",
+            "make": "XinaBox",
+            "model": "XinaBox CC03"
+        },
+        {
+            "vid": "04D8",
+            "pid": "EC75",
+            "make": "XinaBox",
+            "model": "XinaBox CS11"
+        },
         {
             "vid": "04D8",
             "pid": "ED5F",
             "make": "Itaca Innovation",
             "model": "uChip CircuitPython"
         },
-        { "vid": "04D8", "pid": "ED94", "make": "maholli", "model": "kicksat-sprite" },
+        {
+            "vid": "04D8",
+            "pid": "ED94",
+            "make": "maholli",
+            "model": "kicksat-sprite"
+        },
         {
             "vid": "04D8",
             "pid": "EDB3",
             "make": "Capable Robot Components",
             "model": "Programmable USB Hub"
         },
-        { "vid": "04D8", "pid": "EDBE", "make": "maholli", "model": "SAM32" },
+        {
+            "vid": "04D8",
+            "pid": "EDBE",
+            "make": "maholli",
+            "model": "SAM32"
+        },
         {
             "vid": "04D8",
             "pid": "EE8C",
             "make": "J&J Studios",
             "model": "datum-Distance"
         },
-        { "vid": "04D8", "pid": "EE8D", "make": "J&J Studios", "model": "datum-IMU" },
-        { "vid": "04D8", "pid": "EE8E", "make": "J&J Studios", "model": "datum-Light" },
+        {
+            "vid": "04D8",
+            "pid": "EE8D",
+            "make": "J&J Studios",
+            "model": "datum-IMU"
+        },
+        {
+            "vid": "04D8",
+            "pid": "EE8E",
+            "make": "J&J Studios",
+            "model": "datum-Light"
+        },
         {
             "vid": "04D8",
             "pid": "EE8F",
             "make": "J&J Studios",
             "model": "datum-Weather"
         },
-        { "vid": "04D8", "pid": "EF67", "make": "senseBox", "model": "senseBox MCU" },
-        { "vid": "054C", "pid": "0BC2", "make": "Sony", "model": "Spresense" },
+        {
+            "vid": "04D8",
+            "pid": "EF67",
+            "make": "senseBox",
+            "model": "senseBox MCU"
+        },
+        {
+            "vid": "04E9",
+            "pid": "80FF",
+            "make": "PCTEL",
+            "model": "WSC-1450"
+        },
+        {
+            "vid": "054C",
+            "pid": "0BC2",
+            "make": "Sony",
+            "model": "Spresense"
+        },
+        {
+            "vid": "0B6A",
+            "pid": "003C",
+            "make": "Analog Devices",
+            "model": "MAX32690 APARD"
+        },
+        {
+            "vid": "0B6A",
+            "pid": "003D",
+            "make": "Analog Devices",
+            "model": "MAX32690 EvKit"
+        },
+        {
+            "vid": "1209",
+            "pid": "0001",
+            "make": "Solder Party",
+            "model": "ESP32-P4 Stamp XL"
+        },
         {
             "vid": "1209",
             "pid": "2017",
             "make": "Benjamin Shockley",
             "model": "Mini SAM M4"
         },
-        { "vid": "1209", "pid": "2023", "make": "Lilygo", "model": "T-Display" },
-        { "vid": "1209", "pid": "3141", "make": "CrumpSpace", "model": "CrumpS2" },
+        {
+            "vid": "1209",
+            "pid": "2023",
+            "make": "Lilygo",
+            "model": "T-Display"
+        },
+        {
+            "vid": "1209",
+            "pid": "2031",
+            "make": "Czech maker",
+            "model": "ES3ink"
+        },
+        {
+            "vid": "1209",
+            "pid": "3141",
+            "make": "CrumpSpace",
+            "model": "CrumpS2"
+        },
         {
             "vid": "1209",
             "pid": "3252",
@@ -109,14 +241,24 @@
             "make": "Targett",
             "model": "Targett Module Clip w/Wrover"
         },
-        { "vid": "1209", "pid": "4203", "make": "42. Keebs", "model": "Frood" },
+        {
+            "vid": "1209",
+            "pid": "4203",
+            "make": "42. Keebs",
+            "model": "Frood"
+        },
         {
             "vid": "1209",
             "pid": "4D43",
             "make": "Robotics Masters",
             "model": "Robo HAT MM1 M4"
         },
-        { "vid": "1209", "pid": "4DDD", "make": "Oak Dev Tech", "model": "CP Sapling" },
+        {
+            "vid": "1209",
+            "pid": "4DDD",
+            "make": "Oak Dev Tech",
+            "model": "CP Sapling"
+        },
         {
             "vid": "1209",
             "pid": "4DDE",
@@ -135,15 +277,48 @@
             "make": "Oak Dev Tech",
             "model": "Pixelwing ESP32S2"
         },
-        { "vid": "1209", "pid": "4DF1", "make": "Oak Dev Tech", "model": "BREAD2040" },
+        {
+            "vid": "1209",
+            "pid": "4DF1",
+            "make": "Oak Dev Tech",
+            "model": "BREAD2040"
+        },
         {
             "vid": "1209",
             "pid": "4DF2",
             "make": "Oak Dev Tech",
             "model": "CAST AWAY RP2040"
         },
-        { "vid": "1209", "pid": "5A52", "make": "ZRichard", "model": "RP2.65-F" },
-        { "vid": "1209", "pid": "5BF0", "make": "Foosn", "model": "Fomu" },
+        {
+            "vid": "1209",
+            "pid": "4DF6",
+            "make": "Oak Dev Tech",
+            "model": "RPGA Feather"
+        },
+        {
+            "vid": "1209",
+            "pid": "5687",
+            "make": "Brad\u00e1n Lane STUDIO",
+            "model": "Coin M0"
+        },
+        {
+            "vid": "1209",
+            "pid": "5A52",
+            "make": "ZRichard",
+            "model": "RP2.65-F"
+        },
+        {
+            "vid": "1209",
+            "pid": "5BF0",
+            "make": "Foosn",
+            "model": "Fomu"
+        },
+        {
+            "vid": "1209",
+            "pid": "6036",
+            "make": "Weekin",
+            "model": "WK-50"
+        },
         {
             "vid": "1209",
             "pid": "7150",
@@ -156,19 +331,47 @@
             "make": "Invector Labs AB",
             "model": "iLabs Challenger 840"
         },
-        { "vid": "1209", "pid": "805A", "make": "Electronic Cats", "model": "BastBLE" },
+        {
+            "vid": "1209",
+            "pid": "805A",
+            "make": "Electronic Cats",
+            "model": "BastBLE"
+        },
         {
             "vid": "1209",
             "pid": "8CAE",
             "make": "takayoshiotake",
             "model": "Octave RP2040"
         },
-        { "vid": "1209", "pid": "9000", "make": "Hack Club", "model": "Sprig" },
+        {
+            "vid": "1209",
+            "pid": "9000",
+            "make": "Hack Club",
+            "model": "Sprig"
+        },
         {
             "vid": "1209",
             "pid": "A182",
             "make": "Solder Party",
             "model": "RP2040 Stamp"
+        },
+        {
+            "vid": "1209",
+            "pid": "A183",
+            "make": "Solder Party",
+            "model": "RP2350 Stamp"
+        },
+        {
+            "vid": "1209",
+            "pid": "A184",
+            "make": "Solder Party",
+            "model": "RP2350 Stamp XL"
+        },
+        {
+            "vid": "1209",
+            "pid": "ADF0",
+            "make": "ICBbuy",
+            "model": "SuperMini NRF52840"
         },
         {
             "vid": "1209",
@@ -212,9 +415,30 @@
             "make": "Electronic Cats",
             "model": "NFC Copy Cat"
         },
-        { "vid": "1209", "pid": "C051", "make": "Betrusted", "model": "Simmel" },
-        { "vid": "1209", "pid": "CB74", "make": "0xCB", "model": "Helios" },
-        { "vid": "1209", "pid": "D10D", "make": "Diodes Delight", "model": "Piunora" },
+        {
+            "vid": "1209",
+            "pid": "C051",
+            "make": "Betrusted",
+            "model": "Simmel"
+        },
+        {
+            "vid": "1209",
+            "pid": "CB65",
+            "make": "0xCB",
+            "model": "Gemini"
+        },
+        {
+            "vid": "1209",
+            "pid": "CB74",
+            "make": "0xCB",
+            "model": "Helios"
+        },
+        {
+            "vid": "1209",
+            "pid": "D10D",
+            "make": "Diodes Delight",
+            "model": "Piunora"
+        },
         {
             "vid": "1209",
             "pid": "D1B5",
@@ -223,29 +447,94 @@
         },
         {
             "vid": "1209",
+            "pid": "D1B6",
+            "make": "Radomir Dopieralski",
+            "model": "uGame22"
+        },
+        {
+            "vid": "1209",
             "pid": "E3E3",
             "make": "StackRduino",
             "model": "StackRduino M0 PRO"
         },
-        { "vid": "1209", "pid": "EF00", "make": "2231puppy", "model": "E-Fidget" },
-        { "vid": "1209", "pid": "F123", "make": "Electrolama", "model": "minik" },
-        { "vid": "1209", "pid": "F500", "make": "Silicognition", "model": "M4-Shim" },
+        {
+            "vid": "1209",
+            "pid": "EF00",
+            "make": "2231puppy",
+            "model": "E-Fidget"
+        },
+        {
+            "vid": "1209",
+            "pid": "F123",
+            "make": "Electrolama",
+            "model": "minik"
+        },
+        {
+            "vid": "1209",
+            "pid": "F500",
+            "make": "Silicognition",
+            "model": "M4-Shim"
+        },
         {
             "vid": "1209",
             "pid": "F502",
             "make": "Silicognition",
             "model": "RP2040-Shim"
         },
-        { "vid": "16D0", "pid": "08C6", "make": "Pimoroni", "model": "Keybow 2040" },
+        {
+            "vid": "1209",
+            "pid": "FD42",
+            "make": "HXR.DK",
+            "model": "SAO Digital Multimeter"
+        },
+        {
+            "vid": "1209",
+            "pid": "FF40",
+            "make": "RF.Guru",
+            "model": "RF.Guru RP2040"
+        },
+        {
+            "vid": "1354",
+            "pid": "4004",
+            "make": "FACTS Engineering",
+            "model": "P1AM-200 CircuitPython"
+        },
+        {
+            "vid": "16D0",
+            "pid": "07F2",
+            "make": "Autosport Labs",
+            "model": "Autosport Labs ESP32-CAN-X2"
+        },
+        {
+            "vid": "16D0",
+            "pid": "08C6",
+            "make": "Pimoroni",
+            "model": "Keybow 2040"
+        },
         {
             "vid": "16D0",
             "pid": "08C7",
             "make": "Pimoroni",
             "model": "Tiny 2040 (8MB)"
         },
-        { "vid": "16D0", "pid": "08C8", "make": "Pimoroni", "model": "PicoSystem" },
-        { "vid": "16D0", "pid": "10ED", "make": "Mechwild", "model": "PillBug" },
-        { "vid": "1915", "pid": "B001", "make": "Makerdiary", "model": "Pitaya Go" },
+        {
+            "vid": "16D0",
+            "pid": "08C8",
+            "make": "Pimoroni",
+            "model": "PicoSystem"
+        },
+        {
+            "vid": "16D0",
+            "pid": "10ED",
+            "make": "Mechwild",
+            "model": "PillBug"
+        },
+        {
+            "vid": "1915",
+            "pid": "B001",
+            "make": "Makerdiary",
+            "model": "Pitaya Go"
+        },
         {
             "vid": "192F",
             "pid": "B1B2",
@@ -320,6 +609,18 @@
         },
         {
             "vid": "1B4F",
+            "pid": "0038",
+            "make": "SparkFun",
+            "model": "Thing Plus RP2350"
+        },
+        {
+            "vid": "1B4F",
+            "pid": "0039",
+            "make": "SparkFun",
+            "model": "Pro Micro RP2350"
+        },
+        {
+            "vid": "1B4F",
             "pid": "5289",
             "make": "SparkFun",
             "model": "SFE_nRF52840_Mini"
@@ -351,10 +652,15 @@
         {
             "vid": "1D50",
             "pid": "6152",
-            "make": "nrf52.jpconstantineau.com",
+            "make": "JPConstantineau",
             "model": "BlueMicro833"
         },
-        { "vid": "1D50", "pid": "6153", "make": "JPConstantineau", "model": "PyKey18" },
+        {
+            "vid": "1D50",
+            "pid": "6153",
+            "make": "JPConstantineau",
+            "model": "PyKey18"
+        },
         {
             "vid": "1D50",
             "pid": "6154",
@@ -373,7 +679,18 @@
             "make": "Benjamin Shockley",
             "model": "Fig Pi"
         },
-        { "vid": "2341", "pid": "8053", "make": "Arduino", "model": "Arduino MKR1300" },
+        {
+            "vid": "2341",
+            "pid": "056B",
+            "make": "Arduino",
+            "model": "Arduino Nano ESP32"
+        },
+        {
+            "vid": "2341",
+            "pid": "8053",
+            "make": "Arduino",
+            "model": "Arduino MKR1300"
+        },
         {
             "vid": "2341",
             "pid": "8057",
@@ -386,7 +703,12 @@
             "make": "Arduino",
             "model": "Arduino_Nano_33_BLE"
         },
-        { "vid": "2341", "pid": "824D", "make": "Arduino", "model": "Arduino Zero" },
+        {
+            "vid": "2341",
+            "pid": "824D",
+            "make": "Arduino",
+            "model": "Arduino Zero"
+        },
         {
             "vid": "239A",
             "pid": "006A",
@@ -405,8 +727,24 @@
             "make": "Arduino",
             "model": "Arduino Nano RP2040 Connect"
         },
-        { "vid": "239A", "pid": "102E", "make": "WeAct Studio", "model": "Pico" },
-        { "vid": "239A", "pid": "2030", "make": "Czech maker", "model": "Maker badge" },
+        {
+            "vid": "239A",
+            "pid": "0145",
+            "make": "Adafruit",
+            "model": "Metro ESP32-S3"
+        },
+        {
+            "vid": "239A",
+            "pid": "102E",
+            "make": "WeAct Studio",
+            "model": "Pico"
+        },
+        {
+            "vid": "239A",
+            "pid": "2030",
+            "make": "Czech maker",
+            "model": "Maker badge"
+        },
         {
             "vid": "239A",
             "pid": "6005",
@@ -431,15 +769,30 @@
             "make": "Adafruit",
             "model": "Metro M0 Express"
         },
-        { "vid": "239A", "pid": "8015", "make": "Adafruit", "model": "Feather M0" },
+        {
+            "vid": "239A",
+            "pid": "8015",
+            "make": "Adafruit",
+            "model": "Feather M0"
+        },
         {
             "vid": "239A",
             "pid": "8019",
             "make": "Adafruit",
             "model": "CircuitPlayground Express"
         },
-        { "vid": "239A", "pid": "801D", "make": "Adafruit", "model": "Gemma M0" },
-        { "vid": "239A", "pid": "801F", "make": "Adafruit", "model": "Trinket M0" },
+        {
+            "vid": "239A",
+            "pid": "801D",
+            "make": "Adafruit",
+            "model": "Gemma M0"
+        },
+        {
+            "vid": "239A",
+            "pid": "801F",
+            "make": "Adafruit",
+            "model": "Trinket M0"
+        },
         {
             "vid": "239A",
             "pid": "8021",
@@ -482,16 +835,36 @@
             "make": "Adafruit",
             "model": "Grand Central M4 Express"
         },
-        { "vid": "239A", "pid": "8034", "make": "Adafruit", "model": "PyBadge" },
-        { "vid": "239A", "pid": "8036", "make": "Adafruit", "model": "PyPortal" },
+        {
+            "vid": "239A",
+            "pid": "8034",
+            "make": "Adafruit",
+            "model": "PyBadge"
+        },
+        {
+            "vid": "239A",
+            "pid": "8036",
+            "make": "Adafruit",
+            "model": "PyPortal"
+        },
         {
             "vid": "239A",
             "pid": "8038",
             "make": "Adafruit",
             "model": "Metro M4 Airlift Lite"
         },
-        { "vid": "239A", "pid": "803C", "make": "Electronut Labs", "model": "Papyr" },
-        { "vid": "239A", "pid": "803E", "make": "Adafruit", "model": "PyGamer" },
+        {
+            "vid": "239A",
+            "pid": "803C",
+            "make": "Electronut Labs",
+            "model": "Papyr"
+        },
+        {
+            "vid": "239A",
+            "pid": "803E",
+            "make": "Adafruit",
+            "model": "PyGamer"
+        },
         {
             "vid": "239A",
             "pid": "8040",
@@ -504,16 +877,36 @@
             "make": "Adafruit",
             "model": "Circuit Playground Bluefruit"
         },
-        { "vid": "239A", "pid": "8048", "make": "Adafruit", "model": "Monster M4SK" },
+        {
+            "vid": "239A",
+            "pid": "8048",
+            "make": "Adafruit",
+            "model": "Monster M4SK"
+        },
         {
             "vid": "239A",
             "pid": "804A",
             "make": "Adafruit",
             "model": "Hallowing M4 Express"
         },
-        { "vid": "239A", "pid": "804C", "make": "Adafruit", "model": "PyRuler" },
-        { "vid": "239A", "pid": "804E", "make": "keithp.com", "model": "snekboard" },
-        { "vid": "239A", "pid": "8050", "make": "Arduino", "model": "Arduino MKRZero" },
+        {
+            "vid": "239A",
+            "pid": "804C",
+            "make": "Adafruit",
+            "model": "PyRuler"
+        },
+        {
+            "vid": "239A",
+            "pid": "804E",
+            "make": "keithp.com",
+            "model": "snekboard"
+        },
+        {
+            "vid": "239A",
+            "pid": "8050",
+            "make": "Arduino",
+            "model": "Arduino MKRZero"
+        },
         {
             "vid": "239A",
             "pid": "8052",
@@ -532,7 +925,12 @@
             "make": "STMicroelectronics",
             "model": "STM32F412ZG Discovery Board - CPy"
         },
-        { "vid": "239A", "pid": "8058", "make": "arturo182", "model": "Serpente" },
+        {
+            "vid": "239A",
+            "pid": "8058",
+            "make": "arturo182",
+            "model": "Serpente"
+        },
         {
             "vid": "239A",
             "pid": "805A",
@@ -557,8 +955,18 @@
             "make": "Cedar Grove Studios",
             "model": "StringCar M0 Express"
         },
-        { "vid": "239A", "pid": "8062", "make": "Winterbloom", "model": "Sol" },
-        { "vid": "239A", "pid": "8066", "make": "ndGarage", "model": "Bit6" },
+        {
+            "vid": "239A",
+            "pid": "8062",
+            "make": "Winterbloom",
+            "model": "Sol"
+        },
+        {
+            "vid": "239A",
+            "pid": "8066",
+            "make": "ndGarage",
+            "model": "Bit6"
+        },
         {
             "vid": "239A",
             "pid": "8068",
@@ -577,8 +985,18 @@
             "make": "WeAct",
             "model": "stm32f411ce blackpill"
         },
-        { "vid": "239A", "pid": "806C", "make": "@sarfata", "model": "shIRtty" },
-        { "vid": "239A", "pid": "8070", "make": "Teknikio", "model": "Bluebird" },
+        {
+            "vid": "239A",
+            "pid": "806C",
+            "make": "@sarfata",
+            "model": "shIRtty"
+        },
+        {
+            "vid": "239A",
+            "pid": "8070",
+            "make": "Teknikio",
+            "model": "Bluebird"
+        },
         {
             "vid": "239A",
             "pid": "8071",
@@ -603,7 +1021,12 @@
             "make": "arturo182",
             "model": "Feather MIMXRT1062"
         },
-        { "vid": "239A", "pid": "8078", "make": "NXP", "model": "IMXRT1010-EVK" },
+        {
+            "vid": "239A",
+            "pid": "8078",
+            "make": "NXP",
+            "model": "IMXRT1010-EVK"
+        },
         {
             "vid": "239A",
             "pid": "807A",
@@ -622,10 +1045,30 @@
             "make": "Oddly Specific Objects",
             "model": "The Open Book Feather"
         },
-        { "vid": "239A", "pid": "8080", "make": "OSHWA", "model": "OHS2020 Badge" },
-        { "vid": "239A", "pid": "8082", "make": "NXP", "model": "iMX RT 1020 EVK" },
-        { "vid": "239A", "pid": "8084", "make": "NXP", "model": "iMX RT 1060 EVK" },
-        { "vid": "239A", "pid": "8086", "make": "PJRC", "model": "Teensy 4.0" },
+        {
+            "vid": "239A",
+            "pid": "8080",
+            "make": "OSHWA",
+            "model": "OHS2020 Badge"
+        },
+        {
+            "vid": "239A",
+            "pid": "8082",
+            "make": "NXP",
+            "model": "iMX RT 1020 EVK"
+        },
+        {
+            "vid": "239A",
+            "pid": "8084",
+            "make": "NXP",
+            "model": "iMX RT 1060 EVK"
+        },
+        {
+            "vid": "239A",
+            "pid": "8086",
+            "make": "PJRC",
+            "model": "Teensy 4.0"
+        },
         {
             "vid": "239A",
             "pid": "8088",
@@ -638,8 +1081,18 @@
             "make": "STMicroelectronics",
             "model": "STM32F407VG Discovery Board - CPy"
         },
-        { "vid": "239A", "pid": "808E", "make": "Espruino", "model": "Espruino Pico" },
-        { "vid": "239A", "pid": "8090", "make": "Espruino", "model": "Espruino Wifi" },
+        {
+            "vid": "239A",
+            "pid": "808E",
+            "make": "Espruino",
+            "model": "Espruino Pico"
+        },
+        {
+            "vid": "239A",
+            "pid": "8090",
+            "make": "Espruino",
+            "model": "Espruino Wifi"
+        },
         {
             "vid": "239A",
             "pid": "8092",
@@ -688,7 +1141,12 @@
             "make": "AtelierDuMaker",
             "model": "ADM_B_NRF52840_1"
         },
-        { "vid": "239A", "pid": "80A4", "make": "OpenMV", "model": "OpenMV-H7 R1" },
+        {
+            "vid": "239A",
+            "pid": "80A4",
+            "make": "OpenMV",
+            "model": "OpenMV-H7 R1"
+        },
         {
             "vid": "239A",
             "pid": "80A6",
@@ -707,7 +1165,12 @@
             "make": "UnexpectedMaker",
             "model": "FeatherS2"
         },
-        { "vid": "239A", "pid": "80AE", "make": "PJRC", "model": "Teensy 4.1" },
+        {
+            "vid": "239A",
+            "pid": "80AE",
+            "make": "PJRC",
+            "model": "Teensy 4.1"
+        },
         {
             "vid": "239A",
             "pid": "80AF",
@@ -720,7 +1183,12 @@
             "make": "Radomir Dopieralski",
             "model": "Fluff M0"
         },
-        { "vid": "239A", "pid": "80B2", "make": "HiiBot", "model": "HiiBot BlueFi" },
+        {
+            "vid": "239A",
+            "pid": "80B2",
+            "make": "HiiBot",
+            "model": "HiiBot BlueFi"
+        },
         {
             "vid": "239A",
             "pid": "80B4",
@@ -739,7 +1207,12 @@
             "make": "Zoomax",
             "model": "LoC BeR M4 base board"
         },
-        { "vid": "239A", "pid": "80B9", "make": "ndGarage", "model": "Bit6" },
+        {
+            "vid": "239A",
+            "pid": "80B9",
+            "make": "ndGarage",
+            "model": "Bit6"
+        },
         {
             "vid": "239A",
             "pid": "80BC",
@@ -752,19 +1225,54 @@
             "make": "TinkeringTech",
             "model": "TinkeringTech ScoutMakes Azul"
         },
-        { "vid": "239A", "pid": "80C0", "make": "Adafruit", "model": "BLM Badge" },
-        { "vid": "239A", "pid": "80C2", "make": "bleeptrack", "model": "PicoPlanet" },
-        { "vid": "239A", "pid": "80C6", "make": "MicroDev", "model": "microS2" },
-        { "vid": "239A", "pid": "80C8", "make": "Espressif", "model": "Kaluga 1" },
+        {
+            "vid": "239A",
+            "pid": "80C0",
+            "make": "Adafruit",
+            "model": "BLM Badge"
+        },
+        {
+            "vid": "239A",
+            "pid": "80C2",
+            "make": "bleeptrack",
+            "model": "PicoPlanet"
+        },
+        {
+            "vid": "239A",
+            "pid": "80C6",
+            "make": "MicroDev",
+            "model": "microS2"
+        },
+        {
+            "vid": "239A",
+            "pid": "80C8",
+            "make": "Espressif",
+            "model": "Kaluga 1"
+        },
         {
             "vid": "239A",
             "pid": "80CA",
             "make": "Adafruit",
             "model": "Matrix Portal M4"
         },
-        { "vid": "239A", "pid": "80CC", "make": "Adafruit", "model": "QT Py M0" },
-        { "vid": "239A", "pid": "80CE", "make": "Adafruit", "model": "Feather M4 CAN" },
-        { "vid": "239A", "pid": "80CF", "make": "Kittenbot", "model": "Meowbit" },
+        {
+            "vid": "239A",
+            "pid": "80CC",
+            "make": "Adafruit",
+            "model": "QT Py M0"
+        },
+        {
+            "vid": "239A",
+            "pid": "80CE",
+            "make": "Adafruit",
+            "model": "Feather M4 CAN"
+        },
+        {
+            "vid": "239A",
+            "pid": "80CF",
+            "make": "Kittenbot",
+            "model": "Meowbit"
+        },
         {
             "vid": "239A",
             "pid": "80D1",
@@ -795,7 +1303,12 @@
             "make": "Radomir Dopieralski",
             "model": "PewPew 10.2"
         },
-        { "vid": "239A", "pid": "80D7", "make": "Electronut Labs", "model": "Blip" },
+        {
+            "vid": "239A",
+            "pid": "80D7",
+            "make": "Electronut Labs",
+            "model": "Blip"
+        },
         {
             "vid": "239A",
             "pid": "80D8",
@@ -814,8 +1327,18 @@
             "make": "Nordic Semiconductor",
             "model": "PCA10056"
         },
-        { "vid": "239A", "pid": "80DB", "make": "TG-Techie", "model": "TG-Watch" },
-        { "vid": "239A", "pid": "80DC", "make": "makerdiary", "model": "nRF52840-MDK" },
+        {
+            "vid": "239A",
+            "pid": "80DB",
+            "make": "TG-Techie",
+            "model": "TG-Watch"
+        },
+        {
+            "vid": "239A",
+            "pid": "80DC",
+            "make": "makerdiary",
+            "model": "nRF52840-MDK"
+        },
         {
             "vid": "239A",
             "pid": "80DD",
@@ -828,14 +1351,24 @@
             "make": "Muselab",
             "model": "nanoESP32-S2 w/Wroom"
         },
-        { "vid": "239A", "pid": "80E0", "make": "Adafruit", "model": "Metro ESP32S2" },
+        {
+            "vid": "239A",
+            "pid": "80E0",
+            "make": "Adafruit",
+            "model": "Metro ESP32S2"
+        },
         {
             "vid": "239A",
             "pid": "80E2",
             "make": "Adafruit",
-            "model": "Metro M7 iMX RT1011"
+            "model": "Metro M7 iMX RT1011 AirLift"
         },
-        { "vid": "239A", "pid": "80E6", "make": "Adafruit", "model": "MagTag" },
+        {
+            "vid": "239A",
+            "pid": "80E6",
+            "make": "Adafruit",
+            "model": "MagTag"
+        },
         {
             "vid": "239A",
             "pid": "80EC",
@@ -854,10 +1387,30 @@
             "make": "Adafruit",
             "model": "NeoPixel Trinkey M0"
         },
-        { "vid": "239A", "pid": "80F2", "make": "Adafruit", "model": "Feather RP2040" },
-        { "vid": "239A", "pid": "80F4", "make": "Raspberry Pi", "model": "Pico" },
-        { "vid": "239A", "pid": "80F8", "make": "Adafruit", "model": "QT Py RP2040" },
-        { "vid": "239A", "pid": "80FA", "make": "Adafruit", "model": "FunHouse" },
+        {
+            "vid": "239A",
+            "pid": "80F2",
+            "make": "Adafruit",
+            "model": "Feather RP2040"
+        },
+        {
+            "vid": "239A",
+            "pid": "80F4",
+            "make": "Raspberry Pi",
+            "model": "Pico"
+        },
+        {
+            "vid": "239A",
+            "pid": "80F8",
+            "make": "Adafruit",
+            "model": "QT Py RP2040"
+        },
+        {
+            "vid": "239A",
+            "pid": "80FA",
+            "make": "Adafruit",
+            "model": "FunHouse"
+        },
         {
             "vid": "239A",
             "pid": "80FC",
@@ -888,14 +1441,24 @@
             "make": "Adafruit",
             "model": "ProxLight Trinkey M0"
         },
-        { "vid": "239A", "pid": "8106", "make": "Adafruit", "model": "KB2040" },
+        {
+            "vid": "239A",
+            "pid": "8106",
+            "make": "Adafruit",
+            "model": "KB2040"
+        },
         {
             "vid": "239A",
             "pid": "8108",
             "make": "Adafruit",
             "model": "Macropad RP2040"
         },
-        { "vid": "239A", "pid": "810A", "make": "Adafruit", "model": "QT2040 Trinkey" },
+        {
+            "vid": "239A",
+            "pid": "810A",
+            "make": "Adafruit",
+            "model": "QT2040 Trinkey"
+        },
         {
             "vid": "239A",
             "pid": "810C",
@@ -924,9 +1487,14 @@
             "vid": "239A",
             "pid": "8114",
             "make": "Adafruit",
-            "model": "Adafruit Feather ESP32S3 No PSRAM"
+            "model": "Feather ESP32S3 No PSRAM"
         },
-        { "vid": "239A", "pid": "8118", "make": "Adafruit", "model": "Camera" },
+        {
+            "vid": "239A",
+            "pid": "8118",
+            "make": "Adafruit",
+            "model": "Camera"
+        },
         {
             "vid": "239A",
             "pid": "811A",
@@ -945,7 +1513,12 @@
             "make": "Adafruit",
             "model": "Feather ESP32-S3 TFT"
         },
-        { "vid": "239A", "pid": "8120", "make": "Raspberry Pi", "model": "Pico W" },
+        {
+            "vid": "239A",
+            "pid": "8120",
+            "make": "Raspberry Pi",
+            "model": "Pico W"
+        },
         {
             "vid": "239A",
             "pid": "8122",
@@ -957,6 +1530,12 @@
             "pid": "8124",
             "make": "Adafruit",
             "model": "Feather ESP32-S3 Reverse TFT"
+        },
+        {
+            "vid": "239A",
+            "pid": "8126",
+            "make": "Adafruit",
+            "model": "MatrixPortal S3"
         },
         {
             "vid": "239A",
@@ -994,9 +1573,114 @@
             "make": "Adafruit",
             "model": "Feather RP2040 Prop-Maker"
         },
-        { "vid": "239A", "pid": "8134", "make": "NXP", "model": "iMX RT 1050 EVKB" },
-        { "vid": "239A", "pid": "8136", "make": "NXP", "model": "iMX RT 1040 EVK" },
-        { "vid": "239A", "pid": "8138", "make": "NXP", "model": "IMXRT1015-EVK" },
+        {
+            "vid": "239A",
+            "pid": "8134",
+            "make": "NXP",
+            "model": "iMX RT 1050 EVKB"
+        },
+        {
+            "vid": "239A",
+            "pid": "8136",
+            "make": "NXP",
+            "model": "iMX RT 1040 EVK"
+        },
+        {
+            "vid": "239A",
+            "pid": "8138",
+            "make": "NXP",
+            "model": "IMXRT1015-EVK"
+        },
+        {
+            "vid": "239A",
+            "pid": "813C",
+            "make": "NXP",
+            "model": "iMX RT 1060 EVKB"
+        },
+        {
+            "vid": "239A",
+            "pid": "813E",
+            "make": "Adafruit",
+            "model": "Metro RP2040"
+        },
+        {
+            "vid": "239A",
+            "pid": "8142",
+            "make": "Adafruit",
+            "model": "Metro M7 iMX RT1011 SD"
+        },
+        {
+            "vid": "239A",
+            "pid": "8144",
+            "make": "Adafruit",
+            "model": "QT Py ESP32S3 4MB Flash 2MB PSRAM"
+        },
+        {
+            "vid": "239A",
+            "pid": "8148",
+            "make": "Adafruit",
+            "model": "Qualia-S3-RGB666"
+        },
+        {
+            "vid": "239A",
+            "pid": "814C",
+            "make": "Espressif",
+            "model": "ESP32-S3-EV-LCD-Board"
+        },
+        {
+            "vid": "239A",
+            "pid": "814E",
+            "make": "Adafruit",
+            "model": "Metro RP2350"
+        },
+        {
+            "vid": "239A",
+            "pid": "8150",
+            "make": "Adafruit",
+            "model": "Feather RP2350"
+        },
+        {
+            "vid": "239A",
+            "pid": "8152",
+            "make": "Adafruit",
+            "model": "Floppsy RP2040"
+        },
+        {
+            "vid": "239A",
+            "pid": "8154",
+            "make": "Adafruit",
+            "model": "SHT4x Trinkey M0"
+        },
+        {
+            "vid": "239A",
+            "pid": "8156",
+            "make": "Adafruit",
+            "model": "Pixel Trinkey M0"
+        },
+        {
+            "vid": "239A",
+            "pid": "8158",
+            "make": "Adafruit",
+            "model": "TRRS Trinkey M0"
+        },
+        {
+            "vid": "239A",
+            "pid": "815E",
+            "make": "Adafruit",
+            "model": "Feather RP2040 Adalogger"
+        },
+        {
+            "vid": "239A",
+            "pid": "8160",
+            "make": "Adafruit",
+            "model": "Adafruit Vindie S2"
+        },
+        {
+            "vid": "239A",
+            "pid": "8162",
+            "make": "Raspberry Pi",
+            "model": "Pico 2 W"
+        },
         {
             "vid": "239A",
             "pid": "D1ED",
@@ -1021,7 +1705,12 @@
             "make": "Switch Science",
             "model": "SSCI ISP1807 Micro Board"
         },
-        { "vid": "2886", "pid": "002F", "make": "Seeed", "model": "Seeeduino XIAO" },
+        {
+            "vid": "2886",
+            "pid": "002F",
+            "make": "Seeed",
+            "model": "Seeeduino XIAO"
+        },
         {
             "vid": "2886",
             "pid": "0042",
@@ -1036,22 +1725,82 @@
         },
         {
             "vid": "2886",
+            "pid": "0058",
+            "make": "Seeed",
+            "model": "Seeeduino XIAO RP2350"
+        },
+        {
+            "vid": "2886",
             "pid": "802D",
             "make": "Seeed",
             "model": "Seeeduino Wio Terminal"
         },
-        { "vid": "2886", "pid": "802F", "make": "Seeed", "model": "Seeeduino XIAO KB" },
+        {
+            "vid": "2886",
+            "pid": "802F",
+            "make": "Seeed",
+            "model": "Seeeduino XIAO KB"
+        },
+        {
+            "vid": "2886",
+            "pid": "8056",
+            "make": "Seeed Studio",
+            "model": "Seeed Xiao ESP32-S3 Sense"
+        },
         {
             "vid": "2886",
             "pid": "F001",
             "make": "Makerdiary",
             "model": "nRF52840 M.2 Developer Kit"
         },
-        { "vid": "2886", "pid": "F002", "make": "Makerdiary", "model": "M60 Keyboard" },
-        { "vid": "2B04", "pid": "C00C", "make": "Particle", "model": "Argon" },
-        { "vid": "2B04", "pid": "C00D", "make": "Particle", "model": "Boron" },
-        { "vid": "2B04", "pid": "C00E", "make": "Particle", "model": "Xenon" },
-        { "vid": "2E8A", "pid": "1000", "make": "Cytron", "model": "Maker Pi RP2040" },
+        {
+            "vid": "2886",
+            "pid": "F002",
+            "make": "Makerdiary",
+            "model": "M60 Keyboard"
+        },
+        {
+            "vid": "2886",
+            "pid": "F003",
+            "make": "Makerdiary",
+            "model": "Makerdiary nRF52840 Connect Kit"
+        },
+        {
+            "vid": "2886",
+            "pid": "F004",
+            "make": "Makerdiary",
+            "model": "iMX RT1011 Nano Kit"
+        },
+        {
+            "vid": "2B04",
+            "pid": "C00C",
+            "make": "Particle",
+            "model": "Argon"
+        },
+        {
+            "vid": "2B04",
+            "pid": "C00D",
+            "make": "Particle",
+            "model": "Boron"
+        },
+        {
+            "vid": "2B04",
+            "pid": "C00E",
+            "make": "Particle",
+            "model": "Xenon"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "000B",
+            "make": "Raspberry Pi",
+            "model": "Pico 2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1000",
+            "make": "Cytron",
+            "model": "Maker Pi RP2040"
+        },
         {
             "vid": "2E8A",
             "pid": "1002",
@@ -1064,16 +1813,36 @@
             "make": "Pimoroni",
             "model": "Pimoroni Pico LiPo (16MB)"
         },
-        { "vid": "2E8A", "pid": "1005", "make": "Melopero", "model": "Shake RP2040" },
+        {
+            "vid": "2E8A",
+            "pid": "1005",
+            "make": "Melopero",
+            "model": "Shake RP2040"
+        },
         {
             "vid": "2E8A",
             "pid": "1006",
             "make": "Invector Labs",
             "model": "Challenger RP2040 WiFi"
         },
-        { "vid": "2E8A", "pid": "1008", "make": "Pimoroni", "model": "PGA2040" },
-        { "vid": "2E8A", "pid": "1009", "make": "Pimoroni", "model": "Interstate 75" },
-        { "vid": "2E8A", "pid": "100A", "make": "Pimoroni", "model": "Plasma 2040" },
+        {
+            "vid": "2E8A",
+            "pid": "1008",
+            "make": "Pimoroni",
+            "model": "PGA2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1009",
+            "make": "Pimoroni",
+            "model": "Interstate 75"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "100A",
+            "make": "Pimoroni",
+            "model": "Plasma 2040"
+        },
         {
             "vid": "2E8A",
             "pid": "100B",
@@ -1086,7 +1855,12 @@
             "make": "Invector Labs",
             "model": "Challenger NB RP2040 WiFi"
         },
-        { "vid": "2E8A", "pid": "100E", "make": "Raspberry Pi", "model": "Zero" },
+        {
+            "vid": "2E8A",
+            "pid": "100E",
+            "make": "Raspberry Pi",
+            "model": "Zero"
+        },
         {
             "vid": "2E8A",
             "pid": "100F",
@@ -1123,16 +1897,47 @@
             "make": "Pimoroni",
             "model": "Tiny 2040 (2MB)"
         },
-        { "vid": "2E8A", "pid": "1018", "make": "Pimoroni", "model": "Inky Frame 5.7" },
-        { "vid": "2E8A", "pid": "1019", "make": "Pimoroni", "model": "Motor 2040" },
-        { "vid": "2E8A", "pid": "101A", "make": "Pimoroni", "model": "Servo 2040" },
-        { "vid": "2E8A", "pid": "101B", "make": "Pimoroni", "model": "Badger 2040" },
-        { "vid": "2E8A", "pid": "101E", "make": "Raspberry Pi", "model": "Zero W" },
+        {
+            "vid": "2E8A",
+            "pid": "1018",
+            "make": "Pimoroni",
+            "model": "Inky Frame 5.7"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1019",
+            "make": "Pimoroni",
+            "model": "Motor 2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "101A",
+            "make": "Pimoroni",
+            "model": "Servo 2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "101B",
+            "make": "Pimoroni",
+            "model": "Badger 2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "101E",
+            "make": "Raspberry Pi",
+            "model": "Zero W"
+        },
         {
             "vid": "2E8A",
             "pid": "101F",
             "make": "Waveshare Electronics",
             "model": "RP2040-Zero"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1020",
+            "make": "Waveshare Electronics",
+            "model": "RP2040-Plus (16MB)"
         },
         {
             "vid": "2E8A",
@@ -1146,9 +1951,30 @@
             "make": "Invector Labs",
             "model": "Challenger RP2040 LoRa"
         },
-        { "vid": "2E8A", "pid": "1026", "make": "ELECFREAKS", "model": "Pico:ed" },
-        { "vid": "2E8A", "pid": "1027", "make": "WIZnet", "model": "W5100S-EVB-Pico" },
-        { "vid": "2E8A", "pid": "1029", "make": "WIZnet", "model": "W5500-EVB-Pico" },
+        {
+            "vid": "2E8A",
+            "pid": "1026",
+            "make": "ELECFREAKS",
+            "model": "Pico:ed"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1027",
+            "make": "WIZnet",
+            "model": "W5100S-EVB-Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1028",
+            "make": "WIZnet",
+            "model": "WizFi360-EVB-Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1029",
+            "make": "WIZnet",
+            "model": "W5500-EVB-Pico"
+        },
         {
             "vid": "2E8A",
             "pid": "102C",
@@ -1179,16 +2005,311 @@
             "make": "Waveshare Electronics",
             "model": "Waveshare RP2040-LCD-1.28"
         },
-        { "vid": "2E8A", "pid": "1048", "make": "nullbits", "model": "Bit-C PRO" },
-        { "vid": "2E8A", "pid": "104A", "make": "Boardsource", "model": "BLOK" },
-        { "vid": "2E8A", "pid": "104C", "make": "Raspberry Pi", "model": "COSMO-Pico" },
-        { "vid": "2E8A", "pid": "104F", "make": "Pimoroni", "model": "Badger 2040 W" },
-        { "vid": "2E8A", "pid": "1058", "make": "Pimoroni", "model": "Plasma 2040 W" },
+        {
+            "vid": "2E8A",
+            "pid": "103A",
+            "make": "Waveshare Electronics",
+            "model": "RP2040-One"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1043",
+            "make": "NEWSAN",
+            "model": "ARCHI"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1046",
+            "make": "WIZnet",
+            "model": "W6100-EVB-Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1048",
+            "make": "nullbits",
+            "model": "Bit-C PRO"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "104A",
+            "make": "Boardsource",
+            "model": "BLOK"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "104B",
+            "make": "Datanoise",
+            "model": "PicoADK"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "104C",
+            "make": "Raspberry Pi",
+            "model": "COSMO-Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "104F",
+            "make": "Pimoroni",
+            "model": "Badger 2040 W"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1056",
+            "make": "Waveshare Electronics",
+            "model": "RP2040-GEEK"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1057",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare RP2040-TOUCH-LCD-1.28"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1058",
+            "make": "Pimoroni",
+            "model": "Plasma 2040 W"
+        },
         {
             "vid": "2E8A",
             "pid": "1059",
             "make": "Pimoroni",
             "model": "Pimoroni Pico DV Demo Base for Pico"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "105A",
+            "make": "Pimoroni",
+            "model": "Pimoroni Pico DV Demo Base for Pico W"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "105E",
+            "make": "Breadstick Innovations",
+            "model": "Raspberry Breadstick"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1060",
+            "make": "splitkb.com",
+            "model": "Liatris"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1063",
+            "make": "Pajenicko s.r.o",
+            "model": "PicoPad"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1067",
+            "make": "WisdPi",
+            "model": "Ardu2040M"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "106A",
+            "make": "WisdPi",
+            "model": "Tiny RP2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1071",
+            "make": "Cytron",
+            "model": "Maker Uno RP2040"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1072",
+            "make": "Maple Computing",
+            "model": "Elite-Pi"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1073",
+            "make": "Brad\u00e1n Lane STUDIO",
+            "model": "Explorer Badge"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1074",
+            "make": "Cytron",
+            "model": "Cytron EDU PICO for Pico W"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "107D",
+            "make": "HEIA-FR",
+            "model": "Picomo V2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1081",
+            "make": "Pimoroni",
+            "model": "Inky Frame 7.3"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1083",
+            "make": "Waveshare Electronics",
+            "model": "RP2040-PiZero"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1084",
+            "make": "Waveshare Electronics",
+            "model": "RP2040-Tiny"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1093",
+            "make": "Cytron",
+            "model": "IRIV IO Controller"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "1096",
+            "make": "Cytron",
+            "model": "MOTION 2350 Pro"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "109A",
+            "make": "Invector Labs",
+            "model": "Challenger+ RP2350 WiFi6/BLE5"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "109B",
+            "make": "Invector Labs",
+            "model": "Challenger+ RP2350 BConnect"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "109E",
+            "make": "WIZnet",
+            "model": "W5100S-EVB-Pico2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "109F",
+            "make": "WIZnet",
+            "model": "W5500-EVB-Pico2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A0",
+            "make": "WIZnet",
+            "model": "W6100-EVB-Pico2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A2",
+            "make": "Pimoroni",
+            "model": "Tiny FX"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A3",
+            "make": "Pimoroni",
+            "model": "Pico Plus 2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A4",
+            "make": "Pimoroni",
+            "model": "Tiny 2350"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A5",
+            "make": "Pimoroni",
+            "model": "Plasma 2350"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10A6",
+            "make": "Pimoroni",
+            "model": "PGA2350"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10AE",
+            "make": "Datanoise",
+            "model": "PicoADK V2"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B0",
+            "make": "Waveshare Electronics",
+            "model": "RP2350-Zero"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B1",
+            "make": "Waveshare Electronics",
+            "model": "RP2350-Plus"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B2",
+            "make": "Waveshare Electronics",
+            "model": "RP2350-Tiny"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B3",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare RP2350-LCD-1.28"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B4",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare RP2350-TOUCH-LCD-1.28"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B5",
+            "make": "Waveshare Electronics",
+            "model": "RP2350-One"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B6",
+            "make": "Waveshare Electronics",
+            "model": "RP2350-GEEK"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10B7",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare RP2350-LCD-0.96"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10BD",
+            "make": "Pimoroni",
+            "model": "Pico Plus 2 W"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10BF",
+            "make": "Pimoroni",
+            "model": "Plasma 2350 W"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10C1",
+            "make": "Music Thing Modular",
+            "model": "Workshop Computer"
+        },
+        {
+            "vid": "2E8A",
+            "pid": "10C4",
+            "make": "HEIA-FR",
+            "model": "Picomo V3"
         },
         {
             "vid": "303A",
@@ -1200,7 +2321,7 @@
             "vid": "303A",
             "pid": "7003",
             "make": "Espressif",
-            "model": "ESP32-S3-DevKitC-1-N32R8"
+            "model": "ESP32-S3-DevKitC-1-N16"
         },
         {
             "vid": "303A",
@@ -1232,13 +2353,60 @@
             "make": "Espressif",
             "model": "ESP32-S3-Box-Lite"
         },
-        { "vid": "303A", "pid": "700F", "make": "Espressif", "model": "ESP32-S3-EYE" },
-        { "vid": "303A", "pid": "8002", "make": "UnexpectedMaker", "model": "TinyS2" },
-        { "vid": "303A", "pid": "8007", "make": "LILYGO", "model": "TTGO T8 ESP32-S2" },
-        { "vid": "303A", "pid": "800D", "make": "Gravitech", "model": "Cucumber RS" },
-        { "vid": "303A", "pid": "80A1", "make": "Gravitech", "model": "Cucumber R" },
-        { "vid": "303A", "pid": "80A4", "make": "Gravitech", "model": "Cucumber M" },
-        { "vid": "303A", "pid": "80A7", "make": "Gravitech", "model": "Cucumber MS" },
+        {
+            "vid": "303A",
+            "pid": "700F",
+            "make": "Espressif",
+            "model": "ESP32-S3-EYE"
+        },
+        {
+            "vid": "303A",
+            "pid": "7011",
+            "make": "Espressif",
+            "model": "ESP32-S3-EV-LCD-Board_v1.5"
+        },
+        {
+            "vid": "303A",
+            "pid": "7013",
+            "make": "Espressif",
+            "model": "ESP32-P4-Function-EV"
+        },
+        {
+            "vid": "303A",
+            "pid": "8002",
+            "make": "UnexpectedMaker",
+            "model": "TinyS2"
+        },
+        {
+            "vid": "303A",
+            "pid": "8007",
+            "make": "LILYGO",
+            "model": "TTGO T8 ESP32-S2"
+        },
+        {
+            "vid": "303A",
+            "pid": "800D",
+            "make": "Gravitech",
+            "model": "Cucumber RS"
+        },
+        {
+            "vid": "303A",
+            "pid": "80A1",
+            "make": "Gravitech",
+            "model": "Cucumber R"
+        },
+        {
+            "vid": "303A",
+            "pid": "80A4",
+            "make": "Gravitech",
+            "model": "Cucumber M"
+        },
+        {
+            "vid": "303A",
+            "pid": "80A7",
+            "make": "Gravitech",
+            "model": "Cucumber MS"
+        },
         {
             "vid": "303A",
             "pid": "80AA",
@@ -1269,37 +2437,108 @@
             "make": "UnexpectedMaker",
             "model": "FeatherS2 Neo"
         },
-        { "vid": "303A", "pid": "80B7", "make": "MORPHEANS", "model": "MORPHESP-240" },
-        { "vid": "303A", "pid": "80C3", "make": "Lolin", "model": "S2 Mini" },
-        { "vid": "303A", "pid": "80C6", "make": "Lolin", "model": "S2 Pico" },
-        { "vid": "303A", "pid": "80C8", "make": "BrainBoardz", "model": "Neuron" },
-        { "vid": "303A", "pid": "80D1", "make": "UnexpectedMaker", "model": "TinyS3" },
-        { "vid": "303A", "pid": "80D4", "make": "UnexpectedMaker", "model": "ProS3" },
+        {
+            "vid": "303A",
+            "pid": "80B7",
+            "make": "MORPHEANS",
+            "model": "MORPHESP-240"
+        },
+        {
+            "vid": "303A",
+            "pid": "80C3",
+            "make": "Lolin",
+            "model": "S2 Mini"
+        },
+        {
+            "vid": "303A",
+            "pid": "80C6",
+            "make": "Lolin",
+            "model": "S2 Pico"
+        },
+        {
+            "vid": "303A",
+            "pid": "80C8",
+            "make": "BrainBoardz",
+            "model": "Neuron"
+        },
+        {
+            "vid": "303A",
+            "pid": "80D1",
+            "make": "UnexpectedMaker",
+            "model": "TinyS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "80D4",
+            "make": "UnexpectedMaker",
+            "model": "ProS3"
+        },
         {
             "vid": "303A",
             "pid": "80D7",
             "make": "UnexpectedMaker",
             "model": "FeatherS3"
         },
-        { "vid": "303A", "pid": "80D9", "make": "FutureKeys", "model": "HexKy_S2" },
-        { "vid": "303A", "pid": "80E0", "make": "BananaPi", "model": "BPI-Leaf-S3" },
-        { "vid": "303A", "pid": "80E6", "make": "BananaPi", "model": "BPI-Bit-S2" },
-        { "vid": "303A", "pid": "80E8", "make": "HiiBot", "model": "HiiBot IoTs2" },
+        {
+            "vid": "303A",
+            "pid": "80D9",
+            "make": "FutureKeys",
+            "model": "HexKy_S2"
+        },
+        {
+            "vid": "303A",
+            "pid": "80DD",
+            "make": "CircuitArt",
+            "model": "ZeroS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "80E0",
+            "make": "BananaPi",
+            "model": "BPI-Leaf-S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "80E6",
+            "make": "BananaPi",
+            "model": "BPI-Bit-S2"
+        },
+        {
+            "vid": "303A",
+            "pid": "80E8",
+            "make": "HiiBot",
+            "model": "HiiBot IoTs2"
+        },
         {
             "vid": "303A",
             "pid": "80EA",
             "make": "LILYGO",
             "model": "TTGO T8 ESP32-S2-WROOM"
         },
-        { "vid": "303A", "pid": "80ED", "make": "LILYGO", "model": "TTGO T8 ESP32-S2" },
+        {
+            "vid": "303A",
+            "pid": "80ED",
+            "make": "LILYGO",
+            "model": "TTGO T8 ESP32-S2"
+        },
         {
             "vid": "303A",
             "pid": "80F9",
             "make": "Cytron",
             "model": "Cytron Maker Feather AIoT S3"
         },
-        { "vid": "303A", "pid": "80FC", "make": "Espressif", "model": "MixGo CE" },
-        { "vid": "303A", "pid": "80FD", "make": "Espressif", "model": "MixGo CE" },
+        {
+            "vid": "303A",
+            "pid": "80FC",
+            "make": "Espressif",
+            "model": "MixGo CE"
+        },
+        {
+            "vid": "303A",
+            "pid": "80FD",
+            "make": "Espressif",
+            "model": "MixGo CE"
+        },
         {
             "vid": "303A",
             "pid": "810A",
@@ -1330,7 +2569,30 @@
             "make": "WEMOS",
             "model": "LOLIN S3 16MB Flash 8MB PSRAM"
         },
-        { "vid": "303A", "pid": "812C", "make": "BananaPi", "model": "BPI-PicoW-S3" },
+        {
+            "vid": "303A",
+            "pid": "811A",
+            "make": "M5Stack",
+            "model": "M5Stack Core S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8120",
+            "make": "M5Stack",
+            "model": "M5Stack AtomS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "812C",
+            "make": "BananaPi",
+            "model": "BPI-PicoW-S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "813F",
+            "make": "LILYGO",
+            "model": "T-Display S3"
+        },
         {
             "vid": "303A",
             "pid": "8142",
@@ -1349,29 +2611,275 @@
             "make": "Turkish Technology Team Foundation",
             "model": "Deneyap Kart 1A v2"
         },
-        { "vid": "303A", "pid": "8151", "make": "LILYGO", "model": "TEMBED ESP32S3" },
+        {
+            "vid": "303A",
+            "pid": "8151",
+            "make": "LILYGO",
+            "model": "TEMBED ESP32S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "815D",
+            "make": "Smart Bee Designs",
+            "model": "Bee-Data-Logger"
+        },
         {
             "vid": "303A",
             "pid": "815F",
             "make": "M5Stack",
             "model": "M5Stack AtomS3 Lite"
         },
-        { "vid": "303A", "pid": "8166", "make": "VCC-GND", "model": "YD-ESP32-S3" },
-        { "vid": "30A4", "pid": "0002", "make": "Blues Wireless", "model": "Swan R5" },
+        {
+            "vid": "303A",
+            "pid": "8162",
+            "make": "WEMOS",
+            "model": "LOLIN S3 PRO 16MB Flash 8MB PSRAM"
+        },
+        {
+            "vid": "303A",
+            "pid": "8166",
+            "make": "VCC-GND",
+            "model": "YD-ESP32-S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8168",
+            "make": "WEMOS",
+            "model": "LOLIN S3 MINI 4MB Flash 2MB PSRAM"
+        },
+        {
+            "vid": "303A",
+            "pid": "816B",
+            "make": "M5STACK",
+            "model": "M5Stack StampS3 - CircuitPython"
+        },
+        {
+            "vid": "303A",
+            "pid": "817A",
+            "make": "UnexpectedMaker",
+            "model": "NanoS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "817D",
+            "make": "UnexpectedMaker",
+            "model": "BlizzardS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8180",
+            "make": "UnexpectedMaker",
+            "model": "BLING!"
+        },
+        {
+            "vid": "303A",
+            "pid": "8187",
+            "make": "M5Stack",
+            "model": "M5Stack AtomS3U"
+        },
+        {
+            "vid": "303A",
+            "pid": "81A3",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S3-Pico"
+        },
+        {
+            "vid": "303A",
+            "pid": "81AA",
+            "make": "MakerM0",
+            "model": "MagiClick S3 n4r2"
+        },
+        {
+            "vid": "303A",
+            "pid": "81B1",
+            "make": "UnexpectedMaker",
+            "model": "TinyWATCH S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "81B4",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare ESP32-S3-Zero"
+        },
+        {
+            "vid": "303A",
+            "pid": "81B6",
+            "make": "LILYGO",
+            "model": "T-Deck (Plus)"
+        },
+        {
+            "vid": "303A",
+            "pid": "81B9",
+            "make": "Espressif",
+            "model": "senseBox MCU-S2 ESP32S2"
+        },
+        {
+            "vid": "303A",
+            "pid": "81BF",
+            "make": "MakerFabs",
+            "model": "MakerFabs-ESP32-S3-Parallel-TFT-With-Touch-7inch"
+        },
+        {
+            "vid": "303A",
+            "pid": "81CF",
+            "make": "Flipper Devices",
+            "model": "Flipper Zero Wi-Fi Dev"
+        },
+        {
+            "vid": "303A",
+            "pid": "81D0",
+            "make": "Double Take Labs",
+            "model": "COLUMBIA-DSL-SENSOR-BOARD-V1"
+        },
+        {
+            "vid": "303A",
+            "pid": "81DA",
+            "make": "M5STACK",
+            "model": "M5Stack Cardputer - CircuitPython"
+        },
+        {
+            "vid": "303A",
+            "pid": "81DD",
+            "make": "M5Stack",
+            "model": "M5stack - Dial"
+        },
+        {
+            "vid": "303A",
+            "pid": "81EA",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S3-GEEK"
+        },
+        {
+            "vid": "303A",
+            "pid": "81F8",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S3-Tiny"
+        },
+        {
+            "vid": "303A",
+            "pid": "81FC",
+            "make": "UnexpectedMaker",
+            "model": "FeatherS3 Neo"
+        },
+        {
+            "vid": "303A",
+            "pid": "81FF",
+            "make": "UnexpectedMaker",
+            "model": "RGB Touch Mini"
+        },
+        {
+            "vid": "303A",
+            "pid": "8204",
+            "make": "ThingPulse",
+            "model": "ThingPulse Pendrive S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8211",
+            "make": "LILYGO",
+            "model": "T-Display S3 Pro"
+        },
+        {
+            "vid": "303A",
+            "pid": "8217",
+            "make": "WEMOS",
+            "model": "LOLIN S3 MINI PRO 4MB Flash 2MB PSRAM"
+        },
+        {
+            "vid": "303A",
+            "pid": "821C",
+            "make": "LILYGO",
+            "model": "T-Watch-S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8225",
+            "make": "UnexpectedMaker",
+            "model": "OMGS3"
+        },
+        {
+            "vid": "303A",
+            "pid": "8244",
+            "make": "Fablab Barcelona",
+            "model": "Barduino 4.0.2"
+        },
+        {
+            "vid": "303A",
+            "pid": "826E",
+            "make": "Waveshare Electronics",
+            "model": "Waveshare ESP32-S3-Matrix"
+        },
+        {
+            "vid": "303A",
+            "pid": "82A7",
+            "make": "Waveshare Electronics",
+            "model": "ESP32-S3-ETH"
+        },
+        {
+            "vid": "303A",
+            "pid": "82C2",
+            "make": "LILYGO",
+            "model": "T-Dongle S3"
+        },
+        {
+            "vid": "303A",
+            "pid": "82C4",
+            "make": "Unknown",
+            "model": "ESP32-S2-WROOM"
+        },
+        {
+            "vid": "303A",
+            "pid": "82C9",
+            "make": "Heltec",
+            "model": "Vision Master E290"
+        },
+        {
+            "vid": "30A4",
+            "pid": "0002",
+            "make": "Blues Wireless",
+            "model": "Swan R5"
+        },
         {
             "vid": "3171",
             "pid": "0101",
             "make": "8086 Consultancy",
             "model": "Commander"
         },
-        { "vid": "31E2", "pid": "2001", "make": "BDMICRO", "model": "VINA-D21" },
-        { "vid": "31E2", "pid": "2011", "make": "BDMICRO", "model": "VINA-D51" },
-        { "vid": "31E2", "pid": "2021", "make": "BDMICRO", "model": "VINA-D51" },
+        {
+            "vid": "3171",
+            "pid": "010C",
+            "make": "8086 Consultancy",
+            "model": "USB Interposer"
+        },
+        {
+            "vid": "3171",
+            "pid": "010D",
+            "make": "8086 Consultancy",
+            "model": "RP2040 Interfacer"
+        },
+        {
+            "vid": "31E2",
+            "pid": "2011",
+            "make": "BDMICRO",
+            "model": "VINA-D51"
+        },
+        {
+            "vid": "31E2",
+            "pid": "2021",
+            "make": "BDMICRO",
+            "model": "VINA-D51"
+        },
         {
             "vid": "32BD",
             "pid": "3001",
             "make": "Alorium Technology",
             "model": "AloriumTech Evo M51"
+        },
+        {
+            "vid": "3343",
+            "pid": "83CF",
+            "make": "DFRobot",
+            "model": "Firebeetle 2 ESP32-S3"
         },
         {
             "vid": "4097",
