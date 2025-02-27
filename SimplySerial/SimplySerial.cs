@@ -57,6 +57,7 @@ namespace SimplySerial
         static bool clearScreen = true;
         static bool noStatus = false;
         static ConsoleKey exitKey = ConsoleKey.X;
+        static bool localEcho = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -270,9 +271,9 @@ namespace SimplySerial
                     Output("");
                 }
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
-                    "Device    : {9} {10}{11}\n{12}" +
-                    "---\n\nUse CTRL-{13} to exit.\n",
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}, echo {9}\n" +
+                    "Device    : {10} {11}{12}\n{13}" +
+                    "---\n\nUse CTRL-{14} to exit.\n",
                     version,
                     port.name,
                     baud,
@@ -281,6 +282,7 @@ namespace SimplySerial
                     (stopBits == StopBits.None) ? "0" : (stopBits == StopBits.One) ? "1" : (stopBits == StopBits.OnePointFive) ? "1.5" : "2", (stopBits == StopBits.One) ? "" : "s",
                     (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
+                    (localEcho) ? "on" : "off",
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
@@ -313,11 +315,20 @@ namespace SimplySerial
 
                             // check for keys that require special processing (cursor keys, etc.)
                             else if (specialKeys.ContainsKey(keyInfo.Key))
+                            {
                                 serialPort.Write(specialKeys[keyInfo.Key]);
+                                if (localEcho)
+                                    Output(specialKeys[keyInfo.Key], force: true, newline: false);
+                            }
 
                             // everything else just gets sent right on through
                             else
-                                serialPort.Write(Convert.ToString(keyInfo.KeyChar));
+                            {
+                                string outstring = keyInfo.KeyChar.ToString();
+                                serialPort.Write(outstring);
+                                if (localEcho)
+                                    Output(outstring, force: true, newline: false);
+                            }
                         }
 
                         // process data coming in from the serial port
@@ -592,7 +603,7 @@ namespace SimplySerial
                 }
 
                 // specify encoding
-                else if (argument[0].StartsWith("e") && !(argument[0].StartsWith("ex")))
+                else if (argument[0].StartsWith("en"))
                 {
                     argument[1] = argument[1].ToLower();
 
@@ -613,6 +624,23 @@ namespace SimplySerial
                     }
                     else
                         ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
+                }
+
+                // specify local echo mode
+                else if (argument[0].StartsWith("ec"))
+                {
+                    argument[1] = argument[1].ToLower();
+
+                    if (argument[1].StartsWith("on"))
+                    {
+                        localEcho = true;
+                    }
+                    else if (argument[1].StartsWith("of"))
+                    {
+                        localEcho = false;
+                    }
+                    else
+                        ExitProgram(("Invalid echo mode specified (use only ON or OFF)<" + argument[1] + ">"), exitCode: -1);
                 }
 
                 // specify exit key
@@ -769,6 +797,7 @@ namespace SimplySerial
             Console.WriteLine("  -stopbits:VAL     0 | 1 | 1.5 | 2");
             Console.WriteLine("  -autoconnect:VAL  NONE| ONE | ANY, enable/disable auto-(re)connection when");
             Console.WriteLine("                    a device is disconnected / reconnected.");
+            Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters locally");
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
             Console.WriteLine("  -quiet            don't print any application messages/errors to console");
