@@ -56,6 +56,7 @@ namespace SimplySerial
         static bool convertToPrintable = false;
         static bool clearScreen = true;
         static bool noStatus = false;
+        static ConsoleKey exitKey = ConsoleKey.X;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -135,16 +136,16 @@ namespace SimplySerial
             // this is where data read from the serial port will be temporarily stored
             string received = string.Empty;
 
-            //main loop - keep this up until user presses CTRL-X or an exception takes us down
+            //main loop - keep this up until user presses CTRL-[exitKey] or an exception takes us down
             do
             {
-                // first things first, check for (and respect) a request to exit the program via CTRL-X
+                // first things first, check for (and respect) a request to exit the program via CTRL-[exitKey]
                 if (Console.KeyAvailable)
                 {
                     keyInfo = Console.ReadKey(intercept: true);
-                    if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
+                    if ((keyInfo.Key == exitKey) && (keyInfo.Modifiers == ConsoleModifiers.Control))
                     {
-                        Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
+                        Output($"\n<<< SimplySerial session terminated via CTRL-{exitKey} >>>");
                         ExitProgram(silent: true);
                     }
                 }
@@ -257,7 +258,7 @@ namespace SimplySerial
                     continue;
                 }
 
-                Console.Title = $"{port.name}: {port.board.make} {port.board.model}";
+                UpdateTitle($"{port.name}: {port.board.make} {port.board.model}");
 
                 // if we get this far, clear the screen and send the connection message if not in 'quiet' mode
                 if (clearScreen)
@@ -271,7 +272,7 @@ namespace SimplySerial
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
                     "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}\n" +
                     "Device    : {9} {10}{11}\n{12}" +
-                    "---\n\nUse CTRL-X to exit.\n",
+                    "---\n\nUse CTRL-{13} to exit.\n",
                     version,
                     port.name,
                     baud,
@@ -283,7 +284,8 @@ namespace SimplySerial
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
-                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n") : ""
+                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n") : "",
+                    exitKey
                 ), flush: true); ;
 
                 lastFlush = DateTime.Now;
@@ -302,10 +304,10 @@ namespace SimplySerial
                             // determine what key is pressed (including modifiers)
                             keyInfo = Console.ReadKey(intercept: true);
 
-                            // exit the program if CTRL-X was pressed
-                            if ((keyInfo.Key == ConsoleKey.X) && (keyInfo.Modifiers == ConsoleModifiers.Control))
+                            // exit the program if CTRL-[exitKey] was pressed
+                            if ((keyInfo.Key == exitKey) && (keyInfo.Modifiers == ConsoleModifiers.Control))
                             {
-                                Output("\n<<< SimplySerial session terminated via CTRL-X >>>");
+                                Output($"\n<<< SimplySerial session terminated via CTRL-{exitKey} >>>");
                                 ExitProgram(silent: true);
                             }
 
@@ -364,7 +366,7 @@ namespace SimplySerial
                             ExitProgram((e.GetType() + " occurred while attempting to read/write to/from " + port.name + "."), exitCode: -1);
                         else
                         {
-                            Console.Title = $"{port.name}: (disconnected)";
+                            UpdateTitle($"{port.name}: (disconnected)");
                             Output("\n<<< Communications Interrupted >>>\n");
                         }
                         try
@@ -378,14 +380,14 @@ namespace SimplySerial
                         Thread.Sleep(2000); // sort-of arbitrary delay - should be long enough to read the "interrupted" message
                         if (autoConnect == AutoConnect.ANY)
                         {
-                            Console.Title = "SimplySerial: Searching...";
+                            UpdateTitle("SimplySerial: Searching...");
                             port.name = String.Empty;
-                            Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
+                            Output($"<<< Attemping to connect to any available COM port.  Use CTRL-{exitKey} to cancel >>>");
                         }
                         else if (autoConnect == AutoConnect.ONE)
                         {
-                            Console.Title = $"{port.name}: Searching...";
-                            Output("<<< Attempting to re-connect to " + port.name + ". Use CTRL-X to cancel >>>");
+                            UpdateTitle($"{port.name}: Searching...");
+                            Output("<<< Attempting to re-connect to " + port.name + $".  Use CTRL-{exitKey} to cancel >>>");
                         }
                         break;
                     }
@@ -590,7 +592,7 @@ namespace SimplySerial
                 }
 
                 // specify encoding
-                else if (argument[0].StartsWith("e"))
+                else if (argument[0].StartsWith("e") && !(argument[0].StartsWith("ex")))
                 {
                     argument[1] = argument[1].ToLower();
 
@@ -613,6 +615,28 @@ namespace SimplySerial
                         ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
                 }
 
+                // specify exit key
+                else if (argument[0].StartsWith("ex"))
+                {
+                    string keyArg = argument[1].ToUpper(); // Extract key name (e.g., 'Z')
+
+                    if (Enum.TryParse($"Oem{keyArg}", out ConsoleKey parsedKey) || Enum.TryParse(keyArg, out parsedKey))
+                    {
+                        exitKey = parsedKey;
+                    }
+                    else
+                    {
+                        ExitProgram(("Invalid exit key specified <" + keyArg + ">"), exitCode: -1);
+                    }
+                }
+
+                // specify console window title
+                else if (argument[0].StartsWith("t"))
+                {
+                    noStatus = true;
+                    UpdateTitle(argument[1], force: true);
+                }
+
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -627,8 +651,8 @@ namespace SimplySerial
 
             if (autoConnect == AutoConnect.ANY)
             {
-                Console.Title = "SimplySerial: Searching...";
-                Output("<<< Attemping to connect to any available COM port.  Use CTRL-X to cancel >>>");
+                UpdateTitle("SimplySerial: Searching...");
+                Output($"<<< Attemping to connect to any available COM port.  Use CTRL-{exitKey} to cancel >>>");
             }
             else if (autoConnect == AutoConnect.ONE)
             {
@@ -638,19 +662,29 @@ namespace SimplySerial
                 }
                 if (port.name == String.Empty)
                 {
-                    Console.Title = "SimplySerial: Searching...";
-                    Output("<<< Attempting to connect to first available COM port.  Use CTRL-X to cancel >>>");
+                    UpdateTitle("SimplySerial: Searching...");
+                    Output($"<<< Attempting to connect to first available COM port.  Use CTRL-{exitKey} to cancel >>>");
                 }
                 else
                 {
-                    Console.Title = $"{port.name}: Searching...";
-                    Output("<<< Attempting to connect to " + port.name + ".  Use CTRL-X to cancel >>>");
+                    UpdateTitle($"{port.name}: Searching...");
+                    Output("<<< Attempting to connect to " + port.name + $".  Use CTRL-{exitKey} to cancel >>>");
                 }
             }
 
             // if we made it this far, everything has been processed and we're ready to proceed!
         }
 
+        /// <summary>
+        /// Updates the title of the console window
+        /// </summary>
+        /// <param name="title">New console window title</param>
+        /// <param name="force">When true, forces the update even when a manual title has been set</param>
+        static void UpdateTitle(string title, bool force = false)
+        {
+            if (force || !noStatus)
+                Console.Title = title;
+        }
 
         /// <summary>
         /// Writes messages using Console.WriteLine() as long as the 'Quiet' option hasn't been enabled
@@ -742,7 +776,9 @@ namespace SimplySerial
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
             Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
-            Console.WriteLine("\nPress CTRL-X to exit a running instance of SimplySerial.\n");
+            Console.WriteLine("  -exitkey:KEY      Specify a key to use along with CTRL for exiting the program (default is 'X').");
+            Console.WriteLine("  -title:\"TITLE\"  Set the console window title.  Surround with quotation marks if your title has spaces.");
+            Console.WriteLine($"\nPress CTRL-{exitKey} to exit a running instance of SimplySerial.\n");
         }
 
         /// <summary>
@@ -956,6 +992,7 @@ namespace SimplySerial
             x = x.ToLower();
             if (x.StartsWith("lo"))
                 x = "z"; // mask out logging options so that they are not interpreted as the list option
+
 
             y = y.ToLower();
             if (y.StartsWith("lo"))
