@@ -16,6 +16,8 @@ namespace SimplySerial
     {
         const string version = "0.9.0";
 
+        const string configFile = "simplyserial.cfg";
+
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
@@ -31,7 +33,8 @@ namespace SimplySerial
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
-        static string appFolder = AppDomain.CurrentDomain.BaseDirectory;
+        static string appFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        static string workingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         static BoardData boardData;
 
         static List<ComPort> availablePorts = new List<ComPort>();
@@ -833,6 +836,26 @@ namespace SimplySerial
         }
 
         /// <summary>
+        /// Displays the contents of the specified configuration file (if it exists) to the console
+        /// </summary>
+        /// <param name="file">Full path to the configuration file</param>
+        /// <param name="label">The label to apply to this set of configuration data</param>
+        static void ShowArguments(string file, string label)
+        {
+            if (File.Exists(file))
+            {
+                Console.WriteLine($"{label} [{file}]:");
+                foreach (string line in File.ReadLines(file))
+                {
+                    string lineOut = line.Trim();
+                    if (lineOut.Length > 0)
+                        Console.WriteLine($"  {lineOut}");
+                }
+                Console.WriteLine("");
+            }
+        }
+
+        /// <summary>
         /// Displays version and installation information about this application
         /// </summary>
         static void ShowVersion()
@@ -861,6 +884,8 @@ namespace SimplySerial
             Console.WriteLine($"  Installation Type : {installType}");
             Console.WriteLine($"  Installation Path : {appFolder}");
             Console.WriteLine($"  Board Data File   : {boardData.version}\n");
+            ShowArguments($"{appFolder}{configFile}", "Default Arguments");
+            ShowArguments($"{workingFolder}{configFile}", "Local Argument Overrides");
         }
 
 
@@ -1006,7 +1031,7 @@ namespace SimplySerial
         {
             try
             {
-                using (StreamReader r = new StreamReader($"{appFolder}\\boards.json"))
+                using (StreamReader r = new StreamReader($"{appFolder}boards.json"))
                 {
                     string json = r.ReadToEnd();
                     boardData = JsonConvert.DeserializeObject<BoardData>(json);
