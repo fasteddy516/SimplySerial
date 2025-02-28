@@ -58,6 +58,7 @@ namespace SimplySerial
         static bool noStatus = false;
         static ConsoleKey exitKey = ConsoleKey.X;
         static bool localEcho = false;
+        static bool bulkSend = false;
 
         // dictionary of "special" keys with the corresponding string to send out when they are pressed
         static Dictionary<ConsoleKey, String> specialKeys = new Dictionary<ConsoleKey, String>
@@ -271,9 +272,9 @@ namespace SimplySerial
                     Output("");
                 }
                 Output(String.Format("<<< SimplySerial v{0} connected via {1} >>>\n" +
-                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}, echo {9}\n" +
-                    "Device    : {10} {11}{12}\n{13}" +
-                    "---\n\nUse CTRL-{14} to exit.\n",
+                    "Settings  : {2} baud, {3} parity, {4} data bits, {5} stop bit{6}, {7} encoding, auto-connect {8}, echo {9}{10}\n" +
+                    "Device    : {11} {12}{13}\n{14}" +
+                    "---\n\nUse CTRL-{15} to exit.\n",
                     version,
                     port.name,
                     baud,
@@ -283,6 +284,7 @@ namespace SimplySerial
                     (encoding.ToString() == "System.Text.UTF8Encoding") ? "UTF-8" : (convertToPrintable) ? "RAW" : "ASCII",
                     (autoConnect == AutoConnect.ONE) ? "on" : (autoConnect == AutoConnect.ANY) ? "any" : "off",
                     (localEcho) ? "on" : "off",
+                    (bulkSend) ? ", bulk send enabled" : "",
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
@@ -301,7 +303,7 @@ namespace SimplySerial
                     try
                     {
                         // process keypresses for transmission through the serial port
-                        if (Console.KeyAvailable)
+                        while (Console.KeyAvailable)
                         {
                             // determine what key is pressed (including modifiers)
                             keyInfo = Console.ReadKey(intercept: true);
@@ -329,6 +331,8 @@ namespace SimplySerial
                                 if (localEcho)
                                     Output(outstring, force: true, newline: false);
                             }
+                            if (!bulkSend)
+                                break;
                         }
 
                         // process data coming in from the serial port
@@ -517,7 +521,7 @@ namespace SimplySerial
                 }
 
                 // process baud rate, invalid rates will throw exceptions and get handled elsewhere
-                else if (argument[0].StartsWith("b"))
+                else if (argument[0].StartsWith("b") && !argument[0].StartsWith("bu"))
                 {
                     baud = Convert.ToInt32(argument[1]);
                 }
@@ -665,6 +669,23 @@ namespace SimplySerial
                     UpdateTitle(argument[1], force: true);
                 }
 
+                // specify bulk send mode
+                else if (argument[0].StartsWith("bu"))
+                {
+                    argument[1] = argument[1].ToLower();
+
+                    if (argument[1].StartsWith("on"))
+                    {
+                        bulkSend = true;
+                    }
+                    else if (argument[1].StartsWith("of"))
+                    {
+                        bulkSend = false;
+                    }
+                    else
+                        ExitProgram(("Invalid bulk send mode specified (use only ON or OFF)<" + argument[1] + ">"), exitCode: -1);
+                }
+
                 // an invalid/incomplete argument was passed
                 else
                 {
@@ -807,6 +828,7 @@ namespace SimplySerial
             Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
             Console.WriteLine("  -exitkey:KEY      Specify a key to use along with CTRL for exiting the program (default is 'X').");
             Console.WriteLine("  -title:\"TITLE\"  Set the console window title.  Surround with quotation marks if your title has spaces.");
+            Console.WriteLine("  -bulksend:VAL     ON | OFF enable or disable bulk send mode (send all characters typed/pasted at once).");
             Console.WriteLine($"\nPress CTRL-{exitKey} to exit a running instance of SimplySerial.\n");
         }
 
