@@ -1,5 +1,7 @@
 ﻿using Newtonsoft.Json;
+using SimplySerial;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -35,6 +37,12 @@ namespace SimplySerial
 
         static string appFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
         static string workingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        static string globalConfig = appFolder + configFile;
+        static string localConfig = (appFolder != workingFolder) ? workingFolder + configFile : "noLocalConfig";
+        static string userConfig = "noUserConfig";
+
+        private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
+
         static BoardData boardData;
 
         static List<ComPort> availablePorts = new List<ComPort>();
@@ -92,11 +100,42 @@ namespace SimplySerial
 
         static void Main(string[] args)
         {
+            // initialize port name
+            port.name = String.Empty;
+
             // load and parse data in boards.json
             LoadBoards();
 
             // process all command-line arguments
             ProcessArguments(args);
+
+            if (clearScreen)
+            {
+                Console.Clear();
+            }
+
+            if (autoConnect == AutoConnect.ANY)
+            {
+                UpdateTitle("SimplySerial: Searching...");
+                Output($"<<< Attemping to connect to any available COM port.  Use CTRL-{exitKey} to cancel >>>");
+            }
+            else if (autoConnect == AutoConnect.ONE)
+            {
+                if (clearScreen)
+                {
+                    Console.Clear();
+                }
+                if (port.name == String.Empty)
+                {
+                    UpdateTitle("SimplySerial: Searching...");
+                    Output($"<<< Attempting to connect to first available COM port.  Use CTRL-{exitKey} to cancel >>>");
+                }
+                else
+                {
+                    UpdateTitle($"{port.name}: Searching...");
+                    Output("<<< Attempting to connect to " + port.name + $".  Use CTRL-{exitKey} to cancel >>>");
+                }
+            }
 
             // attempt to enable virtual terminal escape sequence processing
             if (!convertToPrintable)
@@ -416,315 +455,374 @@ namespace SimplySerial
             ExitProgram("<<< SimplySerial session terminated >>>", exitCode: 0);
         }
 
-        /// <summary>
-        /// Validates and processes any command-line arguments that were passed in.  Invalid arguments will halt program execution.
-        /// </summary>
-        /// <param name="args">Command-line parameters</param>
-        static void ProcessArguments(string[] args)
+        static bool ArgProcessor_OnOff(string value)
         {
-            port.name = String.Empty;
+            value = value.ToLower();
+            if (value == "" || value.StartsWith("on"))
+                return true;
+            else if (value.StartsWith("off"))
+                return false;
+            throw new ArgumentException();
+        }
 
-            // switch to lower case and remove '/', '--' and '-' from beginning of arguments - we can process correctly without them
-            for (int i = 0; i < args.Count(); i++)
-                args[i] = args[i].TrimStart('/', '-');
+        static void ArgHandler_Help(string value)
+        {
+            ShowHelp();
+            ExitProgram(silent: true);
+        }
 
-            // sort the parameters so that they get processed in order of priority (i.e. 'quiet' option gets processed before something that would normally result in console output, etc.)
-            Array.Sort(args, new ArgumentSorter());
+        static void ArgHandler_Version(string value)
+        {
+            ShowVersion();
+            ExitProgram(silent: true);
+        }
+
+        static void ArgHandler_List(string value)
+        {
+            // get a list of all available ports
+            availablePorts = (GetSerialPorts()).OrderBy(p => p.num).ToList();
+
+            if (availablePorts.Count >= 1)
+            {
+                Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
+                Console.WriteLine("----------------------------------------------------------------------");
+                foreach (ComPort p in availablePorts)
+                {
+                    Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
+                        p.name,
+                        p.vid,
+                        p.pid,
+                        (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                        ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
+                    );
+                }
+                Console.WriteLine("");
+            }
+            else
+            {
+                Console.WriteLine("\nNo COM ports detected.\n");
+            }
+
+            ExitProgram(silent: true);
+        }
+
+        static void ArgHandler_Quiet(string value)
+        {
+            Quiet = ArgProcessor_OnOff(value);
+        }
+
+        static void ArgHandler_ForceNewLine(string value)
+        {
+            forceNewline = ArgProcessor_OnOff(value);
+        }
+
+        static void ArgHandler_ClearScreen(string value)
+        {
+            clearScreen = ArgProcessor_OnOff(value);
+        }
+
+        static void ArgHandler_Status(string value)
+        {
+            noStatus = ArgProcessor_OnOff(value);
+        }
+
+        static void ArgHandler_Com(string value)
+        {
+            // preliminary validate on com port, final validation occurs towards the end of ProcessArguments()
+            string newPort = value.ToUpper();
+
+            if (String.IsNullOrEmpty(value))
+                throw new ArgumentException();
+            if (!value.StartsWith("COM"))
+                newPort = "COM" + value;
+            port.name = newPort;
+            autoConnect = AutoConnect.ONE;
+        }
+
+        static void ArgHandler_Baud(string value)
+        {
+            baud = Convert.ToInt32(value);
+        }
+
+        static void ArgHandler_Parity(string value)
+        {
+            value = value.ToLower();
+
+            if (value.StartsWith("e"))
+                parity = Parity.Even;
+            else if (value.StartsWith("m"))
+                parity = Parity.Mark;
+            else if (value.StartsWith("n"))
+                parity = Parity.None;
+            else if (value.StartsWith("o"))
+                parity = Parity.Odd;
+            else if (value.StartsWith("s"))
+                parity = Parity.Space;
+            else
+                throw new ArgumentException();
+        }
+
+        static void ArgHandler_DataBits(string value)
+        {
+            int newDataBits = Convert.ToInt32(value);
+
+            if ((newDataBits > 3) && (newDataBits < 9))
+                dataBits = newDataBits;
+            else
+                throw new ArgumentException();
+        }
+
+        static void ArgHandler_StopBits(string value)
+        {
+            if (value == "0")
+                stopBits = StopBits.None;
+            else if (value == "1")
+                stopBits = StopBits.One;
+            else if (value == "1.5")
+                stopBits = StopBits.OnePointFive;
+            else if (value == "2")
+                stopBits = StopBits.Two;
+            else
+                ExitProgram(("Invalid stop bits specified <" + value + ">"), exitCode: -1);
+        }
+
+        static void ArgHandler_Encoding(string value)
+        {
+            value = value.ToLower();
+
+            if (value.StartsWith("a"))
+            {
+                encoding = Encoding.ASCII;
+                convertToPrintable = false;
+            }
+            else if (value.StartsWith("r"))
+            {
+                encoding = Encoding.GetEncoding(1252);
+                convertToPrintable = true;
+            }
+            else if (value.StartsWith("u"))
+            {
+                encoding = Encoding.UTF8;
+                convertToPrintable = false;
+            }
+            else
+                throw new ArgumentException();
+        }
+
+        static void ArgHandler_Echo(string value)
+        {
+            localEcho = ArgProcessor_OnOff(value);
+        }
+
+        static void ArgHandler_AutoConnect(string value)
+        {
+            value = value.ToLower();
+            if (value.StartsWith("n"))
+                autoConnect = AutoConnect.NONE;
+            else if (value.StartsWith("o"))
+                autoConnect = AutoConnect.ONE;
+            else if (value.StartsWith("a"))
+                autoConnect = AutoConnect.ANY;
+            else
+                throw new ArgumentException();
+        }
+
+        static void ArgHandler_Log(string value)
+        {
+            if (String.IsNullOrEmpty(value))
+                throw new ArgumentException();
+            logging = true;
+            logFile = value;
+        }
+
+        static void ArgHandler_LogMode(string value)
+        {
+            value = value.ToLower();
+            if (value.StartsWith("o"))
+                logMode = FileMode.Create;
+            else if (value.StartsWith("a"))
+                logMode = FileMode.Append;
+            else
+                throw new ArgumentException();
+        }
+
+        static void ArgHandler_Title(string value)
+        {
+            if (String.IsNullOrEmpty(value))
+                throw new ArgumentException();
+            noStatus = true;
+            UpdateTitle(value, force: true);
+        }
+
+        static void ArgHandler_ExitKey(string value)
+        {
+            string keyArg = value.ToUpper();
+            if (Enum.TryParse($"Oem{keyArg}", out ConsoleKey parsedKey) || Enum.TryParse(keyArg, out parsedKey))
+            {
+                exitKey = parsedKey;
+            }
+            else
+            {
+                throw new ArgumentException();    
+            }
+        }
+
+        static void ArgHandler_BulkSend(string value)
+        {
+            bulkSend = ArgProcessor_OnOff(value);
+        }
+
+        static List<ArgumentData> ParseArguments(string[] args, bool noImmediate=false, string source="")
+        {
+            List<ArgumentData> receivedArguments = new List<ArgumentData>();
+            string sourceType = "";
+
+            if (source == globalConfig)
+                sourceType = "Global";
+            else if (source == localConfig)
+                sourceType = "Local";
+            else if (source == userConfig)
+                sourceType = "User";
 
             // iterate through command-line arguments
             foreach (string arg in args)
             {
-                // split argument into components based on 'key:value' formatting             
+                // split argument into components based on 'key:value' formatting and switch argument name to lower case
                 string[] argument = arg.Split(new[] { ':' }, 2);
-                argument[0] = argument[0].ToLower();
+                string matchedName = null;
 
-                // help
-                if (argument[0].StartsWith("h") || argument[0].StartsWith("?"))
+                foreach (CommandLineArgument validArg in CommandLineArguments.Values)
                 {
-                    ShowHelp();
-                    ExitProgram(silent: true);
-                }
-
-                // version
-                if (argument[0].StartsWith("v"))
-                {
-                    ShowVersion();
-                    ExitProgram(silent: true);
-                }
-
-                // list available ports
-                else if ((argument[0] == "l") || (argument[0].StartsWith("li")))
-                {
-                    // get a list of all available ports
-                    availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
-
-                    if (availablePorts.Count >= 1)
+                    matchedName = validArg.Match(argument[0]);
+                    if (!String.IsNullOrEmpty(matchedName))
                     {
-                        Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
-                        Console.WriteLine("----------------------------------------------------------------------");
-                        foreach (ComPort p in availablePorts)
+                        argument[0] = matchedName;
+                        if (!noImmediate || !validArg.Immediate)
                         {
-                            Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
-                                p.name,
-                                p.vid,
-                                p.pid,
-                                (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
-                                ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
-                            );
+                            receivedArguments.Add(new ArgumentData(argument, sourceType));
                         }
-                        Console.WriteLine("");
-                    }
-                    else
-                    {
-                        Console.WriteLine("\nNo COM ports detected.\n");
-                    }
-
-                    ExitProgram(silent: true);
-                }
-
-                // quiet (no output to console other than comes in via serial)
-                else if (argument[0].StartsWith("q"))
-                {
-                    SimplySerial.Quiet = true;
-                }
-
-                // force linefeeds in place of carriage returns in received data
-                else if (argument[0].StartsWith("f"))
-                {
-                    forceNewline = true;
-                }
-
-                // disable screen clearing
-                else if (argument[0].StartsWith("noc"))
-                {
-                    clearScreen = false;
-                }
-
-                // disable status/title updates from virtual terminal sequences
-                else if (argument[0].StartsWith("nos"))
-                {
-                    noStatus = true;
-                }
-
-                // the remainder of possible command-line arguments require two parameters, so let's enforce that now
-                else if (argument.Count() < 2)
-                {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'ss.exe help' to see a list of valid arguments"), exitCode: -1);
-                }
-
-                // preliminary validate on com port, final validation occurs towards the end of this method 
-                else if (argument[0].StartsWith("c"))
-                {
-                    string newPort = argument[1].ToUpper();
-
-                    if (!argument[1].StartsWith("COM"))
-                        newPort = "COM" + argument[1];
-                    port.name = newPort;
-                    autoConnect = AutoConnect.ONE;
-                }
-
-                // process baud rate, invalid rates will throw exceptions and get handled elsewhere
-                else if (argument[0].StartsWith("b") && !argument[0].StartsWith("bu"))
-                {
-                    baud = Convert.ToInt32(argument[1]);
-                }
-
-                // validate parity, terminate on error
-                else if (argument[0].StartsWith("p"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("e"))
-                        parity = Parity.Even;
-                    else if (argument[1].StartsWith("m"))
-                        parity = Parity.Mark;
-                    else if (argument[1].StartsWith("n"))
-                        parity = Parity.None;
-                    else if (argument[1].StartsWith("o"))
-                        parity = Parity.Odd;
-                    else if (argument[1].StartsWith("s"))
-                        parity = Parity.Space;
-                    else
-                        ExitProgram(("Invalid parity specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // validate databits, terminate on error
-                else if (argument[0].StartsWith("d"))
-                {
-                    int newDataBits = Convert.ToInt32(argument[1]);
-
-                    if ((newDataBits > 3) && (newDataBits < 9))
-                        dataBits = newDataBits;
-                    else
-                        ExitProgram(("Invalid data bits specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // validate stopbits, terminate on error
-                else if (argument[0].StartsWith("s"))
-                {
-                    if (argument[1] == "0")
-                        stopBits = StopBits.None;
-                    else if (argument[1] == "1")
-                        stopBits = StopBits.One;
-                    else if (argument[1] == "1.5")
-                        stopBits = StopBits.OnePointFive;
-                    else if (argument[1] == "2")
-                        stopBits = StopBits.Two;
-                    else
-                        ExitProgram(("Invalid stop bits specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // validate auto connect, terminate on error
-                else if (argument[0].StartsWith("a"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("n"))
-                        autoConnect = AutoConnect.NONE;
-                    else if (argument[1].StartsWith("o"))
-                        autoConnect = AutoConnect.ONE;
-                    else if (argument[1].StartsWith("a"))
-                        autoConnect = AutoConnect.ANY;
-                    else
-                        ExitProgram(("Invalid auto connect setting specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // set logging mode (overwrite or append)
-                else if (argument[0].StartsWith("logm"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("o"))
-                        logMode = FileMode.Create;
-                    else if (argument[1].StartsWith("a"))
-                        logMode = FileMode.Append;
-                    else
-                        ExitProgram(("Invalid log mode setting specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // specify log file (and enable logging)
-                else if (argument[0].StartsWith("lo"))
-                {
-                    logging = true;
-                    logFile = argument[1];
-                }
-
-                // specify encoding
-                else if (argument[0].StartsWith("en"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("a"))
-                    {
-                        encoding = Encoding.ASCII;
-                        convertToPrintable = false;
-                    }
-                    else if (argument[1].StartsWith("r"))
-                    {
-                        encoding = Encoding.GetEncoding(1252);
-                        convertToPrintable = true;
-                    }
-                    else if (argument[1].StartsWith("u"))
-                    {
-                        encoding = Encoding.UTF8;
-                        convertToPrintable = false;
-                    }
-                    else
-                        ExitProgram(("Invalid encoding specified <" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // specify local echo mode
-                else if (argument[0].StartsWith("ec"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("on"))
-                    {
-                        localEcho = true;
-                    }
-                    else if (argument[1].StartsWith("of"))
-                    {
-                        localEcho = false;
-                    }
-                    else
-                        ExitProgram(("Invalid echo mode specified (use only ON or OFF)<" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // specify exit key
-                else if (argument[0].StartsWith("ex"))
-                {
-                    string keyArg = argument[1].ToUpper(); // Extract key name (e.g., 'Z')
-
-                    if (Enum.TryParse($"Oem{keyArg}", out ConsoleKey parsedKey) || Enum.TryParse(keyArg, out parsedKey))
-                    {
-                        exitKey = parsedKey;
-                    }
-                    else
-                    {
-                        ExitProgram(("Invalid exit key specified <" + keyArg + ">"), exitCode: -1);
+                        break;
                     }
                 }
 
-                // specify console window title
-                else if (argument[0].StartsWith("t"))
+                if (String.IsNullOrEmpty(matchedName))
                 {
-                    noStatus = true;
-                    UpdateTitle(argument[1], force: true);
-                }
-
-                // specify bulk send mode
-                else if (argument[0].StartsWith("bu"))
-                {
-                    argument[1] = argument[1].ToLower();
-
-                    if (argument[1].StartsWith("on"))
-                    {
-                        bulkSend = true;
-                    }
-                    else if (argument[1].StartsWith("of"))
-                    {
-                        bulkSend = false;
-                    }
-                    else
-                        ExitProgram(("Invalid bulk send mode specified (use only ON or OFF)<" + argument[1] + ">"), exitCode: -1);
-                }
-
-                // an invalid/incomplete argument was passed
-                else
-                {
-                    ExitProgram(("Invalid or incomplete argument <" + arg + ">\nTry 'ss.exe -help' to see a list of valid arguments"), exitCode: -1);
+                    if (source.Length > 0)
+                        source = $" in [{source}]";
+                    ExitProgram($"Invalid argument '{arg}'{source}\nTry 'ss.exe help' to see a list of valid arguments", exitCode: -1);
                 }
             }
+            return receivedArguments;
+        }
 
-            if (clearScreen)
+        static string[] LoadConfig(string file, bool failOnError=true)
+        {
+            string[] args = new string[] { };
+            try
             {
-                Console.Clear();
+                args = File.ReadAllLines(file);
+            }
+            catch (Exception e)
+            {
+                if (failOnError)
+                {
+                    ExitProgram($"Error reading configuration file '{file}'\n> {e.GetType()}: {e.Message}", exitCode: -1);
+                }
+            }
+            return args;
+        }
+
+        /// <summary>
+        /// Validates and processes any command-line arguments that were passed in.  Invalid arguments will halt program execution.
+        /// </summary>
+        /// <param name="args">Command-line arguments</param>
+        static void ProcessArguments(string[] args)
+        {
+            // Add all command-line arguments to the dictionary.  Things to note:
+            //
+            // 1. Arguments are processed in ascending order based on priority, which is specified for commands
+            //    that *need* to run before others, or in cases where multiple commands start with the same letter(s)
+            //    and we want a short form to map to a specific command.  Default priority is 99.
+            //
+            //    In general, DON'T MESS WITH PRIORITY NUMBERS!  They are set up the way they are for a reason.
+            //
+            // 2. Arguments flagged as immediate are used to trigger actions that display to console and exit
+            //    the program (i.e. help, version, list, etc.).  They are flagged so that they can be ignored
+            //    if they are present in a configuration file.
+            //
+            // 3. Some arguments have multiple names that can be used to trigger them.  This is to allow for
+            //    aliases (i.e. help and ?) as well as backwards compatability (i.e. clearscreen and noclear).
+            //
+            CommandLineArguments.Add("help", new CommandLineArgument(new[] { "help", "?" }, handler: ArgHandler_Help, priority: 0, immediate: true)); // always process help first
+            CommandLineArguments.Add("version", new CommandLineArgument("version", handler: ArgHandler_Version, priority: 1, immediate: true)); // always process version second
+            CommandLineArguments.Add("list", new CommandLineArgument("list", handler: ArgHandler_List, priority: 2, immediate: true)); // always process list third
+            CommandLineArguments.Add("quiet", new CommandLineArgument("quiet", handler: ArgHandler_Quiet, priority: 3)); // process quiet before anything else
+            CommandLineArguments.Add("stopbits", new CommandLineArgument("stopbits", handler: ArgHandler_StopBits, priority: 4)); //process stop bits before any other 's' commands
+            CommandLineArguments.Add("status", new CommandLineArgument(new[] { "status", "nostatus" }, handler: ArgHandler_Status, priority: 5)); // process status before ttle
+            CommandLineArguments.Add("autoconnect", new CommandLineArgument("autoconnect", handler: ArgHandler_AutoConnect, priority: 6)); //process autoconnect before com
+            CommandLineArguments.Add("com", new CommandLineArgument("com", handler: ArgHandler_Com, priority: 7)); // process com before any other 'c' commands
+            CommandLineArguments.Add("log", new CommandLineArgument("log", handler: ArgHandler_Log, priority: 8)); // process log before any other 'l' commands
+            CommandLineArguments.Add("baud", new CommandLineArgument("baud", handler: ArgHandler_Baud, priority: 9)); // process baud before any other 'b' commands
+            CommandLineArguments.Add("encoding", new CommandLineArgument("encoding", handler: ArgHandler_Encoding, priority: 10)); // process encoding before any other 'e' commands
+            CommandLineArguments.Add("bulksend", new CommandLineArgument("bulksend", handler: ArgHandler_BulkSend));
+            CommandLineArguments.Add("clearscreen", new CommandLineArgument(new[] { "clearscreen", "noclear" }, handler: ArgHandler_ClearScreen));
+            CommandLineArguments.Add("config", new CommandLineArgument(new[] { "config", "input" }, handler: null));
+            CommandLineArguments.Add("databits", new CommandLineArgument("databits", handler: ArgHandler_DataBits));
+            CommandLineArguments.Add("echo", new CommandLineArgument("echo", handler: ArgHandler_Echo));
+            CommandLineArguments.Add("exitkey", new CommandLineArgument("exitkey", handler: ArgHandler_ExitKey));
+            CommandLineArguments.Add("forcenewline", new CommandLineArgument("forcenewline", handler: ArgHandler_ForceNewLine));
+            CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
+            CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
+            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title, priority: 22));
+
+            // Create a list of command-line arguments sorted by priority for processing
+            List<CommandLineArgument> argumentsByPriority = CommandLineArguments.Values.OrderBy(a => a.Priority).ToList();
+
+            // Parse command-line arguments and add them to the arguments list
+            List<ArgumentData> arguments = ParseArguments(args);
+
+            // Check for a user-specified configuration file and process it if specified
+            ArgumentData userConfigFile = arguments.Find(item => item.Value != "" && item.Name == "config");
+            if (userConfigFile != null)
+            {
+                userConfig = userConfigFile.Value;
+                arguments.InsertRange(0, ParseArguments(LoadConfig(userConfig, failOnError: true), noImmediate: true, source: userConfig));
             }
 
-            if (autoConnect == AutoConnect.ANY)
+            // Check for local and global configuration files and process them if they exist
+            arguments.InsertRange(0, ParseArguments(LoadConfig($"{localConfig}", failOnError: false), noImmediate: true, source: localConfig));
+            arguments.InsertRange(0, ParseArguments(LoadConfig($"{globalConfig}", failOnError: false), noImmediate: true, source: globalConfig));
+
+            // Remove any 'config' arguments from the list of arguments to process (they've already been processed)
+            arguments.RemoveAll(item => item.Name == "config");
+
+
+            // Run through the list of received arguments.  Note that they were inserted into the arguments list
+            // such that Global commands are processed first, followed by Local commands, then User commands, and
+            // finally Command-Line arguments.  This ensures that the argument "closest" to the user is the one that
+            // takes precedence.
+            foreach (ArgumentData argument in arguments)
             {
-                UpdateTitle("SimplySerial: Searching...");
-                Output($"<<< Attemping to connect to any available COM port.  Use CTRL-{exitKey} to cancel >>>");
-            }
-            else if (autoConnect == AutoConnect.ONE)
-            {
-                if (clearScreen)
-                {
-                    Console.Clear();
-                }
-                if (port.name == String.Empty)
-                {
-                    UpdateTitle("SimplySerial: Searching...");
-                    Output($"<<< Attempting to connect to first available COM port.  Use CTRL-{exitKey} to cancel >>>");
-                }
-                else
-                {
-                    UpdateTitle($"{port.name}: Searching...");
-                    Output("<<< Attempting to connect to " + port.name + $".  Use CTRL-{exitKey} to cancel >>>");
-                }
+                CommandLineArguments[argument.Name].RawValue = argument.Value;
+                CommandLineArguments[argument.Name].SetBy = argument.Type;
+                CommandLineArguments[argument.Name].Active = true;
             }
 
-            // if we made it this far, everything has been processed and we're ready to proceed!
+            // Process all arguments in order of priority
+            foreach (CommandLineArgument argument in argumentsByPriority)
+            {
+                if (argument.Active)
+                {
+                    try
+                    {
+                        argument.Handle();
+                    }
+                    catch (Exception e)
+                    {
+                        ExitProgram($"{e.Message}", exitCode: -1);
+                    }
+                }
+            } 
         }
 
         /// <summary>
@@ -884,8 +982,8 @@ namespace SimplySerial
             Console.WriteLine($"  Installation Type : {installType}");
             Console.WriteLine($"  Installation Path : {appFolder}");
             Console.WriteLine($"  Board Data File   : {boardData.version}\n");
-            ShowArguments($"{appFolder}{configFile}", "Default Arguments");
-            ShowArguments($"{workingFolder}{configFile}", "Local Argument Overrides");
+            ShowArguments($"{globalConfig}", "Default Arguments");
+            ShowArguments($"{localConfig}", "Local Argument Overrides");
         }
 
 
