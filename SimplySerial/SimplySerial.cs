@@ -1142,48 +1142,6 @@ namespace SimplySerial
             }
         }
     }
-
-
-    /// <summary>
-    /// Custom string array sorting logic for SimplySerial command-line arguments
-    /// </summary>
-    public class ArgumentSorter : IComparer<string>
-    {
-        /// <summary>
-        /// Checks the first letter/character of incoming strings for a high-priority letter/character and sorts accordingly
-        /// </summary>
-        /// <param name="x">string to compare</param>
-        /// <param name="y">string to compare</param>
-        /// <returns>-1 if a priority character is found in string 'x', 1 if a priority character is found in 'y', 0 if neither string has a priority character</returns>
-        public int Compare(string x, string y)
-        {
-            // '?' or 'h' trigger the 'help' text output and supersede all other command-line arguments
-            // 'v' triggers the 'version' text output and supersedes all other command-line arguments aside from 'help'
-            // 'l' triggers the 'list available ports' output and supersedes all other command-line arguments aside from 'help' and 'version'
-            // 'q' enables the 'quiet' option, which needs to be enabled before something that would normally generate console output
-            // 'c' is the 'comport' setting, which needs to be processed before 'autoconnect'
-
-            x = x.ToLower();
-            if (x.StartsWith("lo"))
-                x = "z"; // mask out logging options so that they are not interpreted as the list option
-
-
-            y = y.ToLower();
-            if (y.StartsWith("lo"))
-                y = "z"; // mask out logging options so that they are not interpreted as the list option
-
-            foreach (char c in "?hvlqc")
-            {
-                if (x.ToLower()[0] == c)
-                    return (-1);
-                else if (y.ToLower()[0] == c)
-                    return (1);
-            }
-
-            // treat everything else equally, as processing order doesn't matter
-            return (0);
-        }
-    }
 }
 
 
