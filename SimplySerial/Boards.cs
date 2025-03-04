@@ -152,5 +152,16 @@ namespace SimplySerial
 
             return mBoard;
         }
+
+        /// <summary>
+        /// Updates the board data from the official GitHub repository.
+        /// </summary>
+        /// <returns></returns>
+        public bool Update()
+        {
+            // we want to update boards.json from https://github.com/fasteddy516/SimplySerial-Boards/releases/latest/download/boards.json here!
+
+            return false;
+        }
     }
 }
