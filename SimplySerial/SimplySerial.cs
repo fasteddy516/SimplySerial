@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using SimplySerial;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -43,7 +40,7 @@ namespace SimplySerial
 
         private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
 
-        static BoardData boardData;
+        static BoardManager boards = new BoardManager();
 
         static List<ComPort> availablePorts = new List<ComPort>();
         static SerialPort serialPort;
@@ -104,7 +101,7 @@ namespace SimplySerial
             port.name = String.Empty;
 
             // load and parse data in boards.json
-            LoadBoards();
+            boards.Load();
 
             // process all command-line arguments
             ProcessArguments(args);
@@ -981,7 +978,7 @@ namespace SimplySerial
             Console.WriteLine($"SimplySerial version {version}");
             Console.WriteLine($"  Installation Type : {installType}");
             Console.WriteLine($"  Installation Path : {appFolder}");
-            Console.WriteLine($"  Board Data File   : {boardData.version}\n");
+            Console.WriteLine($"  Board Data File   : {boards.Version}\n");
             ShowArguments($"{globalConfig}", "Default Arguments");
             ShowArguments($"{localConfig}", "Local Argument Overrides");
         }
@@ -1068,7 +1065,7 @@ namespace SimplySerial
                 c.description = p.GetPropertyValue("Caption").ToString();
 
                 // attempt to match this device with a known board
-                c.board = MatchBoard(c.vid, c.pid);
+                c.board = boards.Match(c.vid, c.pid);
 
                 // extract the device's hardware bus description
                 c.busDescription = "";
@@ -1096,50 +1093,6 @@ namespace SimplySerial
             }
 
             return detectedPorts;
-        }
-
-
-        /// <summary>
-        /// Matches to a known development board based on VID and PID
-        /// </summary>
-        /// <param name="vid">VID of board</param>
-        /// <param name="pid">PID of board</param>
-        /// <returns>Board structure containing information about the matched board, or generic values otherwise/returns>
-        static Board MatchBoard(string vid, string pid)
-        {
-            Board mBoard = null;
-            if (boardData.boards != null)
-                mBoard = boardData.boards.Find(b => (b.vid == vid) && (b.pid == pid));
-
-            if (mBoard == null)
-            {
-                mBoard = new Board(vid: vid, pid: pid);
-
-                Vendor mVendor = null;
-                if (boardData.vendors != null)
-                    mVendor = boardData.vendors.Find(v => v.vid == vid);
-                if (mVendor != null)
-                    mBoard.make = mVendor.make;
-            }
-
-            return mBoard;
-        }
-
-        static void LoadBoards()
-        {
-            try
-            {
-                using (StreamReader r = new StreamReader($"{appFolder}boards.json"))
-                {
-                    string json = r.ReadToEnd();
-                    boardData = JsonConvert.DeserializeObject<BoardData>(json);
-                }
-            }
-            catch (Exception e)
-            {
-                boardData = new BoardData();
-                boardData.version = "(boards.json is missing or invalid)";
-            }
         }
     }
 }

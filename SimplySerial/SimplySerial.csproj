@@ -88,6 +88,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arguments.cs" />
+    <Compile Include="Boards.cs" />
     <Compile Include="DataClasses.cs" />
     <Compile Include="SimplySerial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
