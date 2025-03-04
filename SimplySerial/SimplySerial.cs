@@ -15,7 +15,7 @@ namespace SimplySerial
     {
         const string version = "0.9.0";
 
-        const string configFile = "simplyserial.cfg";
+        const string configFile = "ss.cfg";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
