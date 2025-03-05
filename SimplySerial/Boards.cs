@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 
 namespace SimplySerial
 {
@@ -154,12 +156,109 @@ namespace SimplySerial
         }
 
         /// <summary>
-        /// Updates the board data from the official GitHub repository.
+        /// Updates the board data file from the official GitHub repository.
         /// </summary>
         /// <returns></returns>
         public bool Update()
         {
-            // we want to update boards.json from https://github.com/fasteddy516/SimplySerial-Boards/releases/latest/download/boards.json here!
+            const string RepoOwner = "fasteddy516";
+            const string RepoName = "SimplySerial-Boards";
+
+            Console.WriteLine("SimplySerial boards.json updater");
+            Console.WriteLine($"  Installed: {this.Version}");
+
+            try
+            {
+                using (WebClient client = new WebClient())
+                {
+                    client.Headers.Add("User-Agent", "SimplySerial-Boards-Updater");
+
+                    // Get latest release info
+                    string apiUrl = $"https://api.github.com/repos/{RepoOwner}/{RepoName}/releases/latest";
+                    string responseBody = client.DownloadString(apiUrl);
+
+                    JObject releaseData = JObject.Parse(responseBody);
+                    string availableVersion = releaseData["tag_name"]?.ToString();
+                    string releaseNotes = releaseData["body"]?.ToString();
+                    string boardsJsonUrl = null;
+
+                    // Find the correct asset URL
+                    foreach (JToken asset in releaseData["assets"] ?? new JArray())
+                    {
+                        string assetName = asset["name"]?.ToString();
+                        if (string.Equals(assetName, "boards.json", StringComparison.OrdinalIgnoreCase))
+                        {
+                            boardsJsonUrl = asset["browser_download_url"]?.ToString();
+                            break;
+                        }
+                    }
+
+                    if (boardsJsonUrl == null)
+                    {
+                        Console.WriteLine("No boards.json found in the latest release.");
+                        return false;
+                    }
+
+                    Console.WriteLine($"  Available: {availableVersion}\n");
+
+                    if (this.Version == availableVersion)
+                    {
+                        Console.WriteLine("* boards.json is already up to date\n");
+                        return false;
+                    }
+
+                    // Prompt user for action
+                    while (true)
+                    {
+                        Console.Write("* An update is available.  Install it (Y/N) or view the release notes (R)?");
+                        ConsoleKey key = Console.ReadKey(true).Key; // Reads key without displaying it
+                        Console.WriteLine();
+
+                        if (key == ConsoleKey.Y)
+                        {
+                            break; // Proceed with update
+                        }
+                        else if (key == ConsoleKey.R)
+                        {
+                            Console.WriteLine("\n--[ RELEASE NOTES ]-----------------------------------------\n");
+                            Console.WriteLine(releaseNotes.TrimEnd());
+                            Console.WriteLine("\n----------------------------------[ END OF RELEASE NOTES ]--\n");
+                        }
+                        else
+                        {
+                            Console.WriteLine("\nUpdate canceled.\n");
+                            return false;
+                        }
+                    }
+
+                    // Download and replace boards.json
+                    Console.Write("\n+ Downloading new boards.json...");
+                    try
+                    {
+                        client.DownloadFile(boardsJsonUrl, _boardFile);
+                        Console.WriteLine("DONE");
+                        Console.WriteLine("\nUpdate complete.\n");
+                        return true; // Indicate update was applied
+                    }
+                    catch (Exception ex)
+                    {
+                        if (ex.InnerException is UnauthorizedAccessException)
+                        {
+                            Console.WriteLine("ERROR: Permission denied. Try running the application as an administrator.");
+                        }
+                        else
+                        {
+                            Console.WriteLine($"ERROR: {ex.Message}");
+                        }
+                        Console.WriteLine("\nUpdate failed.\n");
+                        return false;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\n! Error checking for update: {ex.Message}\n");
+            }
 
             return false;
         }

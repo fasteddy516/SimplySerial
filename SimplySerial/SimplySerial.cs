@@ -669,6 +669,12 @@ namespace SimplySerial
             bulkSend = ArgProcessor_OnOff(value);
         }
 
+        static void ArgHandler_UpdateBoards(string value)
+        {
+            boards.Update();
+            ExitProgram(silent: true);
+        }
+
         static List<ArgumentData> ParseArguments(string[] args, bool noImmediate=false, string source="")
         {
             List<ArgumentData> receivedArguments = new List<ArgumentData>();
@@ -771,6 +777,7 @@ namespace SimplySerial
             CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
             CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
             CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title));
+            CommandLineArguments.Add("updateboards", new CommandLineArgument("updateboards", handler: ArgHandler_UpdateBoards));
 
             // Create a list of command-line arguments sorted by priority for processing
             List<CommandLineArgument> argumentsByPriority = CommandLineArguments.Values.OrderBy(a => a.Priority).ToList();
