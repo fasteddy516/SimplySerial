@@ -770,7 +770,7 @@ namespace SimplySerial
             CommandLineArguments.Add("forcenewline", new CommandLineArgument("forcenewline", handler: ArgHandler_ForceNewLine));
             CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
             CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
-            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title, priority: 22));
+            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title));
 
             // Create a list of command-line arguments sorted by priority for processing
             List<CommandLineArgument> argumentsByPriority = CommandLineArguments.Values.OrderBy(a => a.Priority).ToList();
