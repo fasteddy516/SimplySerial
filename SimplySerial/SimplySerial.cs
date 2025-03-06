@@ -92,7 +92,8 @@ namespace SimplySerial
             { ConsoleKey.F9, "\x1B[20~" },
             { ConsoleKey.F10, "\x1B[21~" },
             { ConsoleKey.F11, "\x1B[23~" },
-            { ConsoleKey.F12, "\x1B[24~" }
+            { ConsoleKey.F12, "\x1B[24~" },
+            { ConsoleKey.Enter, "\r" }
         };
 
         static void Main(string[] args)
@@ -675,6 +676,59 @@ namespace SimplySerial
             ExitProgram(silent: true);
         }
 
+        static void ArgHandler_TXOnEnter(string value)
+        {
+            value = value.ToLower();
+
+            if (value.Equals("cr"))
+            {
+                specialKeys[ConsoleKey.Enter] = "\r";
+            }
+            else if (value.Equals("lf"))
+            {
+                specialKeys[ConsoleKey.Enter] = "\n";
+            }
+            else if (value.Equals("crlf"))
+            {
+                specialKeys[ConsoleKey.Enter] = "\r\n";
+            }
+            else if (value.StartsWith("custom=") && (value.Length > 7))
+            {
+                specialKeys[ConsoleKey.Enter] = value.Substring(7);
+            }
+            else if (value.StartsWith("bytes=") && (value.Length > 6) )
+            {
+                string temp = value.Substring(6).Replace(" ", "").Replace("\"", "").Replace("0x", "");
+
+                if (temp.Length % 2 != 0)
+                {
+                    throw new ArgumentException();
+                }
+                else
+                {
+                    string plaintext = string.Empty;
+
+                    for (int read_index = 0; read_index <= (temp.Length - 2); read_index += 2)
+                    {
+                        try
+                        {
+                            plaintext += Convert.ToChar(Convert.ToByte(temp.Substring(read_index, 2), 16));
+                        }
+                        catch
+                        {
+                            throw new ArgumentException();
+                        }
+
+                    }
+                    specialKeys[ConsoleKey.Enter] = plaintext;
+                }
+            }
+            else
+            {
+                throw new ArgumentException();
+            }
+        }
+
         static List<ArgumentData> ParseArguments(string[] args, bool noImmediate=false, string source="")
         {
             List<ArgumentData> receivedArguments = new List<ArgumentData>();
@@ -767,6 +821,7 @@ namespace SimplySerial
             CommandLineArguments.Add("log", new CommandLineArgument("log", handler: ArgHandler_Log, priority: 8)); // process log before any other 'l' commands
             CommandLineArguments.Add("baud", new CommandLineArgument("baud", handler: ArgHandler_Baud, priority: 9)); // process baud before any other 'b' commands
             CommandLineArguments.Add("encoding", new CommandLineArgument("encoding", handler: ArgHandler_Encoding, priority: 10)); // process encoding before any other 'e' commands
+            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title, priority: 11));
             CommandLineArguments.Add("bulksend", new CommandLineArgument("bulksend", handler: ArgHandler_BulkSend));
             CommandLineArguments.Add("clearscreen", new CommandLineArgument(new[] { "clearscreen", "noclear" }, handler: ArgHandler_ClearScreen));
             CommandLineArguments.Add("config", new CommandLineArgument(new[] { "config", "input" }, handler: null));
@@ -776,7 +831,7 @@ namespace SimplySerial
             CommandLineArguments.Add("forcenewline", new CommandLineArgument("forcenewline", handler: ArgHandler_ForceNewLine));
             CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
             CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
-            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title));
+            CommandLineArguments.Add("txonenter", new CommandLineArgument("txonenter", handler: ArgHandler_TXOnEnter));
             CommandLineArguments.Add("updateboards", new CommandLineArgument("updateboards", handler: ArgHandler_UpdateBoards));
 
             // Create a list of command-line arguments sorted by priority for processing
