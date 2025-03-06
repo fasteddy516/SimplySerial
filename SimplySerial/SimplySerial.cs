@@ -813,15 +813,16 @@ namespace SimplySerial
             CommandLineArguments.Add("help", new CommandLineArgument(new[] { "help", "?" }, handler: ArgHandler_Help, priority: 0, immediate: true)); // always process help first
             CommandLineArguments.Add("version", new CommandLineArgument("version", handler: ArgHandler_Version, priority: 1, immediate: true)); // always process version second
             CommandLineArguments.Add("list", new CommandLineArgument("list", handler: ArgHandler_List, priority: 2, immediate: true)); // always process list third
-            CommandLineArguments.Add("quiet", new CommandLineArgument("quiet", handler: ArgHandler_Quiet, priority: 3)); // process quiet before anything else
-            CommandLineArguments.Add("stopbits", new CommandLineArgument("stopbits", handler: ArgHandler_StopBits, priority: 4)); //process stop bits before any other 's' commands
-            CommandLineArguments.Add("status", new CommandLineArgument(new[] { "status", "nostatus" }, handler: ArgHandler_Status, priority: 5)); // process status before ttle
-            CommandLineArguments.Add("autoconnect", new CommandLineArgument("autoconnect", handler: ArgHandler_AutoConnect, priority: 6)); //process autoconnect before com
-            CommandLineArguments.Add("com", new CommandLineArgument("com", handler: ArgHandler_Com, priority: 7)); // process com before any other 'c' commands
-            CommandLineArguments.Add("log", new CommandLineArgument("log", handler: ArgHandler_Log, priority: 8)); // process log before any other 'l' commands
-            CommandLineArguments.Add("baud", new CommandLineArgument("baud", handler: ArgHandler_Baud, priority: 9)); // process baud before any other 'b' commands
-            CommandLineArguments.Add("encoding", new CommandLineArgument("encoding", handler: ArgHandler_Encoding, priority: 10)); // process encoding before any other 'e' commands
-            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title, priority: 11));
+            CommandLineArguments.Add("updateboards", new CommandLineArgument("updateboards", handler: ArgHandler_UpdateBoards, priority: 3, immediate: true)); // always process updateboards fourth
+            CommandLineArguments.Add("quiet", new CommandLineArgument("quiet", handler: ArgHandler_Quiet, priority: 4)); // process quiet before anything else
+            CommandLineArguments.Add("stopbits", new CommandLineArgument("stopbits", handler: ArgHandler_StopBits, priority: 5)); //process stop bits before any other 's' commands
+            CommandLineArguments.Add("status", new CommandLineArgument(new[] { "status", "nostatus" }, handler: ArgHandler_Status, priority: 6)); // process status before ttle
+            CommandLineArguments.Add("autoconnect", new CommandLineArgument("autoconnect", handler: ArgHandler_AutoConnect, priority: 7)); //process autoconnect before com
+            CommandLineArguments.Add("com", new CommandLineArgument("com", handler: ArgHandler_Com, priority: 8)); // process com before any other 'c' commands
+            CommandLineArguments.Add("log", new CommandLineArgument("log", handler: ArgHandler_Log, priority: 9)); // process log before any other 'l' commands
+            CommandLineArguments.Add("baud", new CommandLineArgument("baud", handler: ArgHandler_Baud, priority: 10)); // process baud before any other 'b' commands
+            CommandLineArguments.Add("encoding", new CommandLineArgument("encoding", handler: ArgHandler_Encoding, priority: 11)); // process encoding before any other 'e' commands
+            CommandLineArguments.Add("title", new CommandLineArgument("title", handler: ArgHandler_Title, priority: 12));
             CommandLineArguments.Add("bulksend", new CommandLineArgument("bulksend", handler: ArgHandler_BulkSend));
             CommandLineArguments.Add("clearscreen", new CommandLineArgument(new[] { "clearscreen", "noclear" }, handler: ArgHandler_ClearScreen));
             CommandLineArguments.Add("config", new CommandLineArgument(new[] { "config", "input" }, handler: null));
@@ -832,7 +833,6 @@ namespace SimplySerial
             CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
             CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
             CommandLineArguments.Add("txonenter", new CommandLineArgument("txonenter", handler: ArgHandler_TXOnEnter));
-            CommandLineArguments.Add("updateboards", new CommandLineArgument("updateboards", handler: ArgHandler_UpdateBoards));
 
             // Create a list of command-line arguments sorted by priority for processing
             List<CommandLineArgument> argumentsByPriority = CommandLineArguments.Values.OrderBy(a => a.Priority).ToList();
@@ -970,6 +970,7 @@ namespace SimplySerial
             Console.WriteLine("  -help             Display this help message");
             Console.WriteLine("  -version          Display version and installation information");
             Console.WriteLine("  -list             Display a list of available serial (COM) ports");
+            Console.WriteLine("  -updateboards     Update the list of known USB serial devices.");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
             Console.WriteLine("                    57600 | 115200 | (Any valid baud rate for the specified port.)");
@@ -981,14 +982,18 @@ namespace SimplySerial
             Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters locally");
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
-            Console.WriteLine("  -quiet            don't print any application messages/errors to console");
-            Console.WriteLine("  -forcenewline     Force linefeeds (newline) in place of carriage returns in received data.");
+            Console.WriteLine("  -quiet:VAL        ON | OFF when enabled, don't print any application messages/errors to console");
+            Console.WriteLine("  -forcenewline:VAL ON | OFF enable/disable forcing of linefeeds (newline) in place of carriage returns in received data.");
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
-            Console.WriteLine("  -noclear          Don't clear the terminal screen on connection.");
-            Console.WriteLine("  -nostatus         Block status/title updates from virtual terminal sequences.");
+            Console.WriteLine("  -clearscreen:VAL  ON | OFF enable/disable clearing of the terminal screen on connection.");
+            Console.WriteLine("  -status:VAL       ON | OFF enable/disable status/title updates from virtual terminal sequences.");
             Console.WriteLine("  -exitkey:KEY      Specify a key to use along with CTRL for exiting the program (default is 'X').");
             Console.WriteLine("  -title:\"TITLE\"  Set the console window title.  Surround with quotation marks if your title has spaces.");
             Console.WriteLine("  -bulksend:VAL     ON | OFF enable or disable bulk send mode (send all characters typed/pasted at once).");
+            Console.WriteLine("  -txonenter:VAL    CR | LF | CRLF | CUSTOM=\"CustomString\" | BYTES=\"custom sequence of bytes\", each byte must be expressed by 2 chars.");
+            Console.WriteLine("                    Bytes sequence must be a hexadecimal value with or without leading 0x and separated or not by spaces.");
+            Console.WriteLine("                    Determines what character(s) will be sent when the enter key is pressed.");
+            Console.WriteLine("  -config:FILE      Load command-line arguments from the specified configuration file. (One command per line.)");
             Console.WriteLine($"\nPress CTRL-{exitKey} to exit a running instance of SimplySerial.\n");
         }
 
