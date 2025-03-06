@@ -16,7 +16,8 @@ namespace SimplySerial
         const string version = "0.9.0";
 
         const string configFile = "ss.cfg";
-
+        const string customBoardFile = "ss_board.json";
+        
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
@@ -103,6 +104,17 @@ namespace SimplySerial
 
             // load and parse data in boards.json
             boards.Load();
+
+            // load and merge in custom board data
+            BoardManager customBoards = new BoardManager();
+            customBoards.Load(appFolder + customBoardFile);
+            boards.MergeFrom(customBoards);
+            if (appFolder != workingFolder)
+            {
+                customBoards.Load(workingFolder + customBoardFile);
+                boards.MergeFrom(customBoards);
+            }
+            customBoards = null;
 
             // process all command-line arguments
             ProcessArguments(args);

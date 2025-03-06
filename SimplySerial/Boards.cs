@@ -156,6 +156,32 @@ namespace SimplySerial
         }
 
         /// <summary>
+        /// Merges the vendor and board data from another <see cref="BoardManager"/> instance.
+        /// </summary>
+        /// <param name="other"></param>
+        public void MergeFrom(BoardManager other)
+        {
+            if (other == null)
+                return;
+            if (other.Vendors != null)
+            {
+                foreach (Vendor vendor in other.Vendors)
+                {
+                    this.Vendors.RemoveAll(v => v.vid == vendor.vid);
+                    this.Vendors.Add(vendor);
+                }
+            }
+            if (other.Boards != null)
+            {
+                foreach (Board board in other.Boards)
+                {
+                    this.Boards.RemoveAll(b => b.vid == board.vid && b.pid == board.pid);
+                    this.Boards.Add(board);
+                }
+            }
+        }
+
+        /// <summary>
         /// Updates the board data file from the official GitHub repository.
         /// </summary>
         /// <returns></returns>
