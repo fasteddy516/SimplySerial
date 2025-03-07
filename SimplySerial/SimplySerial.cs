@@ -42,8 +42,6 @@ namespace SimplySerial
 
         private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
 
-        static BoardManager boards = new BoardManager();
-
         static List<ComPort> availablePorts = new List<ComPort>();
         static SerialPort serialPort;
 
@@ -104,18 +102,14 @@ namespace SimplySerial
             port.name = String.Empty;
 
             // load and parse data in boards.json
-            boards.Load();
+            BoardManager.Load();
 
             // load and merge in custom board data
-            BoardManager customBoards = new BoardManager();
-            customBoards.Load(appFolder + customBoardFile);
-            boards.MergeFrom(customBoards);
+            BoardManager.Load(merge: appFolder + customBoardFile);
             if (appFolder != workingFolder)
             {
-                customBoards.Load(workingFolder + customBoardFile);
-                boards.MergeFrom(customBoards);
+                BoardManager.Load(merge: workingFolder + customBoardFile);
             }
-            customBoards = null;
 
             // load device filters
             List<Filter> filters = Filter.AddFrom(appFolder + filterFile);
@@ -699,7 +693,7 @@ namespace SimplySerial
 
         static void ArgHandler_UpdateBoards(string value)
         {
-            boards.Update();
+            BoardManager.Update();
             ExitProgram(silent: true);
         }
 
@@ -1072,7 +1066,7 @@ namespace SimplySerial
             Console.WriteLine($"SimplySerial version {version}");
             Console.WriteLine($"  Installation Type : {installType}");
             Console.WriteLine($"  Installation Path : {appFolder}");
-            Console.WriteLine($"  Board Data File   : {boards.Version}\n");
+            Console.WriteLine($"  Board Data File   : {BoardManager.Version}\n");
             ShowArguments($"{globalConfig}", "Default Arguments");
             ShowArguments($"{localConfig}", "Local Argument Overrides");
         }
@@ -1160,7 +1154,7 @@ namespace SimplySerial
                 c.description = p.GetPropertyValue("Caption").ToString();
 
                 // attempt to match this device with a known board
-                c.board = boards.Match(c.vid, c.pid);
+                c.board = BoardManager.Match(c.vid, c.pid);
 
                 // extract the device's hardware bus description
                 c.busDescription = "";

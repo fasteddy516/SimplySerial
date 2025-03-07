@@ -73,61 +73,108 @@ namespace SimplySerial
         }
     }
 
+    /// <summary>
+    /// Represents the board list data structure.
+    /// </summary>
+    public class BoardData
+    {
+        [JsonProperty("version")]
+        public string Version { get; set; } = "";
+
+        [JsonProperty("vendors")]
+        public List<Vendor> Vendors { get; set; } = new List<Vendor>();
+
+        [JsonProperty("boards")]
+        public List<Board> Boards { get; set; } = new List<Board>();
+
+    }
+
 
     /// <summary>
     /// Manages a collection of vendors and boards, and provides methods to load and match boards based on USB PID and VID.
     /// </summary>
-    public class BoardManager
+    public static class BoardManager
     {
         /// <summary>
         /// Gets the version of the board file.
         /// </summary>
-        [JsonProperty("version")]
-        public string Version { get; private set; } = "";
+        public static string Version => BoardManager._boardData.Version;
 
         /// <summary>
         /// Gets the list of vendors.
         /// </summary>
-        [JsonProperty("vendors")]
-        public List<Vendor> Vendors { get; private set; }
+        public static List<Vendor> Vendors => BoardManager._boardData.Vendors;
 
         /// <summary>
         /// Gets the list of boards.
         /// </summary>
-        [JsonProperty("boards")]
-        public List<Board> Boards { get; private set; }
+        public static List<Board> Boards => BoardManager._boardData.Boards;
 
-        [JsonIgnore]
-        private string _boardFile = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + "boards.json";
+        private static BoardData _boardData = new BoardData();
+        private static string _boardFile = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + "boards.json";
 
         /// <summary>
         /// Loads the board data from a JSON file.
         /// </summary>
         /// <param name="file">Optional file path to load the board data from.</param>
+        /// <param name="merge">Optional file path to merge with previously loaded data.</param>
         /// <returns>True if the data was loaded successfully, otherwise false.</returns>
-        public bool Load(string file = "")
+        public static void Load(string file = "", string merge = "")
         {
+            string newFile;
+            BoardData newData = new BoardData();
+
             if (!String.IsNullOrEmpty(file))
             {
                 _boardFile = file;
+                newFile = file;
+                merge = "";
+            }
+            else if (!String.IsNullOrEmpty(merge))
+            {
+                newFile = merge;
+            }
+            else
+            {
+                newFile = _boardFile;
             }
             try
             {
-                using (StreamReader r = new StreamReader(_boardFile))
+                using (StreamReader r = new StreamReader(newFile))
                 {
-                    string json = r.ReadToEnd();
-                    JsonConvert.PopulateObject(json, this);
+                    newData = JsonConvert.DeserializeObject<BoardData>(r.ReadToEnd());
                 }
-                return true;
             }
             catch (Exception)
             {
-                Vendors = new List<Vendor>();
-                Boards = new List<Board>();
-                Version = "(board file is missing or invalid)";
+                newData.Vendors = new List<Vendor>();
+                newData.Boards = new List<Board>();
+                newData.Version = "(board file is missing or invalid)";
             }
-            return false;
+
+            if (!String.IsNullOrEmpty(merge))
+            {
+                foreach (Vendor vendor in newData.Vendors)
+                {
+                    if (vendor == null)
+                        continue;
+                    _boardData.Vendors.RemoveAll(v => v.vid == vendor.vid);
+                    _boardData.Vendors.Add(vendor);
+                }
+                foreach (Board board in newData.Boards)
+                {
+                    if (board == null)
+                        continue;
+                    _boardData.Boards.RemoveAll(b => b.vid == board.vid && b.pid == board.pid);
+                    _boardData.Boards.Add(board);
+                }
+            }
+            else
+            {
+                _boardData = newData;
+            }
         }
+
 
         /// <summary>
         /// Matches to a known development board based on VID and PID.
@@ -135,7 +182,7 @@ namespace SimplySerial
         /// <param name="vid">VID of the board.</param>
         /// <param name="pid">PID of the board.</param>
         /// <returns>A <see cref="Board"/> structure containing information about the matched board, or generic values otherwise.</returns>
-        public Board Match(string vid, string pid)
+        public static Board Match(string vid, string pid)
         {
             Board mBoard = null;
             if (Boards != null)
@@ -156,42 +203,16 @@ namespace SimplySerial
         }
 
         /// <summary>
-        /// Merges the vendor and board data from another <see cref="BoardManager"/> instance.
-        /// </summary>
-        /// <param name="other"></param>
-        public void MergeFrom(BoardManager other)
-        {
-            if (other == null)
-                return;
-            if (other.Vendors != null)
-            {
-                foreach (Vendor vendor in other.Vendors)
-                {
-                    this.Vendors.RemoveAll(v => v.vid == vendor.vid);
-                    this.Vendors.Add(vendor);
-                }
-            }
-            if (other.Boards != null)
-            {
-                foreach (Board board in other.Boards)
-                {
-                    this.Boards.RemoveAll(b => b.vid == board.vid && b.pid == board.pid);
-                    this.Boards.Add(board);
-                }
-            }
-        }
-
-        /// <summary>
         /// Updates the board data file from the official GitHub repository.
         /// </summary>
         /// <returns></returns>
-        public bool Update()
+        public static bool Update()
         {
             const string RepoOwner = "fasteddy516";
             const string RepoName = "SimplySerial-Boards";
 
             Console.WriteLine("SimplySerial boards.json updater");
-            Console.WriteLine($"  Installed: {this.Version}");
+            Console.WriteLine($"  Installed: {BoardManager.Version}");
 
             try
             {
@@ -227,7 +248,7 @@ namespace SimplySerial
 
                     Console.WriteLine($"  Available: {availableVersion}\n");
 
-                    if (this.Version == availableVersion)
+                    if (Version == availableVersion)
                     {
                         Console.WriteLine("* boards.json is already up to date\n");
                         return false;
