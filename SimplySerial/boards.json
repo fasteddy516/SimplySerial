@@ -1,5 +1,5 @@
 {
-    "version": "2025-02-27T11:43:31.370957",
+    "version": "2025-03-04T20-57-17.992214",
     "vendors": [
         {
             "vid": "04D8",
@@ -659,7 +659,7 @@
             "vid": "1D50",
             "pid": "6153",
             "make": "JPConstantineau",
-            "model": "PyKey18"
+            "model": "PyKey44"
         },
         {
             "vid": "1D50",
@@ -1683,6 +1683,12 @@
         },
         {
             "vid": "239A",
+            "pid": "816C",
+            "make": "Adafruit",
+            "model": "Fruit Jam"
+        },
+        {
+            "vid": "239A",
             "pid": "D1ED",
             "make": "Adafruit",
             "model": "HalloWing M0 Express"
@@ -1937,7 +1943,7 @@
             "vid": "2E8A",
             "pid": "1020",
             "make": "Waveshare Electronics",
-            "model": "RP2040-Plus (16MB)"
+            "model": "RP2040-Plus (4MB)"
         },
         {
             "vid": "2E8A",
@@ -2321,7 +2327,7 @@
             "vid": "303A",
             "pid": "7003",
             "make": "Espressif",
-            "model": "ESP32-S3-DevKitC-1-N16"
+            "model": "ESP32-S3-DevKitC-1-N8R8"
         },
         {
             "vid": "303A",
@@ -2339,7 +2345,7 @@
             "vid": "303A",
             "pid": "7009",
             "make": "Espressif",
-            "model": "ESP32-S2-DevKitC-1-N4"
+            "model": "ESP32-S2-DevKitC-1-N4R2"
         },
         {
             "vid": "303A",
