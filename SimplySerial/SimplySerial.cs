@@ -222,8 +222,15 @@ namespace SimplySerial
                     // if there are com ports available, pick one
                     if (availablePorts.Count() >= 1)
                     {
-                        // first, try to default to something that we assume is running CircuitPython
-                        SimplySerial.port = availablePorts.Find(p => p.isCircuitPython == true);
+                        // first, try to default to something that we assume is running CircuitPython unless this behaviour has been disabled by a filter
+                        if (filters.Find(f => f.Type == FilterType.EXCLUDE && f.Match == FilterMatch.CIRCUITPYTHON) == null)
+                        {
+                            SimplySerial.port = availablePorts.Find(p => p.isCircuitPython == true);
+                        }
+                        else
+                        {
+                            SimplySerial.port = null;
+                        }
 
                         // if that doesn't work out, just default to the first available COM port
                         if (SimplySerial.port == null)
@@ -1106,7 +1113,7 @@ namespace SimplySerial
         /// https://stackoverflow.com/questions/69362886/get-devpkey-device-busreporteddevicedesc-from-win32-pnpentity-in-c-sharp
         /// </summary>
         /// <returns>List of available serial ports</returns>
-        private static List<ComPort> GetSerialPorts()
+        private static List<ComPort> GetSerialPorts(bool excluded=false)
         {
             const string vidPattern = @"VID_([0-9A-F]{4})";
             const string pidPattern = @"PID_([0-9A-F]{4})";
@@ -1118,6 +1125,7 @@ namespace SimplySerial
             string[] cpb_descriptions = new string[] { "CircuitPython CDC ", "Sol CDC ", "StringCarM0Ex CDC " };
 
             List<ComPort> detectedPorts = new List<ComPort>();
+            List<ComPort> excludedPorts = new List<ComPort>();
 
             foreach (var p in new ManagementObjectSearcher("root\\CIMV2", query).Get().OfType<ManagementObject>())
             {
@@ -1176,11 +1184,21 @@ namespace SimplySerial
                         c.isCircuitPython = true;
                 }
 
+                // apply filters to determine if this port should be included or excluded in autodetection
+
+                // if there are *any* include filters than we can *only* include matches, and anything that doesn't match gets excluded
+
+                // if there are *no* include filters, then we start out including everything
+
+                // once we have our initial include list, we apply our exclude filters to remove any ports that match and add them to the exclude list
+
+                // ORIGINAL CODE BELOW:
+
                 // add this port to our list of detected ports
                 detectedPorts.Add(c);
             }
 
-            return detectedPorts;
+            return (excluded == false) ? detectedPorts.Distinct().ToList() : excludedPorts.Distinct().ToList();
         }
     }
 }
