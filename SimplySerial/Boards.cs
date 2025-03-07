@@ -71,6 +71,11 @@ namespace SimplySerial
             else
                 this.model = $"PID:{this.pid}";
         }
+
+        public override string ToString()
+        {
+            return $"[{vid}:{pid}] {make} {model}";
+        }
     }
 
     /// <summary>
@@ -111,7 +116,7 @@ namespace SimplySerial
         public static List<Board> Boards => BoardManager._boardData.Boards;
 
         private static BoardData _boardData = new BoardData();
-        private static string _boardFile = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + "boards.json";
+        private static string _boardFile = SimplySerial.AppFolder + "boards.json";
 
         /// <summary>
         /// Loads the board data from a JSON file.

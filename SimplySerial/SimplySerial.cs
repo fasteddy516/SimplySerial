@@ -14,9 +14,9 @@ namespace SimplySerial
     {
         const string version = "0.9.0";
 
-        const string configFile = "ss.cfg";
-        const string customBoardFile = "ss_board.json";
-        public const string FilterFile = "ss_filters.json";
+        const string ConfigFile = "settings.cfg";
+        const string CustomBoardFile = "custom_boards.json";
+        public const string FilterFile = "filters.json";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -34,9 +34,10 @@ namespace SimplySerial
         public static extern uint GetLastError();
 
         public static string AppFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        public static string WorkingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        static string globalConfig = AppFolder + configFile;
-        static string localConfig = (AppFolder != WorkingFolder) ? WorkingFolder + configFile : "noLocalConfig";
+        public static string WorkingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar + ".simplyserial" + Path.DirectorySeparatorChar;
+
+        static string globalConfig = AppFolder + ConfigFile;
+        static string localConfig = WorkingFolder + ConfigFile;
         static string userConfig = "noUserConfig";
 
         private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
@@ -100,15 +101,10 @@ namespace SimplySerial
             // initialize port name
             port.name = String.Empty;
 
-            // load and parse data in boards.json
+            // load and parse data in global, local and user board data files
             BoardManager.Load();
-
-            // load and merge in custom board data
-            BoardManager.Load(merge: AppFolder + customBoardFile);
-            if (AppFolder != WorkingFolder)
-            {
-                BoardManager.Load(merge: WorkingFolder + customBoardFile);
-            }
+            BoardManager.Load(merge: AppFolder + CustomBoardFile);
+            BoardManager.Load(merge: WorkingFolder + CustomBoardFile);
 
             // process all command-line arguments
             ProcessArguments(args);
@@ -493,50 +489,77 @@ namespace SimplySerial
             // get a list of all available ports
             ComPortList ports = ComPortManager.GetPorts();
 
-            // determine if excluded ports should be listed
-            bool showExcluded = value.Length > 0 && "all".StartsWith(value.ToLower());
-
-            if (ports.Available.Count > 0 || (showExcluded == true && ports.Excluded.Count > 0))
+            if (value.Length > 0 && "settings".StartsWith(value.ToLower()))
             {
-                Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION [DEVICE]");
-                Console.WriteLine("----------------------------------------------------------------------");
-
-                if (ports.Available.Count > 0)
+                Console.WriteLine("");
+                ShowArguments($"{globalConfig}", "Default Arguments");
+                ShowArguments($"{localConfig}", "Local Argument Overrides");
+                ShowArguments($"{userConfig}", "User Argument Overrides");
+            }
+            else if (value.Length > 0 && "filters".StartsWith(value.ToLower()))
+            {
+                foreach (Filter f in ComPortManager.Filters.All)
                 {
-                    foreach (ComPort p in ports.Available)
-                    {
-                        Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
-                            p.name,
-                            p.vid,
-                            p.pid,
-                            (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
-                            ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
-                        );
-                    }
+                    Console.WriteLine(f.ToString());
                 }
-                if (showExcluded == true && ports.Excluded.Count > 0)
+                Console.WriteLine("");
+            }
+            else if (value.Length > 0 && "boards".StartsWith(value.ToLower()))
+            {
+                foreach (Board b in BoardManager.Boards)
                 {
-                    Console.WriteLine("\nThe following ports are excluded from automatic connection:\n");
-                    foreach (ComPort p in ports.Excluded)
-                    {
-                        Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
-                            p.name,
-                            p.vid,
-                            p.pid,
-                            (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
-                            ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
-                        );
-                    }
+                    Console.WriteLine(b.ToString());
                 }
                 Console.WriteLine("");
             }
             else
             {
-                Console.Write("\nNo COM ports detected. ");
-                if (ports.Excluded.Count > 0)
-                    Console.WriteLine(" (Try 'ss.exe -list:all' to list excluded ports.)\n");
+                // determine if excluded ports should be listed
+                bool showExcluded = value.Length > 0 && "all".StartsWith(value.ToLower());
+
+
+                if (ports.Available.Count > 0 || (showExcluded == true && ports.Excluded.Count > 0))
+                {
+                    Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION [DEVICE]");
+                    Console.WriteLine("----------------------------------------------------------------------");
+
+                    if (ports.Available.Count > 0)
+                    {
+                        foreach (ComPort p in ports.Available)
+                        {
+                            Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
+                                p.name,
+                                p.vid,
+                                p.pid,
+                                (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                                ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
+                            );
+                        }
+                    }
+                    if (showExcluded == true && ports.Excluded.Count > 0)
+                    {
+                        Console.WriteLine("\nThe following ports are excluded from automatic connection:\n");
+                        foreach (ComPort p in ports.Excluded)
+                        {
+                            Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
+                                p.name,
+                                p.vid,
+                                p.pid,
+                                (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                                ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
+                            );
+                        }
+                    }
+                    Console.WriteLine("");
+                }
                 else
-                    Console.WriteLine("\n");
+                {
+                    Console.Write("\nNo COM ports detected. ");
+                    if (ports.Excluded.Count > 0)
+                        Console.WriteLine(" (Try 'ss.exe -list:all' to list excluded ports.)\n");
+                    else
+                        Console.WriteLine("\n");
+                }
             }
 
             ExitProgram(silent: true);
@@ -698,7 +721,7 @@ namespace SimplySerial
             }
             else
             {
-                throw new ArgumentException();    
+                throw new ArgumentException();
             }
         }
 
@@ -733,7 +756,7 @@ namespace SimplySerial
             {
                 specialKeys[ConsoleKey.Enter] = value.Substring(7);
             }
-            else if (value.StartsWith("bytes=") && (value.Length > 6) )
+            else if (value.StartsWith("bytes=") && (value.Length > 6))
             {
                 string temp = value.Substring(6).Replace(" ", "").Replace("\"", "").Replace("0x", "");
 
@@ -766,7 +789,7 @@ namespace SimplySerial
             }
         }
 
-        static List<ArgumentData> ParseArguments(string[] args, bool noImmediate=false, string source="")
+        static List<ArgumentData> ParseArguments(string[] args, bool noImmediate = false, string source = "")
         {
             List<ArgumentData> receivedArguments = new List<ArgumentData>();
             string sourceType = "";
@@ -809,7 +832,7 @@ namespace SimplySerial
             return receivedArguments;
         }
 
-        static string[] LoadConfig(string file, bool failOnError=true)
+        static string[] LoadConfig(string file, bool failOnError = true)
         {
             string[] args = new string[] { };
             try
@@ -918,7 +941,7 @@ namespace SimplySerial
                         ExitProgram($"{e.Message}", exitCode: -1);
                     }
                 }
-            } 
+            }
         }
 
         /// <summary>
@@ -1006,8 +1029,11 @@ namespace SimplySerial
             Console.WriteLine("Optional arguments:");
             Console.WriteLine("  -help             Display this help message");
             Console.WriteLine("  -version          Display version and installation information");
-            Console.WriteLine("  -list[:all]       Display a list of available serial (COM) ports");
+            Console.WriteLine("  -list[:val]       Display a list of available serial (COM) ports");
             Console.WriteLine("                    Use `-list:all` to show ports excluded by filters.");
+            Console.WriteLine("                    Use `-list:settings` to show command line arguments loaded from files.");
+            Console.WriteLine("                    Use `-list:filters` to show applied device recognition filters.");
+            Console.WriteLine("                    Use `-list:boards` to show all recognized boards.");
             Console.WriteLine("  -updateboards     Update the list of known USB serial devices.");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
@@ -1084,8 +1110,6 @@ namespace SimplySerial
             Console.WriteLine($"  Installation Type : {installType}");
             Console.WriteLine($"  Installation Path : {AppFolder}");
             Console.WriteLine($"  Board Data File   : {BoardManager.Version}\n");
-            ShowArguments($"{globalConfig}", "Default Arguments");
-            ShowArguments($"{localConfig}", "Local Argument Overrides");
         }
 
 

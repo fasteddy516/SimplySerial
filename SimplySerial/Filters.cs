@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Security.Cryptography;
 
 namespace SimplySerial
 {
@@ -47,6 +49,12 @@ namespace SimplySerial
         public string PID { get; set; } = "*";
         public string Description { get; set; } = "*";
         public string Device { get; set; } = "*";
+
+        public override string ToString()
+        {
+            return $"[{Type}:{Match}] Port[{Port}] VID[{VID}] PID[{PID}] Description[{Description}] Device[{Device}]";
+        }
+
 
         /// <summary>
         /// Load filters from a JSON file, adding to an existing list if supplied
