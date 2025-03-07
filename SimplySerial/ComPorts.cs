@@ -163,7 +163,7 @@ namespace SimplySerial
             // once we have our initial include list, we apply our exclude filters to remove any ports that match and add them to the exclude list
             foreach (ComPort p in ports.Available.ToList())
             {
-                foreach (Filter f in Filters.Exclude)
+                foreach (Filter f in Filters.Exclude.Concat(Filters.Block))
                 {
                     if (Filter.MatchFilter(f, p))
                     {
@@ -175,6 +175,11 @@ namespace SimplySerial
 
             ports.Available = ports.Available.Distinct().OrderBy(p => p.num).ToList();
             ports.Excluded = ports.Excluded.Distinct().OrderBy(p => p.num).ToList();
+
+            if (ports.Available.Count == 0 && Filters.Block.Count > 0)
+            {
+                Filters.All.RemoveAll(f => f.Type == FilterType.BLOCK);
+            }
 
             return ports;
         }

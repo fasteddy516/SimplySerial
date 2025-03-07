@@ -42,13 +42,14 @@ namespace SimplySerial
 
         private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
 
-        static List<ComPort> availablePorts = new List<ComPort>();
+        static ComPortList Ports;
         static SerialPort serialPort;
 
         // default comspec values and application settings set here will be overridden by values passed through command-line arguments
         static bool Quiet = false;
         static AutoConnect autoConnect = AutoConnect.ONE;
         static ComPort port = new ComPort();
+        static bool lockToPort = false;
         static int baud = -1;
         static Parity parity = Parity.None;
         static int dataBits = 8;
@@ -195,27 +196,27 @@ namespace SimplySerial
                 }
 
                 // get a list of available ports
-                availablePorts = ComPortManager.GetPorts().Available.OrderBy(p => p.num).ToList();
+                Ports = ComPortManager.GetPorts();
 
                 // if no port was specified/selected, pick one automatically
                 if (port.name == String.Empty)
                 {
                     // if there are com ports available, pick one
-                    if (availablePorts.Count() >= 1)
+                    if (Ports.Available.Count() > 0)
                     {
                         // first, try to default to something that we assume is running CircuitPython unless this behaviour has been disabled by a filter
-                        if (ComPortManager.Filters.All.Find(f => f.Type == FilterType.EXCLUDE && f.Match == FilterMatch.CIRCUITPYTHON) == null)
+                        if (ComPortManager.Filters.Exclude.Find(f => f.Match == FilterMatch.CIRCUITPYTHON) == null)
                         {
-                            SimplySerial.port = availablePorts.Find(p => p.isCircuitPython == true);
+                            port = Ports.Available.Find(p => p.isCircuitPython == true);
                         }
                         else
                         {
-                            SimplySerial.port = null;
+                            port = null;
                         }
 
                         // if that doesn't work out, just default to the first available COM port
-                        if (SimplySerial.port == null)
-                            SimplySerial.port = availablePorts[0];
+                        if (port == null)
+                            port = Ports.Available[0];
                     }
 
                     // if there are no com ports available, exit or try again depending on autoconnect setting 
@@ -224,7 +225,10 @@ namespace SimplySerial
                         if (autoConnect == AutoConnect.NONE)
                             ExitProgram("No COM ports detected.", exitCode: -1);
                         else
+                        {
+                            Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts
                             continue;
+                        }
                     }
                 }
 
@@ -233,7 +237,7 @@ namespace SimplySerial
                 {
                     bool portMatched = false;
 
-                    foreach (ComPort p in availablePorts)
+                    foreach (ComPort p in Ports.Available.Concat(Ports.Excluded))
                     {
                         if (p.name == port.name)
                         {
@@ -249,7 +253,10 @@ namespace SimplySerial
                         if (autoConnect == AutoConnect.NONE)
                             ExitProgram(("Invalid port specified <" + port.name + ">"), exitCode: -1);
                         else
+                        {
+                            Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts                            
                             continue;
+                        }
                     }
                 }
 
@@ -302,12 +309,20 @@ namespace SimplySerial
                         else
                             ExitProgram((e.GetType() + " occurred while attempting to open " + port.name + "."), exitCode: -1);
                     }
+                    else
+                    {
+                        ComPortManager.Filters.All.Add(new Filter { Type = FilterType.BLOCK, Match = FilterMatch.STRICT, Port = port.name });
+                    }
 
                     // if auto-connect is enabled, prepare to try again
                     serialPort.Dispose();
-                    Thread.Sleep(1000); // putting a delay here to avoid gobbling tons of resources thruogh constant high-speed re-connect attempts
+                    if (!lockToPort)
+                        port.name = String.Empty;
                     continue;
                 }
+
+                if (autoConnect == AutoConnect.ONE)
+                    lockToPort = true;
 
                 UpdateTitle($"{port.name}: {port.board.make} {port.board.model}");
 
@@ -594,7 +609,10 @@ namespace SimplySerial
             if (!value.StartsWith("COM"))
                 newPort = "COM" + value;
             port.name = newPort;
-            autoConnect = AutoConnect.ONE;
+            if (autoConnect == AutoConnect.ANY)
+                autoConnect = AutoConnect.ONE;
+            if (autoConnect == AutoConnect.ONE)
+                lockToPort = true;
         }
 
         static void ArgHandler_Baud(string value)

@@ -17,6 +17,7 @@ namespace SimplySerial
     {
         INCLUDE,
         EXCLUDE,
+        BLOCK,
     }
 
     /// <summary>
@@ -34,6 +35,7 @@ namespace SimplySerial
     {
         public List<Filter> Include => All.Where(f => f.Type == FilterType.INCLUDE).ToList();
         public List<Filter> Exclude => All.Where(f => f.Type == FilterType.EXCLUDE).ToList();
+        public List<Filter> Block => All.Where(f => f.Type == FilterType.BLOCK).ToList();
         public List<Filter> All;
     }
 
