@@ -493,12 +493,16 @@ namespace SimplySerial
             // get a list of all available ports
             ComPortList ports = ComPortManager.GetPorts();
 
-            if (ports.Available.Count > 0 || ports.Excluded.Count > 0)
+            // determine if excluded ports should be listed
+            bool showExcluded = value.Length > 0 && "all".StartsWith(value.ToLower());
+
+            if (ports.Available.Count > 0 || (showExcluded == true && ports.Excluded.Count > 0))
             {
+                Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION [DEVICE]");
+                Console.WriteLine("----------------------------------------------------------------------");
+
                 if (ports.Available.Count > 0)
                 {
-                    Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION [DEVICE]");
-                    Console.WriteLine("----------------------------------------------------------------------");
                     foreach (ComPort p in ports.Available)
                     {
                         Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
@@ -509,11 +513,10 @@ namespace SimplySerial
                             ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
                         );
                     }
-                    Console.WriteLine("");
                 }
-                if (ports.Excluded.Count > 0)
+                if (showExcluded == true && ports.Excluded.Count > 0)
                 {
-                    Console.WriteLine("The following ports are excluded from automatic connection:\n");
+                    Console.WriteLine("\nThe following ports are excluded from automatic connection:\n");
                     foreach (ComPort p in ports.Excluded)
                     {
                         Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
@@ -524,12 +527,16 @@ namespace SimplySerial
                             ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
                         );
                     }
-                    Console.WriteLine("");
                 }
+                Console.WriteLine("");
             }
             else
             {
-                Console.WriteLine("\nNo COM ports detected.\n");
+                Console.Write("\nNo COM ports detected. ");
+                if (ports.Excluded.Count > 0)
+                    Console.WriteLine(" (Try 'ss.exe -list:all' to list excluded ports.)\n");
+                else
+                    Console.WriteLine("\n");
             }
 
             ExitProgram(silent: true);
@@ -557,7 +564,6 @@ namespace SimplySerial
 
         static void ArgHandler_Com(string value)
         {
-            // preliminary validate on com port, final validation occurs towards the end of ProcessArguments()
             string newPort = value.ToUpper();
 
             if (String.IsNullOrEmpty(value))
@@ -1000,7 +1006,8 @@ namespace SimplySerial
             Console.WriteLine("Optional arguments:");
             Console.WriteLine("  -help             Display this help message");
             Console.WriteLine("  -version          Display version and installation information");
-            Console.WriteLine("  -list             Display a list of available serial (COM) ports");
+            Console.WriteLine("  -list[:all]       Display a list of available serial (COM) ports");
+            Console.WriteLine("                    Use `-list:all` to show ports excluded by filters.");
             Console.WriteLine("  -updateboards     Update the list of known USB serial devices.");
             Console.WriteLine("  -com:PORT         COM port number (i.e. 1 for COM1, 22 for COM22, etc.)");
             Console.WriteLine("  -baud:RATE        1200 | 2400 | 4800 | 7200 | 9600 | 14400 | 19200 | 38400 |");
