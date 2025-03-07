@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
@@ -17,7 +18,8 @@ namespace SimplySerial
 
         const string configFile = "ss.cfg";
         const string customBoardFile = "ss_board.json";
-        
+        const string filterFile = "ss_filters.json";
+
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
 
@@ -115,6 +117,13 @@ namespace SimplySerial
                 boards.MergeFrom(customBoards);
             }
             customBoards = null;
+
+            // load device filters
+            List<Filter> filters = Filter.AddFrom(appFolder + filterFile);
+            if (appFolder != workingFolder)
+            {
+                filters = Filter.AddFrom(workingFolder + filterFile, existing: filters);
+            }
 
             // process all command-line arguments
             ProcessArguments(args);

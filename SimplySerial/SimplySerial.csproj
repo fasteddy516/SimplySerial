@@ -91,6 +91,7 @@
     <Compile Include="Arguments.cs" />
     <Compile Include="Boards.cs" />
     <Compile Include="DataClasses.cs" />
+    <Compile Include="Filters.cs" />
     <Compile Include="SimplySerial.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
