@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
-using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -17,7 +16,7 @@ namespace SimplySerial
 
         const string configFile = "ss.cfg";
         const string customBoardFile = "ss_board.json";
-        const string filterFile = "ss_filters.json";
+        public const string FilterFile = "ss_filters.json";
 
         private const int STD_OUTPUT_HANDLE = -11;
         private const uint ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004;
@@ -34,10 +33,10 @@ namespace SimplySerial
         [DllImport("kernel32.dll")]
         public static extern uint GetLastError();
 
-        static string appFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        static string workingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
-        static string globalConfig = appFolder + configFile;
-        static string localConfig = (appFolder != workingFolder) ? workingFolder + configFile : "noLocalConfig";
+        public static string AppFolder = AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        public static string WorkingFolder = Directory.GetCurrentDirectory().TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        static string globalConfig = AppFolder + configFile;
+        static string localConfig = (AppFolder != WorkingFolder) ? WorkingFolder + configFile : "noLocalConfig";
         static string userConfig = "noUserConfig";
 
         private static Dictionary<string, CommandLineArgument> CommandLineArguments = new Dictionary<string, CommandLineArgument>();
@@ -105,17 +104,10 @@ namespace SimplySerial
             BoardManager.Load();
 
             // load and merge in custom board data
-            BoardManager.Load(merge: appFolder + customBoardFile);
-            if (appFolder != workingFolder)
+            BoardManager.Load(merge: AppFolder + customBoardFile);
+            if (AppFolder != WorkingFolder)
             {
-                BoardManager.Load(merge: workingFolder + customBoardFile);
-            }
-
-            // load device filters
-            List<Filter> filters = Filter.AddFrom(appFolder + filterFile);
-            if (appFolder != workingFolder)
-            {
-                filters = Filter.AddFrom(workingFolder + filterFile, existing: filters);
+                BoardManager.Load(merge: WorkingFolder + customBoardFile);
             }
 
             // process all command-line arguments
@@ -207,7 +199,7 @@ namespace SimplySerial
                 }
 
                 // get a list of available ports
-                availablePorts = (SimplySerial.GetSerialPorts()).OrderBy(p => p.num).ToList();
+                availablePorts = ComPortManager.GetPorts().Available.OrderBy(p => p.num).ToList();
 
                 // if no port was specified/selected, pick one automatically
                 if (port.name == String.Empty)
@@ -216,7 +208,7 @@ namespace SimplySerial
                     if (availablePorts.Count() >= 1)
                     {
                         // first, try to default to something that we assume is running CircuitPython unless this behaviour has been disabled by a filter
-                        if (filters.Find(f => f.Type == FilterType.EXCLUDE && f.Match == FilterMatch.CIRCUITPYTHON) == null)
+                        if (ComPortManager.Filters.All.Find(f => f.Type == FilterType.EXCLUDE && f.Match == FilterMatch.CIRCUITPYTHON) == null)
                         {
                             SimplySerial.port = availablePorts.Find(p => p.isCircuitPython == true);
                         }
@@ -499,23 +491,41 @@ namespace SimplySerial
         static void ArgHandler_List(string value)
         {
             // get a list of all available ports
-            availablePorts = (GetSerialPorts()).OrderBy(p => p.num).ToList();
+            ComPortList ports = ComPortManager.GetPorts();
 
-            if (availablePorts.Count >= 1)
+            if (ports.Available.Count > 0 || ports.Excluded.Count > 0)
             {
-                Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
-                Console.WriteLine("----------------------------------------------------------------------");
-                foreach (ComPort p in availablePorts)
+                if (ports.Available.Count > 0)
                 {
-                    Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
-                        p.name,
-                        p.vid,
-                        p.pid,
-                        (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
-                        ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
-                    );
+                    Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
+                    Console.WriteLine("----------------------------------------------------------------------");
+                    foreach (ComPort p in ports.Available)
+                    {
+                        Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
+                            p.name,
+                            p.vid,
+                            p.pid,
+                            (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                            ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
+                        );
+                    }
+                    Console.WriteLine("");
                 }
-                Console.WriteLine("");
+                if (ports.Excluded.Count > 0)
+                {
+                    Console.WriteLine("The following ports are excluded from automatic connection:\n");
+                    foreach (ComPort p in ports.Excluded)
+                    {
+                        Console.WriteLine("{0}\t{1}\t{2}\t{3} {4}",
+                            p.name,
+                            p.vid,
+                            p.pid,
+                            (p.isCircuitPython) ? (p.board.make + " " + p.board.model) : p.description,
+                            ((p.busDescription.Length > 0) && !p.description.StartsWith(p.busDescription)) ? ("[" + p.busDescription + "]") : ""
+                        );
+                    }
+                    Console.WriteLine("");
+                }
             }
             else
             {
@@ -1046,15 +1056,15 @@ namespace SimplySerial
             string installType;
 
             // determine installation type (scoop/user/system/standalone)
-            if (appFolder.ToLower().Contains("scoop"))
+            if (AppFolder.ToLower().Contains("scoop"))
             {
                 installType = "Scoop";
             }
-            else if (appFolder.ToLower().Contains("appdata\\roaming"))
+            else if (AppFolder.ToLower().Contains("appdata\\roaming"))
             {
                 installType = "User";
             }
-            else if (appFolder.ToLower().Contains("program files"))
+            else if (AppFolder.ToLower().Contains("program files"))
             {
                 installType = "System";
             }
@@ -1065,7 +1075,7 @@ namespace SimplySerial
 
             Console.WriteLine($"SimplySerial version {version}");
             Console.WriteLine($"  Installation Type : {installType}");
-            Console.WriteLine($"  Installation Path : {appFolder}");
+            Console.WriteLine($"  Installation Path : {AppFolder}");
             Console.WriteLine($"  Board Data File   : {BoardManager.Version}\n");
             ShowArguments($"{globalConfig}", "Default Arguments");
             ShowArguments($"{localConfig}", "Local Argument Overrides");
@@ -1092,106 +1102,6 @@ namespace SimplySerial
             Console.ReadKey();
 #endif
             Environment.Exit(exitCode);
-        }
-
-
-        /// <summary>
-        /// Returns a list of available serial ports with their associated PID, VID and descriptions 
-        /// Modified from the example written by Kamil Górski (freakone) available at
-        /// http://blog.gorski.pm/serial-port-details-in-c-sharp
-        /// https://github.com/freakone/serial-reader
-        /// Some modifications were based on this stackoverflow thread:
-        /// https://stackoverflow.com/questions/11458835/finding-information-about-all-serial-devices-connected-through-usb-in-c-sharp
-        /// Hardware Bus Description through WMI is based on Simon Mourier's answer on this stackoverflow thread:
-        /// https://stackoverflow.com/questions/69362886/get-devpkey-device-busreporteddevicedesc-from-win32-pnpentity-in-c-sharp
-        /// </summary>
-        /// <returns>List of available serial ports</returns>
-        private static List<ComPort> GetSerialPorts(bool excluded=false)
-        {
-            const string vidPattern = @"VID_([0-9A-F]{4})";
-            const string pidPattern = @"PID_([0-9A-F]{4})";
-            const string namePattern = @"(?<=\()COM[0-9]{1,3}(?=\)$)";
-            const string query = "SELECT * FROM Win32_PnPEntity WHERE ClassGuid=\"{4d36e978-e325-11ce-bfc1-08002be10318}\"";
-
-            // as per INTERFACE_PREFIXES in adafruit_board_toolkit
-            // (see https://github.com/adafruit/Adafruit_Board_Toolkit/blob/main/adafruit_board_toolkit)
-            string[] cpb_descriptions = new string[] { "CircuitPython CDC ", "Sol CDC ", "StringCarM0Ex CDC " };
-
-            List<ComPort> detectedPorts = new List<ComPort>();
-            List<ComPort> excludedPorts = new List<ComPort>();
-
-            foreach (var p in new ManagementObjectSearcher("root\\CIMV2", query).Get().OfType<ManagementObject>())
-            {
-                ComPort c = new ComPort();
-
-                // extract and clean up port name and number
-                c.name = p.GetPropertyValue("Name").ToString();
-                Match mName = Regex.Match(c.name, namePattern);
-                if (mName.Success)
-                {
-                    c.name = mName.Value;
-                    c.num = int.Parse(c.name.Substring(3));
-                }
-
-                // if the port name or number cannot be determined, skip this port and move on
-                if (c.num < 1)
-                    continue;
-
-                // get the device's VID and PID
-                string pidvid = p.GetPropertyValue("PNPDeviceID").ToString();
-
-                // extract and clean up device's VID
-                Match mVID = Regex.Match(pidvid, vidPattern, RegexOptions.IgnoreCase);
-                if (mVID.Success)
-                    c.vid = mVID.Groups[1].Value.Substring(0, Math.Min(4, c.vid.Length));
-
-                // extract and clean up device's PID
-                Match mPID = Regex.Match(pidvid, pidPattern, RegexOptions.IgnoreCase);
-                if (mPID.Success)
-                    c.pid = mPID.Groups[1].Value.Substring(0, Math.Min(4, c.pid.Length));
-
-                // extract the device's friendly description (caption)
-                c.description = p.GetPropertyValue("Caption").ToString();
-
-                // attempt to match this device with a known board
-                c.board = BoardManager.Match(c.vid, c.pid);
-
-                // extract the device's hardware bus description
-                c.busDescription = "";
-                var inParams = new object[] { new string[] { "DEVPKEY_Device_BusReportedDeviceDesc" }, null };
-                p.InvokeMethod("GetDeviceProperties", inParams);
-                var outParams = (ManagementBaseObject[])inParams[1];
-                if (outParams.Length > 0)
-                {
-                    var data = outParams[0].Properties.OfType<PropertyData>().FirstOrDefault(d => d.Name == "Data");
-                    if (data != null)
-                    {
-                        c.busDescription = data.Value.ToString();
-                    }
-                }
-
-                // we can determine if this is a CircuitPython board by its bus description
-                foreach (string prefix in cpb_descriptions)
-                {
-                    if (c.busDescription.StartsWith(prefix))
-                        c.isCircuitPython = true;
-                }
-
-                // apply filters to determine if this port should be included or excluded in autodetection
-
-                // if there are *any* include filters than we can *only* include matches, and anything that doesn't match gets excluded
-
-                // if there are *no* include filters, then we start out including everything
-
-                // once we have our initial include list, we apply our exclude filters to remove any ports that match and add them to the exclude list
-
-                // ORIGINAL CODE BELOW:
-
-                // add this port to our list of detected ports
-                detectedPorts.Add(c);
-            }
-
-            return (excluded == false) ? detectedPorts.Distinct().ToList() : excludedPorts.Distinct().ToList();
         }
     }
 }
