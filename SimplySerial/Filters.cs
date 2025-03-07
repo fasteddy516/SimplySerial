@@ -42,8 +42,11 @@ namespace SimplySerial
     {
         public FilterType Type { get; set; } = FilterType.EXCLUDE;
         public FilterMatch Match { get; set; } = FilterMatch.STRICT;
-        public int Port { get; set; } = -1;
-        public Board Board { get; set; } = new Board();
+        public string Port { get; set; } = "*";
+        public string VID { get; set; } = "*";
+        public string PID { get; set; } = "*";
+        public string Description { get; set; } = "*";
+        public string Device { get; set; } = "*";
 
         /// <summary>
         /// Load filters from a JSON file, adding to an existing list if supplied
@@ -60,12 +63,13 @@ namespace SimplySerial
                 filters = JsonConvert.DeserializeObject<List<Filter>>(File.ReadAllText(path));
                 foreach (Filter f in filters)
                 {
-                    if (f.Board.vid == "" || f.Board.vid == "----") f.Board.vid = "*";
-                    if (f.Board.pid == "" || f.Board.pid == "----") f.Board.pid = "*";
-                    if (f.Board.make == "" || f.Board.make == "VID:----") f.Board.make = "*";
-                    if (f.Board.model == "" || f.Board.model == "PID:----") f.Board.model = "*";
+                    if (f.Port == "") f.Port = "*";
+                    if (f.VID == "" || f.VID == "----") f.VID = "*";
+                    if (f.PID == "" || f.PID == "----") f.PID = "*";
+                    if (f.Description == "") f.Description = "*";
+                    if (f.Device == "") f.Device = "*";
                 }
-                filters.RemoveAll(f => f.Board.vid == "*" && f.Board.pid == "*" && f.Board.make == "*" && f.Board.model == "*" && f.Match != FilterMatch.CIRCUITPYTHON && f.Port == -1);
+                filters.RemoveAll(f => f.Port == "*" && f.VID == "*" && f.PID == "*" && f.Description == "*" && f.Device == "*" && f.Match != FilterMatch.CIRCUITPYTHON);
             }
             catch
             {
@@ -82,21 +86,24 @@ namespace SimplySerial
 
         public static bool MatchFilter(Filter filter, ComPort port)
         {
-            if (filter.Port != -1 && filter.Port != port.num) return false;
+            string description = (port.isCircuitPython) ? (port.board.make + " " + port.board.model) : port.description;
+
             if (filter.Match == FilterMatch.STRICT)
             {
-                if (filter.Board.vid != "*" && filter.Board.vid != port.vid) return false;
-                if (filter.Board.pid != "*" && filter.Board.pid != port.pid) return false;
-                if (filter.Board.make != "*" && filter.Board.make != port.board.make && filter.Board.make != port.description) return false;
-                if (filter.Board.model != "*" && filter.Board.model != port.board.model && filter.Board.model != port.busDescription) return false;
+                if (filter.Port != "*" && filter.Port.ToLower() != port.name.ToLower()) return false;
+                if (filter.VID != "*" && filter.VID.ToLower() != port.vid.ToLower()) return false;
+                if (filter.PID != "*" && filter.PID.ToLower() != port.pid.ToLower()) return false;
+                if (filter.Description != "*" && filter.Description != description) return false;
+                if (filter.Device != "*" && filter.Device != port.busDescription) return false;
                 return true;
             }
             else if (filter.Match == FilterMatch.LOOSE)
             {
-                if (filter.Board.vid != "*" && !port.vid.ToLower().Contains(filter.Board.vid.ToLower())) return false;
-                if (filter.Board.pid != "*" && !port.pid.ToLower().Contains(filter.Board.pid.ToLower())) return false;
-                if (filter.Board.make != "*" && !port.board.make.ToLower().Contains(filter.Board.make.ToLower()) && !port.description.ToLower().Contains(filter.Board.make.ToLower())) return false;
-                if (filter.Board.model != "*" && !port.board.model.ToLower().Contains(filter.Board.model.ToLower()) && !port.busDescription.ToLower().Contains(filter.Board.model.ToLower())) return false;
+                if (filter.Port != "*" && !port.name.ToLower().Contains(filter.Port.ToLower())) return false;
+                if (filter.VID != "*" && !port.vid.ToLower().Contains(filter.VID.ToLower())) return false;
+                if (filter.PID != "*" && !port.pid.ToLower().Contains(filter.PID.ToLower())) return false;
+                if (filter.Description != "*" && !description.ToLower().Contains(filter.Description.ToLower())) return false;
+                if (filter.Device != "*" && !port.busDescription.ToLower().Contains(filter.Device.ToLower())) return false;
                 return true;
             }
             return false;

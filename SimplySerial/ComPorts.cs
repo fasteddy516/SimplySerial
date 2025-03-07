@@ -129,12 +129,6 @@ namespace SimplySerial
                 detectedPorts.Add(c);
             }
 
-
-            foreach (Filter f in Filters.All)
-            {
-                Console.WriteLine($"[{f.Type} ({f.Match})][COM{f.Port}][{f.Board.vid}:{f.Board.pid}] {f.Board.make} {f.Board.model}");
-            }
-
             // apply filters to determine if this port should be included or excluded in autodetection
             ComPortList ports = new ComPortList();
 

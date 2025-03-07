@@ -497,7 +497,7 @@ namespace SimplySerial
             {
                 if (ports.Available.Count > 0)
                 {
-                    Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION");
+                    Console.WriteLine("\nPORT\tVID\tPID\tDESCRIPTION [DEVICE]");
                     Console.WriteLine("----------------------------------------------------------------------");
                     foreach (ComPort p in ports.Available)
                     {
