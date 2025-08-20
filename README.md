@@ -92,6 +92,8 @@
             
   `-logmode` instructs SimplySerial to either `APPEND` to an existing log file, or `OVERWRITE` an existing log file.  In either case, if the specified log file does not exist, it will be created.  If neither option is specified, `OVERWRITE` is assumed.  (ex. `-logmode:APPEND`)
 
+  `-logtime` enable/disable prepending of timestamps before each logged line. Defaults to `off`.  (ex. `-logtime:on`)
+
   `-quiet` prevents any application messages (connection banner, error messages, etc.) from printing out to the console
 
   `-forcenewline` replaces carriage returns with linefeeds in received data. (ex. `-forcenewline:on`)
