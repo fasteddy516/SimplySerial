@@ -55,9 +55,11 @@ namespace SimplySerial
         static int dataBits = 8;
         static StopBits stopBits = StopBits.One;
         static bool logging = false;
+        static bool logTime = false;
         static FileMode logMode = FileMode.Create;
         static string logFile = string.Empty;
-        static string logData = string.Empty;
+        static StringBuilder logData = new StringBuilder();
+        static bool logAtLineStart = true;
         static int bufferSize = 102400;
         static DateTime lastFlush = DateTime.Now;
         static bool forceNewline = false;
@@ -352,7 +354,7 @@ namespace SimplySerial
                     port.board.make,
                     port.board.model,
                     (port.isCircuitPython) ? " (CircuitPython-capable)" : "",
-                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ")\n") : "",
+                    (logging == true) ? ($"Logfile   : {logFile} (Mode = " + ((logMode == FileMode.Create) ? "OVERWRITE" : "APPEND") + ", Timestamps = " + ((logTime) ? "on" : "off") + ")\n") : "",
                     exitKey
                 ), flush: true); ;
 
@@ -711,6 +713,11 @@ namespace SimplySerial
             logFile = value;
         }
 
+        static void ArgHandler_LogTime(string value)
+        {
+            logTime = ArgProcessor_OnOff(value);
+        }
+
         static void ArgHandler_LogMode(string value)
         {
             value = value.ToLower();
@@ -909,6 +916,7 @@ namespace SimplySerial
             CommandLineArguments.Add("exitkey", new CommandLineArgument("exitkey", handler: ArgHandler_ExitKey));
             CommandLineArguments.Add("forcenewline", new CommandLineArgument("forcenewline", handler: ArgHandler_ForceNewLine));
             CommandLineArguments.Add("logmode", new CommandLineArgument("logmode", handler: ArgHandler_LogMode));
+            CommandLineArguments.Add("logtime", new CommandLineArgument("logtime", handler: ArgHandler_LogTime));
             CommandLineArguments.Add("parity", new CommandLineArgument("parity", handler: ArgHandler_Parity));
             CommandLineArguments.Add("txonenter", new CommandLineArgument("txonenter", handler: ArgHandler_TXOnEnter));
 
@@ -1009,7 +1017,39 @@ namespace SimplySerial
 
                 if (logging)
                 {
-                    logData += message;
+                    if (logTime)
+                    {
+                        // Prepend a single timestamp per Output() call to the start of each
+                        // line as it is written.  Blank lines and trailing newlines are left
+                        // un-stamped; the timestamp is added lazily when the next content
+                        // arrives.  Uses a single pass so bursts of tiny CLI/ANSI-escape
+                        // chunks don't cause repeated buffer scans/reallocations.
+                        string stamp = $"{DateTime.Now}: ";
+                        int i = 0;
+                        while (i < message.Length)
+                        {
+                            if (logAtLineStart && message[i] != '\n')
+                            {
+                                logData.Append(stamp);
+                                logAtLineStart = false;
+                            }
+
+                            int nl = message.IndexOf('\n', i);
+                            if (nl < 0)
+                            {
+                                logData.Append(message, i, message.Length - i);
+                                break;
+                            }
+
+                            logData.Append(message, i, nl - i + 1);
+                            logAtLineStart = true;
+                            i = nl + 1;
+                        }
+                    }
+                    else
+                    {
+                        logData.Append(message);
+                    }
                     if ((logData.Length >= bufferSize) || flush)
                     {
                         try
@@ -1017,14 +1057,14 @@ namespace SimplySerial
                             FileStream stream = new FileStream(logFile, FileMode.Append, FileAccess.Write);
                             using (StreamWriter writer = new StreamWriter(stream, encoding))
                             {
-                                writer.Write(logData);
+                                writer.Write(logData.ToString());
                             }
                         }
                         catch
                         {
                             Console.WriteLine($"({DateTime.Now}) Error accessing log file '{logFile}'");
                         }
-                        logData = string.Empty;
+                        logData.Clear();
                     }
                 }
             }
@@ -1064,6 +1104,7 @@ namespace SimplySerial
             Console.WriteLine("  -echo:VAL         ON | OFF enable or disable printing typed characters locally");
             Console.WriteLine("  -log:LOGFILE      Logs all output to the specified file.");
             Console.WriteLine("  -logmode:MODE     APPEND | OVERWRITE, default is OVERWRITE");
+            Console.WriteLine("  -logtime:VAL      ON | OFF enable/disable prepending timestamps to every logged line, default is OFF");
             Console.WriteLine("  -quiet:VAL        ON | OFF when enabled, don't print any application messages/errors to console");
             Console.WriteLine("  -forcenewline:VAL ON | OFF enable/disable forcing of linefeeds (newline) in place of carriage returns in received data.");
             Console.WriteLine("  -encoding:ENC     UTF8 | ASCII | RAW");
